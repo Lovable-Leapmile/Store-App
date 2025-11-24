@@ -395,21 +395,21 @@ const AdhocMode = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <div className="grid grid-cols-2 gap-6 p-5 bg-accent/5 rounded-lg">
-                            <div>
-                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Available Qty</span>
-                              <p className="font-bold text-2xl text-primary mt-2">
+                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
+                            <div className="space-y-2">
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Available Qty</span>
+                              <p className="font-bold text-3xl text-primary">
                                 {item.available_quantity}
                               </p>
                             </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Inbound Date</span>
-                              <p className="font-semibold text-lg mt-2">{item.inbound_date}</p>
+                            <div className="space-y-2">
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Inbound Date</span>
+                              <p className="font-bold text-xl">{item.inbound_date}</p>
                             </div>
                           </div>
                           <Button
                             onClick={() => handleItemClick(item)}
-                            className="w-full h-12 text-base font-semibold"
+                            className="w-full h-14 text-lg font-semibold"
                             size="lg"
                           >
                             Select for Putaway
@@ -468,22 +468,22 @@ const AdhocMode = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <div className="grid grid-cols-2 gap-6 p-5 bg-accent/5 rounded-lg">
-                            <div>
-                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Available Qty</span>
-                              <p className="font-bold text-2xl text-secondary mt-2">
+                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
+                            <div className="space-y-2">
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Available Qty</span>
+                              <p className="font-bold text-3xl text-foreground">
                                 {item.available_quantity}
                               </p>
                             </div>
-                            <div>
-                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Inbound Date</span>
-                              <p className="font-semibold text-lg mt-2">{item.inbound_date}</p>
+                            <div className="space-y-2">
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Inbound Date</span>
+                              <p className="font-bold text-xl">{item.inbound_date}</p>
                             </div>
                           </div>
                           <Button
                             onClick={handleRequestTray}
                             variant="secondary"
-                            className="w-full h-12 text-base font-semibold"
+                            className="w-full h-14 text-lg font-semibold"
                             size="lg"
                           >
                             Request Tray to Station
