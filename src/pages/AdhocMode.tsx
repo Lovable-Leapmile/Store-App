@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Search, Package, Minus, Plus, Scan } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 
 interface TrayItem {
@@ -35,9 +35,13 @@ const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 
 const AdhocMode = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("tray");
   const [trayId, setTrayId] = useState("");
+  const [itemId, setItemId] = useState("");
   const [stationItems, setStationItems] = useState<TrayItem[]>([]);
   const [storageItems, setStorageItems] = useState<TrayItem[]>([]);
+  const [itemStationItems, setItemStationItems] = useState<TrayItem[]>([]);
+  const [itemStorageItems, setItemStorageItems] = useState<TrayItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TrayItem | null>(null);
   const [orderId, setOrderId] = useState<number | null>(null);
@@ -46,9 +50,9 @@ const AdhocMode = () => {
   const [transactionDate, setTransactionDate] = useState(new Date().toISOString().split("T")[0]);
   const [showPutawayDialog, setShowPutawayDialog] = useState(false);
 
-  // Periodic API calls every 3 seconds
+  // Periodic API calls every 3 seconds for tray search
   useEffect(() => {
-    if (!trayId.trim()) return;
+    if (!trayId.trim() || activeTab !== "tray") return;
 
     const interval = setInterval(() => {
       fetchStationItems();
@@ -56,7 +60,19 @@ const AdhocMode = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [trayId]);
+  }, [trayId, activeTab]);
+
+  // Periodic API calls every 3 seconds for item search
+  useEffect(() => {
+    if (!itemId.trim() || activeTab !== "item") return;
+
+    const interval = setInterval(() => {
+      fetchItemStationItems();
+      fetchItemStorageItems();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [itemId, activeTab]);
 
   const fetchStationItems = async () => {
     if (!trayId.trim()) return;
@@ -110,6 +126,58 @@ const AdhocMode = () => {
     }
   };
 
+  const fetchItemStationItems = async () => {
+    if (!itemId.trim()) return;
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=true&item_id=${itemId}&num_records=10&offset=0&order_flow=fifo`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        setItemStationItems([]);
+        return;
+      }
+
+      const data = await response.json();
+      setItemStationItems(data.records || []);
+    } catch (error) {
+      setItemStationItems([]);
+    }
+  };
+
+  const fetchItemStorageItems = async () => {
+    if (!itemId.trim()) return;
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=false&item_id=${itemId}&num_records=10&offset=0&order_flow=fifo`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        setItemStorageItems([]);
+        return;
+      }
+
+      const data = await response.json();
+      setItemStorageItems(data.records || []);
+    } catch (error) {
+      setItemStorageItems([]);
+    }
+  };
+
   const handleSearch = async () => {
     if (!trayId.trim()) {
       toast({
@@ -138,8 +206,36 @@ const AdhocMode = () => {
     }
   };
 
-  const handleRequestTray = async () => {
-    if (!trayId.trim()) {
+  const handleItemSearch = async () => {
+    if (!itemId.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an item ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Clear old cached states before new search
+    setItemStationItems([]);
+    setItemStorageItems([]);
+    setLoading(true);
+
+    try {
+      await Promise.all([fetchItemStationItems(), fetchItemStorageItems()]);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch item trays",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestTray = async (requestTrayId: string) => {
+    if (!requestTrayId.trim()) {
       toast({
         title: "Error",
         description: "Please enter a tray ID",
@@ -153,7 +249,7 @@ const AdhocMode = () => {
 
     try {
       const response = await fetch(
-        `${BASE_URL}/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
+        `${BASE_URL}/nanostore/orders?tray_id=${requestTrayId}&user_id=${userId}&auto_complete_time=2`,
         {
           method: "POST",
           headers: {
@@ -170,11 +266,15 @@ const AdhocMode = () => {
 
       toast({
         title: "Success",
-        description: `Tray ${trayId} requested successfully`,
+        description: `Tray ${requestTrayId} requested successfully`,
       });
 
-      // Fetch updated tray items
-      await Promise.all([fetchStationItems(), fetchStorageItems()]);
+      // Fetch updated items based on active tab
+      if (activeTab === "tray") {
+        await Promise.all([fetchStationItems(), fetchStorageItems()]);
+      } else {
+        await Promise.all([fetchItemStationItems(), fetchItemStorageItems()]);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -269,7 +369,11 @@ const AdhocMode = () => {
           description: `Tray ${trayId} released successfully`,
         });
 
-        await Promise.all([fetchStationItems(), fetchStorageItems()]);
+        if (activeTab === "tray") {
+          await Promise.all([fetchStationItems(), fetchStorageItems()]);
+        } else {
+          await Promise.all([fetchItemStationItems(), fetchItemStorageItems()]);
+        }
       } else {
         toast({
           title: "No Active Order",
@@ -324,8 +428,12 @@ const AdhocMode = () => {
       setTransactionItemId("");
       setQuantity(1);
 
-      // Refresh the items
-      await Promise.all([fetchStationItems(), fetchStorageItems()]);
+      // Refresh the items based on active tab
+      if (activeTab === "tray") {
+        await Promise.all([fetchStationItems(), fetchStorageItems()]);
+      } else {
+        await Promise.all([fetchItemStationItems(), fetchItemStorageItems()]);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -365,30 +473,53 @@ const AdhocMode = () => {
       {/* Main Content */}
       <div className="flex-1 p-2 bg-gradient-to-b from-background to-accent/5">
         <div className="container max-w-6xl mx-auto px-2 space-y-6">
-          {/* Search Section */}
+          {/* Search Section with Tabs */}
           <Card className="border-2 shadow-lg">
             <CardHeader className="border-b bg-card pb-4 px-4">
               <CardTitle className="flex items-center gap-3 text-2xl">
                 <Package className="text-primary" size={28} />
-                Tray Search
+                Search
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Tray ID</Label>
-                <div className="flex gap-3">
-                  <Input
-                    placeholder="Enter Tray ID (e.g., TRAY-2)"
-                    value={trayId}
-                    onChange={(e) => setTrayId(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    className="flex-1 h-14 text-lg px-5 border-2"
-                  />
-                  <Button onClick={handleSearch} disabled={loading} size="lg" className="h-14 w-14 p-0">
-                    <Search size={24} />
-                  </Button>
-                </div>
-              </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="tray">Tray Search</TabsTrigger>
+                  <TabsTrigger value="item">Item Search</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="tray" className="space-y-3">
+                  <Label className="text-base font-semibold">Tray ID</Label>
+                  <div className="flex gap-3">
+                    <Input
+                      placeholder="Enter Tray ID (e.g., TRAY-2)"
+                      value={trayId}
+                      onChange={(e) => setTrayId(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                      className="flex-1 h-14 text-lg px-5 border-2"
+                    />
+                    <Button onClick={handleSearch} disabled={loading} size="lg" className="h-14 w-14 p-0">
+                      <Search size={24} />
+                    </Button>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="item" className="space-y-3">
+                  <Label className="text-base font-semibold">Item ID</Label>
+                  <div className="flex gap-3">
+                    <Input
+                      placeholder="Enter Item ID (e.g., item1)"
+                      value={itemId}
+                      onChange={(e) => setItemId(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleItemSearch()}
+                      className="flex-1 h-14 text-lg px-5 border-2"
+                    />
+                    <Button onClick={handleItemSearch} disabled={loading} size="lg" className="h-14 w-14 p-0">
+                      <Search size={24} />
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
@@ -405,31 +536,38 @@ const AdhocMode = () => {
           )}
 
           {/* In Station Section */}
-          {!loading && trayId && (
+          {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
             <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-card pb-3 px-4">
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="text-lg font-bold">In Station</CardTitle>
-                  {stationItems.length > 0 && (
+                  {(activeTab === "tray" ? stationItems : itemStationItems).length > 0 && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-sm py-1 px-2.5">
-                        Tray: {stationItems[0].tray_id}
-                      </Badge>
+                      {activeTab === "tray" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
+                          Tray: {stationItems[0].tray_id}
+                        </Badge>
+                      )}
+                      {activeTab === "item" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
+                          Item: {itemStationItems[0].item_id}
+                        </Badge>
+                      )}
                       <Badge className="text-sm py-1 px-2.5">
-                        {stationItems.length} item{stationItems.length !== 1 ? "s" : ""}
+                        {(activeTab === "tray" ? stationItems : itemStationItems).length} item{(activeTab === "tray" ? stationItems : itemStationItems).length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
                   )}
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {stationItems.length === 0 ? (
+                {(activeTab === "tray" ? stationItems : itemStationItems).length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays in station</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {stationItems.map((item) => (
+                    {(activeTab === "tray" ? stationItems : itemStationItems).map((item) => (
                       <Card
                         key={`station-${item.id}-${item.item_id}`}
                         className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent"
@@ -490,31 +628,38 @@ const AdhocMode = () => {
           )}
 
           {/* In Storage Section */}
-          {!loading && trayId && (
+          {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
             <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-card pb-3 px-4">
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="text-lg font-bold">In Storage</CardTitle>
-                  {storageItems.length > 0 && (
+                  {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-sm py-1 px-2.5">
-                        Tray: {storageItems[0].tray_id}
-                      </Badge>
+                      {activeTab === "tray" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
+                          Tray: {storageItems[0].tray_id}
+                        </Badge>
+                      )}
+                      {activeTab === "item" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
+                          Item: {itemStorageItems[0].item_id}
+                        </Badge>
+                      )}
                       <Badge className="text-sm py-1 px-2.5">
-                        {storageItems.length} item{storageItems.length !== 1 ? "s" : ""}
+                        {(activeTab === "tray" ? storageItems : itemStorageItems).length} item{(activeTab === "tray" ? storageItems : itemStorageItems).length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
                   )}
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {storageItems.length === 0 ? (
+                {(activeTab === "tray" ? storageItems : itemStorageItems).length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays in storage</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {storageItems.map((item) => (
+                    {(activeTab === "tray" ? storageItems : itemStorageItems).map((item) => (
                       <Card
                         key={`storage-${item.id}-${item.item_id}`}
                         className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent"
@@ -549,7 +694,7 @@ const AdhocMode = () => {
                             </div>
                           </div>
                           <Button
-                            onClick={handleRequestTray}
+                            onClick={() => handleRequestTray(item.tray_id)}
                             variant="secondary"
                             className="w-full h-14 text-lg font-semibold"
                             size="lg"
