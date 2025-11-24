@@ -853,10 +853,9 @@ const AdhocMode = () => {
                           All Trays
                         </Button>
                         <Button
-                          variant={trayDividerFilter === 0 && !showEmptyBins ? "default" : "outline"}
+                          variant={trayDividerFilter === 0 ? "default" : "outline"}
                           onClick={() => {
                             setTrayDividerFilter(0);
-                            setShowEmptyBins(false);
                             setOffset(0);
                           }}
                           size="sm"
@@ -864,10 +863,9 @@ const AdhocMode = () => {
                           Divider: 0
                         </Button>
                         <Button
-                          variant={trayDividerFilter === 4 && !showEmptyBins ? "default" : "outline"}
+                          variant={trayDividerFilter === 4 ? "default" : "outline"}
                           onClick={() => {
                             setTrayDividerFilter(4);
-                            setShowEmptyBins(false);
                             setOffset(0);
                           }}
                           size="sm"
@@ -875,10 +873,9 @@ const AdhocMode = () => {
                           Divider: 4
                         </Button>
                         <Button
-                          variant={trayDividerFilter === 6 && !showEmptyBins ? "default" : "outline"}
+                          variant={trayDividerFilter === 6 ? "default" : "outline"}
                           onClick={() => {
                             setTrayDividerFilter(6);
-                            setShowEmptyBins(false);
                             setOffset(0);
                           }}
                           size="sm"
@@ -889,12 +886,11 @@ const AdhocMode = () => {
                           variant={showEmptyBins ? "default" : "outline"}
                           onClick={() => {
                             setShowEmptyBins(!showEmptyBins);
-                            setTrayDividerFilter(null);
                             setOffset(0);
                           }}
                           size="sm"
                         >
-                          Empty Bins
+                          Empty Bins Only
                         </Button>
                       </div>
                     </div>
@@ -932,10 +928,9 @@ const AdhocMode = () => {
                           All Trays
                         </Button>
                         <Button
-                          variant={trayDividerFilter === 0 && !showEmptyBins ? "default" : "outline"}
+                          variant={trayDividerFilter === 0 ? "default" : "outline"}
                           onClick={() => {
                             setTrayDividerFilter(0);
-                            setShowEmptyBins(false);
                             setOffset(0);
                           }}
                           size="sm"
@@ -943,10 +938,9 @@ const AdhocMode = () => {
                           Divider: 0
                         </Button>
                         <Button
-                          variant={trayDividerFilter === 4 && !showEmptyBins ? "default" : "outline"}
+                          variant={trayDividerFilter === 4 ? "default" : "outline"}
                           onClick={() => {
                             setTrayDividerFilter(4);
-                            setShowEmptyBins(false);
                             setOffset(0);
                           }}
                           size="sm"
@@ -954,10 +948,9 @@ const AdhocMode = () => {
                           Divider: 4
                         </Button>
                         <Button
-                          variant={trayDividerFilter === 6 && !showEmptyBins ? "default" : "outline"}
+                          variant={trayDividerFilter === 6 ? "default" : "outline"}
                           onClick={() => {
                             setTrayDividerFilter(6);
-                            setShowEmptyBins(false);
                             setOffset(0);
                           }}
                           size="sm"
@@ -968,12 +961,11 @@ const AdhocMode = () => {
                           variant={showEmptyBins ? "default" : "outline"}
                           onClick={() => {
                             setShowEmptyBins(!showEmptyBins);
-                            setTrayDividerFilter(null);
                             setOffset(0);
                           }}
                           size="sm"
                         >
-                          Empty Bins
+                          Empty Bins Only
                         </Button>
                       </div>
                     </div>
