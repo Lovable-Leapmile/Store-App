@@ -394,13 +394,13 @@ const AdhocMode = () => {
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
                                 Available Qty
                               </span>
-                              <p className="font-bold text-3xl text-primary">{item.available_quantity}</p>
+                              <p className="font-bold text-lg text-primary">{item.available_quantity}</p>
                             </div>
                             <div className="space-y-2">
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
                                 Inbound Date
                               </span>
-                              <p className="font-bold text-xl">{item.inbound_date}</p>
+                              <p className="font-bold text-sm">{item.inbound_date}</p>
                             </div>
                           </div>
                           <Button
@@ -469,13 +469,13 @@ const AdhocMode = () => {
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
                                 Available Qty
                               </span>
-                              <p className="font-bold text-3xl text-foreground">{item.available_quantity}</p>
+                              <p className="font-bold text-lg text-foreground">{item.available_quantity}</p>
                             </div>
                             <div className="space-y-2">
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
                                 Inbound Date
                               </span>
-                              <p className="font-bold text-l">{item.inbound_date}</p>
+                              <p className="font-bold text-sm">{item.inbound_date}</p>
                             </div>
                           </div>
                           <Button
