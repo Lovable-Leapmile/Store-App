@@ -569,14 +569,19 @@ const AdhocMode = () => {
                   <div className="space-y-4">
                     {(activeTab === "tray" ? stationItems : itemStationItems).map((item) => (
                       <Card
-                        key={`station-${item.id}-${item.item_id}`}
+                        key={`station-${item.id}-${item.item_id}-${item.tray_id}`}
                         className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent"
                       >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
-                            <div>
-                              <CardTitle className="text-xl font-bold">{item.item_id}</CardTitle>
+                            <div className="flex-1">
+                              <CardTitle className="text-xl font-bold">
+                                {activeTab === "tray" ? item.item_id : item.tray_id}
+                              </CardTitle>
                               <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
+                              {activeTab === "item" && (
+                                <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                              )}
                             </div>
                             <Badge
                               variant={item.tray_status === "active" ? "default" : "secondary"}
@@ -661,14 +666,19 @@ const AdhocMode = () => {
                   <div className="space-y-4">
                     {(activeTab === "tray" ? storageItems : itemStorageItems).map((item) => (
                       <Card
-                        key={`storage-${item.id}-${item.item_id}`}
+                        key={`storage-${item.id}-${item.item_id}-${item.tray_id}`}
                         className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent"
                       >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
-                            <div>
-                              <CardTitle className="text-xl font-bold">{item.item_id}</CardTitle>
+                            <div className="flex-1">
+                              <CardTitle className="text-xl font-bold">
+                                {activeTab === "tray" ? item.item_id : item.tray_id}
+                              </CardTitle>
                               <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
+                              {activeTab === "item" && (
+                                <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                              )}
                             </div>
                             <Badge
                               variant={item.tray_status === "active" ? "default" : "secondary"}
