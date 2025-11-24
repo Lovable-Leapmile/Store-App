@@ -19,6 +19,7 @@ interface TrayItem {
   inbound_date: string;
   tray_status: string;
   tray_lockcount: number;
+  station_friendly_name?: string;
 }
 
 interface Order {
@@ -74,6 +75,27 @@ const AdhocMode = () => {
     return () => clearInterval(interval);
   }, [itemId, activeTab]);
 
+  const fetchStationInfo = async (trayId: string) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC&num_records=1&offset=0`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      return data.records?.[0]?.station_friendly_name || null;
+    } catch (error) {
+      return null;
+    }
+  };
+
   const fetchStationItems = async () => {
     if (!trayId.trim()) return;
 
@@ -94,7 +116,17 @@ const AdhocMode = () => {
       }
 
       const data = await response.json();
-      setStationItems(data.records || []);
+      const items = data.records || [];
+      
+      // Fetch station info for each tray
+      const itemsWithStation = await Promise.all(
+        items.map(async (item: TrayItem) => {
+          const stationName = await fetchStationInfo(item.tray_id);
+          return { ...item, station_friendly_name: stationName };
+        })
+      );
+      
+      setStationItems(itemsWithStation);
     } catch (error) {
       setStationItems([]);
     }
@@ -146,7 +178,17 @@ const AdhocMode = () => {
       }
 
       const data = await response.json();
-      setItemStationItems(data.records || []);
+      const items = data.records || [];
+      
+      // Fetch station info for each tray
+      const itemsWithStation = await Promise.all(
+        items.map(async (item: TrayItem) => {
+          const stationName = await fetchStationInfo(item.tray_id);
+          return { ...item, station_friendly_name: stationName };
+        })
+      );
+      
+      setItemStationItems(itemsWithStation);
     } catch (error) {
       setItemStationItems([]);
     }
@@ -581,6 +623,13 @@ const AdhocMode = () => {
                               <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
                               {activeTab === "item" && (
                                 <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                              )}
+                              {item.station_friendly_name && (
+                                <div className="mt-2">
+                                  <Badge variant="secondary" className="text-sm py-1 px-3">
+                                    📍 {item.station_friendly_name}
+                                  </Badge>
+                                </div>
                               )}
                             </div>
                             <Badge
