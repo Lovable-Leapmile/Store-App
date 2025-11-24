@@ -248,10 +248,10 @@ const AdhocMode = () => {
       if (data.records && data.records.length > 0) {
         const order: Order = data.records[0];
         
-        const deleteResponse = await fetch(
-          `${BASE_URL}/nanostore/orders/${order.id}`,
+        const patchResponse = await fetch(
+          `${BASE_URL}/nanostore/orders/complete?record_id=${order.id}`,
           {
-            method: "DELETE",
+            method: "PATCH",
             headers: {
               accept: "application/json",
               Authorization: `Bearer ${API_TOKEN}`,
@@ -259,7 +259,7 @@ const AdhocMode = () => {
           },
         );
 
-        if (!deleteResponse.ok) {
+        if (!patchResponse.ok) {
           throw new Error("Failed to release tray");
         }
 
