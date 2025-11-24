@@ -28,7 +28,8 @@ interface Order {
   station_friendly_name: string;
 }
 
-const API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ";
+const API_TOKEN =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ";
 const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 
 const AdhocMode = () => {
@@ -41,9 +42,7 @@ const AdhocMode = () => {
   const [orderId, setOrderId] = useState<number | null>(null);
   const [transactionItemId, setTransactionItemId] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [transactionDate, setTransactionDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [transactionDate, setTransactionDate] = useState(new Date().toISOString().split("T")[0]);
   const [showPutawayDialog, setShowPutawayDialog] = useState(false);
 
   // Periodic API calls every 3 seconds
@@ -69,7 +68,7 @@ const AdhocMode = () => {
             accept: "application/json",
             Authorization: `Bearer ${API_TOKEN}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -95,7 +94,7 @@ const AdhocMode = () => {
             accept: "application/json",
             Authorization: `Bearer ${API_TOKEN}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -124,7 +123,7 @@ const AdhocMode = () => {
     setStationItems([]);
     setStorageItems([]);
     setLoading(true);
-    
+
     try {
       await Promise.all([fetchStationItems(), fetchStorageItems()]);
     } catch (error) {
@@ -161,7 +160,7 @@ const AdhocMode = () => {
             Authorization: `Bearer ${API_TOKEN}`,
           },
           body: "",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -197,7 +196,7 @@ const AdhocMode = () => {
             accept: "application/json",
             Authorization: `Bearer ${API_TOKEN}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -247,7 +246,7 @@ const AdhocMode = () => {
             Authorization: `Bearer ${API_TOKEN}`,
           },
           body: "",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -264,7 +263,7 @@ const AdhocMode = () => {
       setOrderId(null);
       setTransactionItemId("");
       setQuantity(1);
-      
+
       // Refresh the items
       await Promise.all([fetchStationItems(), fetchStorageItems()]);
     } catch (error) {
@@ -325,12 +324,7 @@ const AdhocMode = () => {
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                     className="flex-1 h-14 text-lg px-5 border-2"
                   />
-                  <Button 
-                    onClick={handleSearch} 
-                    disabled={loading} 
-                    size="lg"
-                    className="h-14 w-14 p-0"
-                  >
+                  <Button onClick={handleSearch} disabled={loading} size="lg" className="h-14 w-14 p-0">
                     <Search size={24} />
                   </Button>
                 </div>
@@ -376,8 +370,8 @@ const AdhocMode = () => {
                 ) : (
                   <div className="space-y-4">
                     {stationItems.map((item) => (
-                      <Card 
-                        key={`station-${item.id}-${item.item_id}`} 
+                      <Card
+                        key={`station-${item.id}-${item.item_id}`}
                         className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent"
                       >
                         <CardHeader className="pb-3">
@@ -397,13 +391,15 @@ const AdhocMode = () => {
                         <CardContent className="space-y-4">
                           <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
                             <div className="space-y-2">
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Available Qty</span>
-                              <p className="font-bold text-3xl text-primary">
-                                {item.available_quantity}
-                              </p>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                                Available Qty
+                              </span>
+                              <p className="font-bold text-3xl text-primary">{item.available_quantity}</p>
                             </div>
                             <div className="space-y-2">
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Inbound Date</span>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                                Inbound Date
+                              </span>
                               <p className="font-bold text-xl">{item.inbound_date}</p>
                             </div>
                           </div>
@@ -449,8 +445,8 @@ const AdhocMode = () => {
                 ) : (
                   <div className="space-y-4">
                     {storageItems.map((item) => (
-                      <Card 
-                        key={`storage-${item.id}-${item.item_id}`} 
+                      <Card
+                        key={`storage-${item.id}-${item.item_id}`}
                         className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent"
                       >
                         <CardHeader className="pb-3">
@@ -470,14 +466,16 @@ const AdhocMode = () => {
                         <CardContent className="space-y-4">
                           <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
                             <div className="space-y-2">
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Available Qty</span>
-                              <p className="font-bold text-3xl text-foreground">
-                                {item.available_quantity}
-                              </p>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                                Available Qty
+                              </span>
+                              <p className="font-bold text-3xl text-foreground">{item.available_quantity}</p>
                             </div>
                             <div className="space-y-2">
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">Inbound Date</span>
-                              <p className="font-bold text-xl">{item.inbound_date}</p>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                                Inbound Date
+                              </span>
+                              <p className="font-bold text-l">{item.inbound_date}</p>
                             </div>
                           </div>
                           <Button
@@ -508,15 +506,9 @@ const AdhocMode = () => {
           {selectedItem && (
             <div className="space-y-4">
               <div className="p-4 bg-accent/10 rounded-lg space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Tray: {selectedItem.tray_id}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Original Item: {selectedItem.item_id}
-                </p>
-                <p className="text-sm font-medium">
-                  Available: {selectedItem.available_quantity} units
-                </p>
+                <p className="text-sm text-muted-foreground">Tray: {selectedItem.tray_id}</p>
+                <p className="text-sm text-muted-foreground">Original Item: {selectedItem.item_id}</p>
+                <p className="text-sm font-medium">Available: {selectedItem.available_quantity} units</p>
               </div>
 
               <div className="space-y-2">
@@ -545,14 +537,8 @@ const AdhocMode = () => {
                   >
                     <Minus size={20} />
                   </Button>
-                  <div className="text-3xl font-bold w-20 text-center">
-                    {quantity}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setQuantity(quantity + 1)}
-                  >
+                  <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
+                  <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
                     <Plus size={20} />
                   </Button>
                 </div>
