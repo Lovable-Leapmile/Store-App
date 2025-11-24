@@ -353,15 +353,15 @@ const AdhocMode = () => {
           {/* In Station Section */}
           {!loading && trayId && (
             <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-card pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl">In Station</CardTitle>
+              <CardHeader className="border-b bg-card pb-3 px-4">
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="text-lg font-bold">In Station</CardTitle>
                   {stationItems.length > 0 && (
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="text-base py-1 px-3">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-sm py-1 px-2.5">
                         Tray: {stationItems[0].tray_id}
                       </Badge>
-                      <Badge className="text-base py-1 px-3">
+                      <Badge className="text-sm py-1 px-2.5">
                         {stationItems.length} item{stationItems.length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
@@ -426,15 +426,15 @@ const AdhocMode = () => {
           {/* In Storage Section */}
           {!loading && trayId && (
             <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-card pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl">In Storage</CardTitle>
+              <CardHeader className="border-b bg-card pb-3 px-4">
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="text-lg font-bold">In Storage</CardTitle>
                   {storageItems.length > 0 && (
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="text-base py-1 px-3">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-sm py-1 px-2.5">
                         Tray: {storageItems[0].tray_id}
                       </Badge>
-                      <Badge className="text-base py-1 px-3">
+                      <Badge className="text-sm py-1 px-2.5">
                         {storageItems.length} item{storageItems.length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
