@@ -60,6 +60,22 @@ const AdhocMode = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [retrievingTrayId, setRetrievingTrayId] = useState<string | null>(null);
 
+  // Auto-search for tray on input change with debounce
+  useEffect(() => {
+    if (activeTab !== "tray") return;
+    
+    if (!trayId.trim()) return;
+
+    const timer = setTimeout(() => {
+      setStationItems([]);
+      setStorageItems([]);
+      setLoading(true);
+      Promise.all([fetchStationItems(), fetchStorageItems()]).finally(() => setLoading(false));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [trayId, activeTab]);
+
   // Periodic API calls every 3 seconds for tray search
   useEffect(() => {
     if (!trayId.trim() || activeTab !== "tray") return;
@@ -71,6 +87,22 @@ const AdhocMode = () => {
 
     return () => clearInterval(interval);
   }, [trayId, activeTab]);
+
+  // Auto-search for item on input change with debounce
+  useEffect(() => {
+    if (activeTab !== "item") return;
+    
+    if (!itemId.trim()) return;
+
+    const timer = setTimeout(() => {
+      setItemStationItems([]);
+      setItemStorageItems([]);
+      setLoading(true);
+      Promise.all([fetchItemStationItems(), fetchItemStorageItems()]).finally(() => setLoading(false));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [itemId, activeTab]);
 
   // Periodic API calls every 3 seconds for item search
   useEffect(() => {
@@ -89,7 +121,10 @@ const AdhocMode = () => {
     if (activeTab === "tray" && !trayId.trim()) {
       fetchAllTrays();
     }
-  }, [activeTab, trayId, trayDividerFilter, showEmptyBins, offset]);
+    if (activeTab === "item" && !itemId.trim()) {
+      fetchAllTrays();
+    }
+  }, [activeTab, trayId, itemId, trayDividerFilter, showEmptyBins, offset]);
 
   const fetchAllTrays = async () => {
     setLoading(true);
@@ -588,26 +623,18 @@ const AdhocMode = () => {
                 
                 <TabsContent value="tray" className="space-y-3">
                   <Label className="text-base font-semibold">Tray ID</Label>
-                  <div className="flex gap-3">
-                    <Input
-                      placeholder="Enter Tray ID or leave empty to browse"
-                      value={trayId}
-                      onChange={(e) => {
-                        setTrayId(e.target.value);
-                        if (!e.target.value.trim()) {
-                          setStationItems([]);
-                          setStorageItems([]);
-                        }
-                      }}
-                      onKeyPress={(e) => e.key === "Enter" && trayId.trim() && handleSearch()}
-                      className="flex-1 h-14 text-lg px-5 border-2"
-                    />
-                    {trayId.trim() && (
-                      <Button onClick={handleSearch} disabled={loading} size="lg" className="h-14 w-14 p-0">
-                        <Search size={24} />
-                      </Button>
-                    )}
-                  </div>
+                  <Input
+                    placeholder="Enter Tray ID or leave empty to browse"
+                    value={trayId}
+                    onChange={(e) => {
+                      setTrayId(e.target.value);
+                      if (!e.target.value.trim()) {
+                        setStationItems([]);
+                        setStorageItems([]);
+                      }
+                    }}
+                    className="h-14 text-lg px-5 border-2"
+                  />
                   
                   {!trayId.trim() && (
                     <div className="space-y-3 mt-4">
@@ -675,18 +702,81 @@ const AdhocMode = () => {
                 
                 <TabsContent value="item" className="space-y-3">
                   <Label className="text-base font-semibold">Item ID</Label>
-                  <div className="flex gap-3">
-                    <Input
-                      placeholder="Enter Item ID (e.g., item1)"
-                      value={itemId}
-                      onChange={(e) => setItemId(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleItemSearch()}
-                      className="flex-1 h-14 text-lg px-5 border-2"
-                    />
-                    <Button onClick={handleItemSearch} disabled={loading} size="lg" className="h-14 w-14 p-0">
-                      <Search size={24} />
-                    </Button>
-                  </div>
+                  <Input
+                    placeholder="Enter Item ID or leave empty to browse"
+                    value={itemId}
+                    onChange={(e) => {
+                      setItemId(e.target.value);
+                      if (!e.target.value.trim()) {
+                        setItemStationItems([]);
+                        setItemStorageItems([]);
+                      }
+                    }}
+                    className="h-14 text-lg px-5 border-2"
+                  />
+                  
+                  {!itemId.trim() && (
+                    <div className="space-y-3 mt-4">
+                      <Label className="text-base font-semibold">Filters</Label>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          variant={trayDividerFilter === null && !showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(null);
+                            setShowEmptyBins(false);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
+                          All Trays
+                        </Button>
+                        <Button
+                          variant={trayDividerFilter === 0 && !showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(0);
+                            setShowEmptyBins(false);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
+                          Divider: 0
+                        </Button>
+                        <Button
+                          variant={trayDividerFilter === 4 && !showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(4);
+                            setShowEmptyBins(false);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
+                          Divider: 4
+                        </Button>
+                        <Button
+                          variant={trayDividerFilter === 6 && !showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(6);
+                            setShowEmptyBins(false);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
+                          Divider: 6
+                        </Button>
+                        <Button
+                          variant={showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setShowEmptyBins(!showEmptyBins);
+                            setTrayDividerFilter(null);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
+                          Empty Bins
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -705,7 +795,7 @@ const AdhocMode = () => {
           )}
 
           {/* All Trays List (when text field is empty) */}
-          {!loading && activeTab === "tray" && !trayId.trim() && (
+          {!loading && ((activeTab === "tray" && !trayId.trim()) || (activeTab === "item" && !itemId.trim())) && (
             <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-card pb-3 px-4">
                 <div className="flex items-center justify-between gap-2">
