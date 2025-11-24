@@ -143,6 +143,24 @@ const AdhocMode = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Poll ready orders every 5 seconds when modal is open
+  useEffect(() => {
+    if (!showReadyDialog) return;
+    
+    fetchReadyOrders();
+    const interval = setInterval(fetchReadyOrders, 5000);
+    return () => clearInterval(interval);
+  }, [showReadyDialog]);
+
+  // Poll pending orders every 5 seconds when modal is open
+  useEffect(() => {
+    if (!showPendingDialog) return;
+    
+    fetchPendingOrders();
+    const interval = setInterval(fetchPendingOrders, 5000);
+    return () => clearInterval(interval);
+  }, [showPendingDialog]);
+
   const fetchCounts = async () => {
     try {
       const [readyResponse, pendingResponse] = await Promise.all([
