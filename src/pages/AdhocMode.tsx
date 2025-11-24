@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Search, Package, Minus, Plus, Scan } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Label } from "@/components/ui/label";
 
 interface TrayItem {
@@ -34,8 +34,8 @@ const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [trayId, setTrayId] = useState("");
-  const [mode, setMode] = useState<"storage" | "station">("storage");
-  const [trayItems, setTrayItems] = useState<TrayItem[]>([]);
+  const [stationItems, setStationItems] = useState<TrayItem[]>([]);
+  const [storageItems, setStorageItems] = useState<TrayItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TrayItem | null>(null);
   const [orderId, setOrderId] = useState<number | null>(null);
@@ -51,18 +51,19 @@ const AdhocMode = () => {
     if (!trayId.trim()) return;
 
     const interval = setInterval(() => {
-      fetchTrayItems();
+      fetchStationItems();
+      fetchStorageItems();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [trayId, mode]);
+  }, [trayId]);
 
-  const fetchTrayItems = async () => {
+  const fetchStationItems = async () => {
     if (!trayId.trim()) return;
 
     try {
       const response = await fetch(
-        `${BASE_URL}/nanostore/trays_for_order?in_station=${mode === "station"}&tray_id=${trayId}&num_records=10&offset=0`,
+        `${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${trayId}&num_records=10&offset=0`,
         {
           headers: {
             accept: "application/json",
@@ -72,17 +73,40 @@ const AdhocMode = () => {
       );
 
       if (!response.ok) {
-        // Clear old cached states on API failure
-        setTrayItems([]);
-        throw new Error("Failed to fetch tray items");
+        setStationItems([]);
+        return;
       }
 
       const data = await response.json();
-      // Only show new API response
-      setTrayItems(data.records || []);
+      setStationItems(data.records || []);
     } catch (error) {
-      // Clear cached data on error
-      setTrayItems([]);
+      setStationItems([]);
+    }
+  };
+
+  const fetchStorageItems = async () => {
+    if (!trayId.trim()) return;
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=false&tray_id=${trayId}&num_records=10&offset=0`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        setStorageItems([]);
+        return;
+      }
+
+      const data = await response.json();
+      setStorageItems(data.records || []);
+    } catch (error) {
+      setStorageItems([]);
     }
   };
 
@@ -97,11 +121,12 @@ const AdhocMode = () => {
     }
 
     // Clear old cached states before new search
-    setTrayItems([]);
+    setStationItems([]);
+    setStorageItems([]);
     setLoading(true);
     
     try {
-      await fetchTrayItems();
+      await Promise.all([fetchStationItems(), fetchStorageItems()]);
     } catch (error) {
       toast({
         title: "Error",
@@ -149,7 +174,7 @@ const AdhocMode = () => {
       });
 
       // Fetch updated tray items
-      await fetchTrayItems();
+      await Promise.all([fetchStationItems(), fetchStorageItems()]);
     } catch (error) {
       toast({
         title: "Error",
@@ -241,7 +266,7 @@ const AdhocMode = () => {
       setQuantity(1);
       
       // Refresh the items
-      await fetchTrayItems();
+      await Promise.all([fetchStationItems(), fetchStorageItems()]);
     } catch (error) {
       toast({
         title: "Error",
@@ -281,7 +306,7 @@ const AdhocMode = () => {
       {/* Main Content */}
       <div className="flex-1 p-4 bg-gradient-to-b from-background to-accent/5">
         <div className="container max-w-4xl mx-auto space-y-6">
-          {/* Mode Selection Section */}
+          {/* Search Section */}
           <Card className="border-2 shadow-lg">
             <CardHeader className="border-b bg-card">
               <CardTitle className="flex items-center gap-2">
@@ -289,17 +314,7 @@ const AdhocMode = () => {
                 Tray Search
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Mode</Label>
-                <Tabs value={mode} onValueChange={(v) => setMode(v as "storage" | "station")}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="storage">In Storage</TabsTrigger>
-                    <TabsTrigger value="station">In Station</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-
+            <CardContent className="p-6">
               <div>
                 <Label className="text-sm font-medium mb-2 block">Tray ID</Label>
                 <div className="flex gap-2">
@@ -316,21 +331,10 @@ const AdhocMode = () => {
                   </Button>
                 </div>
               </div>
-
-              {mode === "storage" && trayItems.length > 0 && (
-                <Button 
-                  onClick={handleRequestTray} 
-                  disabled={loading} 
-                  className="w-full"
-                  size="lg"
-                >
-                  Request Tray to Station
-                </Button>
-              )}
             </CardContent>
           </Card>
 
-          {/* Results Section */}
+          {/* Loading State */}
           {loading && (
             <Card className="border-2 shadow-lg">
               <CardContent className="p-12 text-center">
@@ -342,58 +346,63 @@ const AdhocMode = () => {
             </Card>
           )}
 
-          {!loading && trayItems.length > 0 && (
+          {/* In Station Section */}
+          {!loading && trayId && (
             <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-card">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">
-                    {mode === "storage" ? "Items in Storage" : "Items in Station"}
-                  </CardTitle>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-sm">
-                      Tray: {trayItems[0].tray_id}
-                    </Badge>
-                    <Badge className="text-sm">
-                      {trayItems.length} item{trayItems.length !== 1 ? "s" : ""}
-                    </Badge>
-                  </div>
+                  <CardTitle className="text-xl">In Station</CardTitle>
+                  {stationItems.length > 0 && (
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className="text-sm">
+                        Tray: {stationItems[0].tray_id}
+                      </Badge>
+                      <Badge className="text-sm">
+                        {stationItems.length} item{stationItems.length !== 1 ? "s" : ""}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="space-y-4">
-                  {trayItems.map((item) => (
-                    <Card 
-                      key={`${item.id}-${item.item_id}`} 
-                      className="border-l-4 border-l-primary hover:shadow-md transition-all hover:border-l-accent"
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-lg font-bold">{item.item_id}</CardTitle>
-                            <p className="text-sm text-muted-foreground mt-1">{item.item_description}</p>
+                {stationItems.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No trays in station</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {stationItems.map((item) => (
+                      <Card 
+                        key={`station-${item.id}-${item.item_id}`} 
+                        className="border-l-4 border-l-primary hover:shadow-md transition-all hover:border-l-accent"
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg font-bold">{item.item_id}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-1">{item.item_description}</p>
+                            </div>
+                            <Badge
+                              variant={item.tray_status === "active" ? "default" : "secondary"}
+                              className="ml-2"
+                            >
+                              {item.tray_status}
+                            </Badge>
                           </div>
-                          <Badge
-                            variant={item.tray_status === "active" ? "default" : "secondary"}
-                            className="ml-2"
-                          >
-                            {item.tray_status}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="grid grid-cols-2 gap-4 p-4 bg-accent/5 rounded-lg">
-                          <div>
-                            <span className="text-xs text-muted-foreground uppercase tracking-wide">Available Qty</span>
-                            <p className="font-bold text-xl text-primary mt-1">
-                              {item.available_quantity}
-                            </p>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/5 rounded-lg">
+                            <div>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Available Qty</span>
+                              <p className="font-bold text-xl text-primary mt-1">
+                                {item.available_quantity}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Inbound Date</span>
+                              <p className="font-medium mt-1">{item.inbound_date}</p>
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-xs text-muted-foreground uppercase tracking-wide">Inbound Date</span>
-                            <p className="font-medium mt-1">{item.inbound_date}</p>
-                          </div>
-                        </div>
-                        {mode === "station" && (
                           <Button
                             onClick={() => handleItemClick(item)}
                             className="w-full"
@@ -401,23 +410,85 @@ const AdhocMode = () => {
                           >
                             Select for Putaway
                           </Button>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
-          {!loading && trayItems.length === 0 && trayId && (
-            <Card className="border-2 border-dashed shadow-lg">
-              <CardContent className="p-12 text-center">
-                <Package className="mx-auto text-muted-foreground mb-4" size={48} />
-                <p className="text-muted-foreground font-medium">No items found</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Try searching with a different tray ID or mode
-                </p>
+          {/* In Storage Section */}
+          {!loading && trayId && (
+            <Card className="border-2 shadow-lg">
+              <CardHeader className="border-b bg-card">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl">In Storage</CardTitle>
+                  {storageItems.length > 0 && (
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className="text-sm">
+                        Tray: {storageItems[0].tray_id}
+                      </Badge>
+                      <Badge className="text-sm">
+                        {storageItems.length} item{storageItems.length !== 1 ? "s" : ""}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {storageItems.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No trays in storage</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {storageItems.map((item) => (
+                      <Card 
+                        key={`storage-${item.id}-${item.item_id}`} 
+                        className="border-l-4 border-l-secondary hover:shadow-md transition-all hover:border-l-accent"
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg font-bold">{item.item_id}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-1">{item.item_description}</p>
+                            </div>
+                            <Badge
+                              variant={item.tray_status === "active" ? "default" : "secondary"}
+                              className="ml-2"
+                            >
+                              {item.tray_status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/5 rounded-lg">
+                            <div>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Available Qty</span>
+                              <p className="font-bold text-xl text-secondary mt-1">
+                                {item.available_quantity}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Inbound Date</span>
+                              <p className="font-medium mt-1">{item.inbound_date}</p>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={handleRequestTray}
+                            variant="secondary"
+                            className="w-full"
+                            size="lg"
+                          >
+                            Request Tray to Station
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
