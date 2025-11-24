@@ -214,7 +214,11 @@ const ReconcileTrays = () => {
               <ScrollArea className="h-[calc(100vh-450px)]">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {trays.map((tray, index) => (
-                    <Card key={index} className="p-4 border-2 border-border hover:shadow-lg transition-all duration-200">
+                    <Card 
+                      key={index} 
+                      className="p-4 border-2 border-border hover:shadow-lg hover:border-primary/50 transition-all duration-200 cursor-pointer"
+                      onClick={() => navigate(`/scan-tray/${tray.tray_id}`)}
+                    >
                       <div className="space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-border">
                           <h3 className="font-bold text-lg text-foreground">{tray.tray_id}</h3>
