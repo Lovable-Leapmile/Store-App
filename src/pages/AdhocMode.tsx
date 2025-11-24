@@ -304,17 +304,17 @@ const AdhocMode = () => {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 p-4 bg-gradient-to-b from-background to-accent/5">
-        <div className="container max-w-6xl mx-auto space-y-6">
+      <div className="flex-1 p-2 bg-gradient-to-b from-background to-accent/5">
+        <div className="container max-w-6xl mx-auto px-2 space-y-6">
           {/* Search Section */}
           <Card className="border-2 shadow-lg">
-            <CardHeader className="border-b bg-card pb-4">
+            <CardHeader className="border-b bg-card pb-4 px-4">
               <CardTitle className="flex items-center gap-3 text-2xl">
                 <Package className="text-primary" size={28} />
                 Tray Search
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-8">
+            <CardContent className="p-4">
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Tray ID</Label>
                 <div className="flex gap-3">
@@ -329,10 +329,9 @@ const AdhocMode = () => {
                     onClick={handleSearch} 
                     disabled={loading} 
                     size="lg"
-                    className="h-14 px-8 text-base font-semibold min-w-[140px]"
+                    className="h-14 w-14 p-0"
                   >
-                    <Search className="mr-2" size={22} />
-                    Search
+                    <Search size={24} />
                   </Button>
                 </div>
               </div>
@@ -369,7 +368,7 @@ const AdhocMode = () => {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-4">
                 {stationItems.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays in station</p>
@@ -442,7 +441,7 @@ const AdhocMode = () => {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-4">
                 {storageItems.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays in storage</p>
