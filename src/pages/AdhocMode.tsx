@@ -727,63 +727,59 @@ const AdhocMode = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3 mb-4">
-            <Button
-              onClick={() => navigate("/home")}
-              variant="ghost"
-              size="icon"
-              className="text-foreground hover:bg-accent/10"
-            >
-              <ArrowLeft size={24} />
-            </Button>
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="text-primary-foreground" size={24} />
+        <div className="container max-w-6xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => navigate("/home")}
+                variant="ghost"
+                size="icon"
+                className="text-foreground hover:bg-accent/10"
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                <Package className="text-primary-foreground" size={18} />
+              </div>
+              <h1 className="text-xl font-bold text-foreground">Adhoc Mode</h1>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Adhoc Mode</h1>
-          </div>
-          
-          {/* Count Boxes */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card 
-              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-primary/50"
-              onClick={() => {
-                fetchReadyOrders();
-                setShowReadyDialog(true);
-              }}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground font-semibold">Ready</p>
-                    <p className="text-3xl font-bold text-foreground">{readyCount}</p>
-                  </div>
-                  <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <Package className="text-green-600" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
             
-            <Card 
-              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-primary/50"
-              onClick={() => {
-                fetchPendingOrders();
-                setShowPendingDialog(true);
-              }}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground font-semibold">Pending</p>
-                    <p className="text-3xl font-bold text-foreground">{pendingCount}</p>
+            {/* Count Boxes */}
+            <div className="flex gap-3">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
+                onClick={() => {
+                  fetchReadyOrders();
+                  setShowReadyDialog(true);
+                }}
+              >
+                <CardContent className="p-2 px-3">
+                  <div className="flex items-center gap-2">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground font-medium">Ready</p>
+                      <p className="text-lg font-bold text-foreground">{readyCount}</p>
+                    </div>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-orange-500/10 flex items-center justify-center">
-                    <Package className="text-orange-600" size={24} />
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
+                onClick={() => {
+                  fetchPendingOrders();
+                  setShowPendingDialog(true);
+                }}
+              >
+                <CardContent className="p-2 px-3">
+                  <div className="flex items-center gap-2">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground font-medium">Pending</p>
+                      <p className="text-lg font-bold text-foreground">{pendingCount}</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </header>
