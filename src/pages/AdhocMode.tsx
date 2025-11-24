@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Search, Package, Minus, Plus, Scan } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 
 interface TrayItem {
@@ -34,7 +34,7 @@ const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [trayId, setTrayId] = useState("");
-  const [inStation, setInStation] = useState(false);
+  const [mode, setMode] = useState<"storage" | "station">("storage");
   const [trayItems, setTrayItems] = useState<TrayItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TrayItem | null>(null);
@@ -46,20 +46,23 @@ const AdhocMode = () => {
   );
   const [showPutawayDialog, setShowPutawayDialog] = useState(false);
 
-  const handleSearch = async () => {
-    if (!trayId.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a tray ID",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Periodic API calls every 3 seconds
+  useEffect(() => {
+    if (!trayId.trim()) return;
 
-    setLoading(true);
+    const interval = setInterval(() => {
+      fetchTrayItems();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [trayId, mode]);
+
+  const fetchTrayItems = async () => {
+    if (!trayId.trim()) return;
+
     try {
       const response = await fetch(
-        `${BASE_URL}/nanostore/trays_for_order?in_station=${inStation}&tray_id=${trayId}&num_records=10&offset=0`,
+        `${BASE_URL}/nanostore/trays_for_order?in_station=${mode === "station"}&tray_id=${trayId}&num_records=10&offset=0`,
         {
           headers: {
             accept: "application/json",
@@ -74,8 +77,26 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setTrayItems(data.records || []);
+    } catch (error) {
+      // Silent fail for periodic updates
+    }
+  };
 
-      if (data.records.length === 0) {
+  const handleSearch = async () => {
+    if (!trayId.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a tray ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await fetchTrayItems();
+
+      if (trayItems.length === 0) {
         toast({
           title: "No Items Found",
           description: `No items found in tray ${trayId}`,
@@ -88,6 +109,54 @@ const AdhocMode = () => {
         variant: "destructive",
       });
       setTrayItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestTray = async () => {
+    if (!trayId.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a tray ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const userId = localStorage.getItem("userId") || "1";
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: "",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to request tray");
+      }
+
+      toast({
+        title: "Success",
+        description: `Tray ${trayId} requested successfully`,
+      });
+
+      // Fetch updated tray items
+      await fetchTrayItems();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to request tray",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -173,7 +242,7 @@ const AdhocMode = () => {
       setQuantity(1);
       
       // Refresh the items
-      handleSearch();
+      await fetchTrayItems();
     } catch (error) {
       toast({
         title: "Error",
@@ -213,19 +282,15 @@ const AdhocMode = () => {
       {/* Main Content */}
       <div className="flex-1 p-4">
         <div className="container max-w-2xl mx-auto space-y-4">
-          {/* Search Section */}
+          {/* Mode Selection */}
           <Card className="p-6">
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="in-station" className="text-base font-medium">
-                  In Station
-                </Label>
-                <Switch
-                  id="in-station"
-                  checked={inStation}
-                  onCheckedChange={setInStation}
-                />
-              </div>
+              <Tabs value={mode} onValueChange={(v) => setMode(v as "storage" | "station")}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="storage">In Storage</TabsTrigger>
+                  <TabsTrigger value="station">In Station</TabsTrigger>
+                </TabsList>
+              </Tabs>
 
               <div className="flex gap-2">
                 <Input
@@ -240,6 +305,12 @@ const AdhocMode = () => {
                   Search
                 </Button>
               </div>
+
+              {mode === "storage" && trayItems.length > 0 && (
+                <Button onClick={handleRequestTray} disabled={loading} className="w-full">
+                  Request Tray
+                </Button>
+              )}
             </div>
           </Card>
 
@@ -290,12 +361,14 @@ const AdhocMode = () => {
                         <p className="font-medium">{item.inbound_date}</p>
                       </div>
                     </div>
-                    <Button
-                      onClick={() => handleItemClick(item)}
-                      className="w-full mt-2"
-                    >
-                      Select for Putaway
-                    </Button>
+                    {mode === "station" && (
+                      <Button
+                        onClick={() => handleItemClick(item)}
+                        className="w-full mt-2"
+                      >
+                        Select for Putaway
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ))}
