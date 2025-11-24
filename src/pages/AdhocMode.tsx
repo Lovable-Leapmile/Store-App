@@ -226,6 +226,65 @@ const AdhocMode = () => {
     }
   };
 
+  const handleReleaseTray = async (trayId: string) => {
+    const userId = localStorage.getItem("userId") || "1";
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&status=active&user_id=${userId}&order_by_field=updated_at&order_by_type=DESC`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("No active order found");
+      }
+
+      const data = await response.json();
+      if (data.records && data.records.length > 0) {
+        const order: Order = data.records[0];
+        
+        const deleteResponse = await fetch(
+          `${BASE_URL}/nanostore/orders/${order.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+          },
+        );
+
+        if (!deleteResponse.ok) {
+          throw new Error("Failed to release tray");
+        }
+
+        toast({
+          title: "Success",
+          description: `Tray ${trayId} released successfully`,
+        });
+
+        await Promise.all([fetchStationItems(), fetchStorageItems()]);
+      } else {
+        toast({
+          title: "No Active Order",
+          description: "No active order found for this tray",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to release tray",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmitTransaction = async () => {
     if (!orderId || !transactionItemId) {
       toast({
@@ -403,13 +462,21 @@ const AdhocMode = () => {
                               <p className="font-bold text-sm">{item.inbound_date}</p>
                             </div>
                           </div>
-                          <Button
-                            onClick={() => handleItemClick(item)}
-                            className="w-full h-14 text-lg font-semibold"
-                            size="lg"
-                          >
-                            Select for Putaway
-                          </Button>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Button
+                              onClick={() => handleItemClick(item)}
+                              className="h-12 text-base font-semibold"
+                            >
+                              Inbound
+                            </Button>
+                            <Button
+                              onClick={() => handleReleaseTray(item.tray_id)}
+                              variant="outline"
+                              className="h-12 text-base font-semibold"
+                            >
+                              Release
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
