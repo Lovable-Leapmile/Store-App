@@ -1,0 +1,336 @@
+import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, FileText, Upload, RefreshCw, Download } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { useEffect, useState, useRef } from "react";
+import ReconcileCard from "@/components/ReconcileCard";
+import * as XLSX from 'xlsx';
+
+interface ReconcileRecord {
+  material: string;
+  sap_quantity: number;
+  item_quantity: number;
+  quantity_difference: number;
+  reconcile_status: string;
+}
+
+const fetchReconcileData = async (status: string): Promise<ReconcileRecord[]> => {
+  const authToken = localStorage.getItem('authToken');
+
+  const response = await fetch(
+    `https://testhostsushil.leapmile.com/nanostore/sap_reconcile/report?reconcile_status=${status}&num_records=100&offset=0`,
+    {
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    }
+  );
+
+  if (response.status === 404) {
+    return [];
+  }
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch reconcile data");
+  }
+
+  const data = await response.json();
+  return data.records || [];
+};
+
+const SapReconcile = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("sap_shortage");
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  const { data: sapShortageData, isLoading: sapShortageLoading, refetch: refetchSapShortage } = useQuery({
+    queryKey: ["reconcile-sap-shortage"],
+    queryFn: () => fetchReconcileData("sap_shortage"),
+    enabled: activeTab === "sap_shortage",
+    retry: false,
+  });
+
+  const { data: robotShortageData, isLoading: robotShortageLoading, refetch: refetchRobotShortage } = useQuery({
+    queryKey: ["reconcile-robot-shortage"],
+    queryFn: () => fetchReconcileData("robot_shortage"),
+    enabled: activeTab === "robot_shortage",
+    retry: false,
+  });
+
+  const { data: matchedData, isLoading: matchedLoading, refetch: refetchMatched } = useQuery({
+    queryKey: ["reconcile-matched"],
+    queryFn: () => fetchReconcileData("matched"),
+    enabled: activeTab === "matched",
+    retry: false,
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const authToken = localStorage.getItem('authToken');
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('https://testhostsushil.leapmile.com/nanostore/sap_reconcile/upload_file', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "File uploaded and data refreshed successfully"
+      });
+      setSelectedFile(null);
+      setIsUploadDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["reconcile-sap-shortage"] });
+      queryClient.invalidateQueries({ queryKey: ["reconcile-robot-shortage"] });
+      queryClient.invalidateQueries({ queryKey: ["reconcile-matched"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to upload SAP Reconcile file",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleRefresh = async () => {
+    toast({ title: "Refreshing data..." });
+    if (activeTab === "sap_shortage") await refetchSapShortage();
+    else if (activeTab === "robot_shortage") await refetchRobotShortage();
+    else await refetchMatched();
+    toast({ title: "Data updated", description: "Latest data loaded successfully" });
+  };
+
+  const handleCardClick = (material: string) => {
+    navigate(`/trays-for-item/reconcile/${material}`);
+  };
+
+  const handleExport = () => {
+    let data: ReconcileRecord[] | undefined;
+    let fileName: string;
+
+    switch (activeTab) {
+      case "sap_shortage":
+        data = sapShortageData;
+        fileName = "SAP_Shortage_Export";
+        break;
+      case "robot_shortage":
+        data = robotShortageData;
+        fileName = "Robot_Shortage_Export";
+        break;
+      case "matched":
+        data = matchedData;
+        fileName = "Matched_Export";
+        break;
+      default:
+        data = [];
+        fileName = "Export";
+    }
+
+    if (!data || data.length === 0) {
+      toast({ title: "No data to export", description: "There are no records available for export", variant: "destructive" });
+      return;
+    }
+
+    const exportData = data.map(record => ({
+      Material: record.material,
+      "SAP Quantity": record.sap_quantity,
+      "Item Quantity": record.item_quantity,
+      "Quantity Difference": record.quantity_difference,
+      "Reconcile Status": record.reconcile_status
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+    toast({ title: "Export successful", description: `${data.length} records exported to Excel` });
+  };
+
+  const renderContent = (data: ReconcileRecord[] | undefined, isLoading: boolean) => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <RefreshCw className="animate-spin text-primary" size={32} />
+        </div>
+      );
+    }
+
+    if (!data || data.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No records found</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        {data.map((record, index) => (
+          <ReconcileCard
+            key={index}
+            material={record.material}
+            sapQuantity={record.sap_quantity}
+            itemQuantity={record.item_quantity}
+            quantityDifference={record.quantity_difference}
+            reconcileStatus={record.reconcile_status}
+            onClick={
+              record.reconcile_status === "sap_shortage" || record.reconcile_status === "robot_shortage"
+                ? () => handleCardClick(record.material)
+                : undefined
+            }
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
+        <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button onClick={() => navigate("/home")} variant="ghost" size="icon" className="text-foreground hover:bg-accent/10">
+              <ArrowLeft size={24} />
+            </Button>
+            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
+              <FileText className="text-primary-foreground" size={24} />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">SAP Reconcile</h1>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-accent hover:bg-accent/10">
+              <RefreshCw size={24} />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container max-w-6xl mx-auto px-4 py-4">
+        <div className="flex flex-wrap gap-3">
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex-1 sm:flex-initial">
+                <Upload className="mr-2" size={20} />
+                Upload SAP Reconcile File
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Upload SAP Reconcile File</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    isDragging ? 'border-primary bg-primary/10' : 'border-border'
+                  }`}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    const file = e.dataTransfer.files[0];
+                    if (file) setSelectedFile(file);
+                  }}
+                >
+                  <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Drag and drop your file here, or
+                  </p>
+                  <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    Browse Files
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".xlsx,.xls,.csv"
+                    onChange={(e) => { const file = e.target.files?.[0]; if (file) setSelectedFile(file); }}
+                  />
+                </div>
+
+                {selectedFile && (
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm font-medium">Selected file:</p>
+                    <p className="text-sm text-muted-foreground">{selectedFile.name}</p>
+                  </div>
+                )}
+
+                <Button
+                  onClick={() => { if (selectedFile) uploadMutation.mutate(selectedFile); }}
+                  disabled={!selectedFile || uploadMutation.isPending}
+                  className="w-full"
+                >
+                  {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Button onClick={handleExport} variant="default" className="gap-2 flex-1 sm:flex-initial">
+            <Download size={20} />
+            Export {activeTab === "sap_shortage" ? "SAP Shortage" : activeTab === "robot_shortage" ? "Robot Shortage" : "Matched"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="container max-w-7xl mx-auto px-2 sm:px-4 pb-6 flex-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsTrigger value="sap_shortage" className="text-xs sm:text-sm">SAP Shortage</TabsTrigger>
+            <TabsTrigger value="robot_shortage" className="text-xs sm:text-sm">Robot Shortage</TabsTrigger>
+            <TabsTrigger value="matched" className="text-xs sm:text-sm">Matched</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="sap_shortage">
+            <ScrollArea className="h-[calc(100vh-280px)]">
+              {renderContent(sapShortageData, sapShortageLoading)}
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="robot_shortage">
+            <ScrollArea className="h-[calc(100vh-280px)]">
+              {renderContent(robotShortageData, robotShortageLoading)}
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="matched">
+            <ScrollArea className="h-[calc(100vh-280px)]">
+              {renderContent(matchedData, matchedLoading)}
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+export default SapReconcile;
