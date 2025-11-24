@@ -31,6 +31,9 @@ interface Order {
   user_id: number;
   station_id: string;
   station_friendly_name: string;
+  tray_status?: string;
+  status?: string;
+  auto_complete_time?: number;
 }
 
 const API_TOKEN =
@@ -59,6 +62,13 @@ const AdhocMode = () => {
   const [offset, setOffset] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [retrievingTrayId, setRetrievingTrayId] = useState<string | null>(null);
+  const [readyCount, setReadyCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [readyOrders, setReadyOrders] = useState<Order[]>([]);
+  const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
+  const [showReadyDialog, setShowReadyDialog] = useState(false);
+  const [showPendingDialog, setShowPendingDialog] = useState(false);
+  const [releasingOrderId, setReleasingOrderId] = useState<number | null>(null);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -125,6 +135,136 @@ const AdhocMode = () => {
       fetchAllTrays();
     }
   }, [activeTab, trayId, itemId, trayDividerFilter, showEmptyBins, offset]);
+
+  // Fetch counts on mount and periodically
+  useEffect(() => {
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchCounts = async () => {
+    try {
+      const [readyResponse, pendingResponse] = await Promise.all([
+        fetch(
+          `${BASE_URL}/nanostore/orders?tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+          }
+        ),
+        fetch(
+          `${BASE_URL}/nanostore/orders?tray_status=inprogress&status=active&order_by_field=updated_at&order_by_type=DESC`,
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+          }
+        ),
+      ]);
+
+      if (readyResponse.ok) {
+        const readyData = await readyResponse.json();
+        setReadyCount(readyData.count || 0);
+      }
+
+      if (pendingResponse.ok) {
+        const pendingData = await pendingResponse.json();
+        setPendingCount(pendingData.count || 0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch counts:", error);
+    }
+  };
+
+  const fetchReadyOrders = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setReadyOrders(data.records || []);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch ready orders",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchPendingOrders = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_status=inprogress&status=active&order_by_field=updated_at&order_by_type=DESC`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setPendingOrders(data.records || []);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch pending orders",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReleaseOrder = async (orderId: number) => {
+    setReleasingOrderId(orderId);
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders/complete?record_id=${orderId}`,
+        {
+          method: "PATCH",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to release order");
+      }
+
+      toast({
+        title: "Success",
+        description: "Order released successfully",
+      });
+
+      await fetchReadyOrders();
+      await fetchCounts();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to release order",
+        variant: "destructive",
+      });
+    } finally {
+      setReleasingOrderId(null);
+    }
+  };
 
   const fetchAllTrays = async () => {
     setLoading(true);
@@ -587,19 +727,64 @@ const AdhocMode = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Button
-            onClick={() => navigate("/home")}
-            variant="ghost"
-            size="icon"
-            className="text-foreground hover:bg-accent/10"
-          >
-            <ArrowLeft size={24} />
-          </Button>
-          <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-            <Package className="text-primary-foreground" size={24} />
+        <div className="container max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Button
+              onClick={() => navigate("/home")}
+              variant="ghost"
+              size="icon"
+              className="text-foreground hover:bg-accent/10"
+            >
+              <ArrowLeft size={24} />
+            </Button>
+            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
+              <Package className="text-primary-foreground" size={24} />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">Adhoc Mode</h1>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Adhoc Mode</h1>
+          
+          {/* Count Boxes */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-primary/50"
+              onClick={() => {
+                fetchReadyOrders();
+                setShowReadyDialog(true);
+              }}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground font-semibold">Ready</p>
+                    <p className="text-3xl font-bold text-foreground">{readyCount}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <Package className="text-green-600" size={24} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-primary/50"
+              onClick={() => {
+                fetchPendingOrders();
+                setShowPendingDialog(true);
+              }}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground font-semibold">Pending</p>
+                    <p className="text-3xl font-bold text-foreground">{pendingCount}</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <Package className="text-orange-600" size={24} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </header>
 
@@ -1103,6 +1288,88 @@ const AdhocMode = () => {
           )}
         </div>
       </div>
+
+      {/* Ready Orders Dialog */}
+      <Dialog open={showReadyDialog} onOpenChange={setShowReadyDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Ready Orders ({readyCount})</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {readyOrders.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No ready orders</p>
+              </div>
+            ) : (
+              readyOrders.map((order) => (
+                <Card key={order.id} className="border-2">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-bold text-lg">{order.tray_id}</p>
+                        <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant="secondary" className="text-xs">
+                            User: {order.user_id}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Station: {order.station_id}
+                          </Badge>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => handleReleaseOrder(order.id)}
+                        disabled={releasingOrderId === order.id}
+                        variant="destructive"
+                        size="sm"
+                      >
+                        {releasingOrderId === order.id ? "Releasing..." : "Release"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pending Orders Dialog */}
+      <Dialog open={showPendingDialog} onOpenChange={setShowPendingDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Pending Orders ({pendingCount})</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {pendingOrders.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No pending orders</p>
+              </div>
+            ) : (
+              pendingOrders.map((order) => (
+                <Card key={order.id} className="border-2">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-bold text-lg">{order.tray_id}</p>
+                        <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant="secondary" className="text-xs">
+                            User: {order.user_id}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Station: {order.station_id}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Putaway Dialog */}
       <Dialog open={showPutawayDialog} onOpenChange={setShowPutawayDialog}>
