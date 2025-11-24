@@ -56,7 +56,7 @@ interface Transaction {
 
 const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> => {
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`,
+    `https://testhostsushil.leapmile.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`,
     {
       headers: {
         accept: "application/json",
@@ -76,7 +76,7 @@ const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> =
 
 const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
+    `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
     {
       headers: {
         accept: "application/json",
@@ -96,7 +96,7 @@ const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
 
 const fetchSapOrderItem = async (orderRef: string, material: string): Promise<SapOrderItem | null> => {
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/?order_ref=${orderRef}&material=${material}&order_by_field=updated_at&order_by_type=DESC`,
+    `https://testhostsushil.leapmile.com/nanostore/sap_orders/?order_ref=${orderRef}&material=${material}&order_by_field=updated_at&order_by_type=DESC`,
     {
       headers: {
         accept: "application/json",
@@ -116,7 +116,7 @@ const fetchSapOrderItem = async (orderRef: string, material: string): Promise<Sa
 
 const fetchTransactions = async (orderRef: string, itemId: string): Promise<Transaction[]> => {
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/transactions?order_ref=${orderRef}&item_id=${itemId}&order_by_field=updated_at&order_by_type=DESC`,
+    `https://testhostsushil.leapmile.com/nanostore/transactions?order_ref=${orderRef}&item_id=${itemId}&order_by_field=updated_at&order_by_type=DESC`,
     {
       headers: {
         accept: "application/json",
@@ -226,7 +226,7 @@ const TraysForItem = () => {
     setRetrievingTrayId(tray.tray_id);
     try {
       const checkResponse = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`,
+        `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`,
         {
           headers: {
             accept: "application/json",
@@ -245,7 +245,7 @@ const TraysForItem = () => {
         });
       } else {
         const createResponse = await fetch(
-          `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
+          `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
           {
             method: "POST",
             headers: {
@@ -291,7 +291,7 @@ const TraysForItem = () => {
     } else {
       try {
         const checkResponse = await fetch(
-          `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
+          `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
           {
             headers: {
               accept: "application/json",
@@ -313,7 +313,7 @@ const TraysForItem = () => {
         }
 
         const createResponse = await fetch(
-          `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
+          `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
           {
             method: "POST",
             headers: {
@@ -385,7 +385,7 @@ const TraysForItem = () => {
     setIsSubmitting(true);
     try {
       const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${orderId_internal}&item_id=${itemId}&transaction_item_quantity=-${quantityToPick}&transaction_type=outbound&transaction_date=${selectedTray.inbound_date}&sap_order_reference=${currentItem.id}`,
+        `https://testhostsushil.leapmile.com/nanostore/transaction?order_id=${orderId_internal}&item_id=${itemId}&transaction_item_quantity=-${quantityToPick}&transaction_type=outbound&transaction_date=${selectedTray.inbound_date}&sap_order_reference=${currentItem.id}`,
         {
           method: "POST",
           headers: {
@@ -441,7 +441,7 @@ const TraysForItem = () => {
     setReleasingTrayId(tray.tray_id);
     try {
       const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${existingOrder.id}`,
+        `https://testhostsushil.leapmile.com/nanostore/orders/complete?record_id=${existingOrder.id}`,
         {
           method: "PATCH",
           headers: {
@@ -473,6 +473,51 @@ const TraysForItem = () => {
     } finally {
       setIsSubmitting(false);
       setReleasingTrayId(null);
+    }
+  };
+
+  const handleReleaseFromDialog = async () => {
+    if (!orderId_internal) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(
+        `https://testhostsushil.leapmile.com/nanostore/orders/complete?record_id=${orderId_internal}`,
+        {
+          method: "PATCH",
+          headers: {
+            accept: "application/json",
+            Authorization:
+              "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
+          },
+          body: "",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to release tray");
+      }
+
+      toast({
+        title: "Tray Released Successfully",
+        description: `Tray ${selectedTray?.tray_id} has been released`,
+      });
+
+      setIsPickingDialogOpen(false);
+      setSelectedTray(null);
+      setOrderIdInternal(null);
+      setQuantityToPick(0);
+      
+      queryClient.invalidateQueries({ queryKey: ["storage-trays"] });
+      queryClient.invalidateQueries({ queryKey: ["station-trays"] });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to release tray",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -510,68 +555,59 @@ const TraysForItem = () => {
 
       <ScrollArea className="flex-1">
         <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
-          {/* SAP Order Summary Card */}
+          {/* Order Summary Card */}
           {currentItem && (
-            <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary shadow-lg animate-fade-in">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-                      <Package className="text-primary-foreground" size={24} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground font-semibold uppercase">SAP Order</p>
-                      <p className="text-2xl font-bold text-foreground">{currentItem.order_ref}</p>
-                    </div>
+            <Card className="p-5 bg-card border-2 border-primary shadow-lg animate-fade-in">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Package className="text-primary" size={20} />
                   </div>
-                  <span className="text-sm font-bold px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-md">
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium">Order ID</p>
+                    <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Current Item Card */}
+          {currentItem && (
+            <Card className="p-5 bg-card border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-foreground">Item Details</h2>
+                  <span className="text-xs font-semibold px-3 py-1 rounded bg-primary text-primary-foreground">
                     {currentItem.movement_type}
                   </span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-2">
+                
+                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground font-medium uppercase">Plant</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.plant}</p>
+                    <p className="text-xs text-muted-foreground">Material ID</p>
+                    <p className="text-lg font-bold text-foreground">{currentItem.material}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground font-medium uppercase">Storage Location</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.storage_location}</p>
+                    <p className="text-xs text-muted-foreground">Order Ref</p>
+                    <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-border">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground font-medium uppercase">Required</p>
-                      <p className="text-xl font-bold text-foreground">{currentItem.quantity}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground font-medium uppercase">Picked</p>
-                      <p className="text-xl font-bold text-green-600 dark:text-green-400">{currentItem.quantity_consumed}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground font-medium uppercase">Remaining</p>
-                      <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
-                        {currentItem.quantity - currentItem.quantity_consumed}
-                      </p>
-                    </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Total Qty</p>
+                    <p className="text-base font-bold text-foreground">{currentItem.quantity}</p>
                   </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="text-foreground">
-                      {Math.round((currentItem.quantity_consumed / currentItem.quantity) * 100)}%
-                    </span>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Picked</p>
+                    <p className="text-base font-bold text-success">{currentItem.quantity_consumed}</p>
                   </div>
-                  <div className="h-3 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500"
-                      style={{ width: `${Math.min((currentItem.quantity_consumed / currentItem.quantity) * 100, 100)}%` }}
-                    />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Remaining</p>
+                    <p className="text-base font-bold text-warning">
+                      {currentItem.quantity - currentItem.quantity_consumed}
+                    </p>
                   </div>
                 </div>
               </div>
