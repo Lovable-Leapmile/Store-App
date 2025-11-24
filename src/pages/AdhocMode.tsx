@@ -136,10 +136,10 @@ const AdhocMode = () => {
     }
   }, [activeTab, trayId, itemId, trayDividerFilter, showEmptyBins, offset]);
 
-  // Fetch counts on mount and periodically
+  // Fetch counts on mount and periodically (every 5 seconds)
   useEffect(() => {
     fetchCounts();
-    const interval = setInterval(fetchCounts, 3000);
+    const interval = setInterval(fetchCounts, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -169,14 +169,20 @@ const AdhocMode = () => {
       if (readyResponse.ok) {
         const readyData = await readyResponse.json();
         setReadyCount(readyData.count || 0);
+      } else {
+        setReadyCount(0);
       }
 
       if (pendingResponse.ok) {
         const pendingData = await pendingResponse.json();
         setPendingCount(pendingData.count || 0);
+      } else {
+        setPendingCount(0);
       }
     } catch (error) {
       console.error("Failed to fetch counts:", error);
+      setReadyCount(0);
+      setPendingCount(0);
     }
   };
 
@@ -195,8 +201,16 @@ const AdhocMode = () => {
       if (response.ok) {
         const data = await response.json();
         setReadyOrders(data.records || []);
+      } else {
+        setReadyOrders([]);
+        toast({
+          title: "Error",
+          description: "Failed to fetch ready orders",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      setReadyOrders([]);
       toast({
         title: "Error",
         description: "Failed to fetch ready orders",
@@ -220,8 +234,16 @@ const AdhocMode = () => {
       if (response.ok) {
         const data = await response.json();
         setPendingOrders(data.records || []);
+      } else {
+        setPendingOrders([]);
+        toast({
+          title: "Error",
+          description: "Failed to fetch pending orders",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      setPendingOrders([]);
       toast({
         title: "Error",
         description: "Failed to fetch pending orders",
