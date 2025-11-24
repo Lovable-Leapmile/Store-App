@@ -614,53 +614,6 @@ const TraysForItem = () => {
             </Card>
           )}
 
-          {/* Material/Item Details Card */}
-          {currentItem && (
-            <Card className="p-6 bg-card border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-3 border-b border-border">
-                  <div className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center">
-                    <Package className="text-accent-foreground" size={22} />
-                  </div>
-                  <h2 className="text-xl font-bold text-foreground">Material Details</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2 p-4 rounded-lg bg-muted/30">
-                    <p className="text-xs text-muted-foreground font-semibold uppercase">Material Number</p>
-                    <p className="text-2xl font-bold text-foreground tracking-wide">{currentItem.material}</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
-                      <p className="text-xs text-muted-foreground font-medium">Order Reference</p>
-                      <p className="text-base font-bold text-foreground">{currentItem.order_ref}</p>
-                    </div>
-                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
-                      <p className="text-xs text-muted-foreground font-medium">SAP Record ID</p>
-                      <p className="text-base font-bold text-foreground">{currentItem.id}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
-                      <p className="text-xs text-muted-foreground font-medium">Plant Code</p>
-                      <p className="text-base font-bold text-foreground">{currentItem.plant}</p>
-                    </div>
-                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
-                      <p className="text-xs text-muted-foreground font-medium">Storage Loc</p>
-                      <p className="text-base font-bold text-foreground">{currentItem.storage_location}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 p-3 rounded-lg bg-muted/20">
-                    <p className="text-xs text-muted-foreground font-medium">Movement Type</p>
-                    <p className="text-base font-bold text-foreground">{currentItem.movement_type}</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          )}
 
           <div>
             <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
