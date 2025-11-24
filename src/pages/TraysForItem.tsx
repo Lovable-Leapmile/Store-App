@@ -510,57 +510,116 @@ const TraysForItem = () => {
 
       <ScrollArea className="flex-1">
         <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
+          {/* SAP Order Summary Card */}
           {currentItem && (
-            <Card className="p-5 bg-card border-2 border-primary shadow-lg animate-fade-in">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Package className="text-primary" size={20} />
+            <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary shadow-lg animate-fade-in">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
+                      <Package className="text-primary-foreground" size={24} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-semibold uppercase">SAP Order</p>
+                      <p className="text-2xl font-bold text-foreground">{currentItem.order_ref}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground font-medium">Order ID</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
+                  <span className="text-sm font-bold px-4 py-2 rounded-lg bg-primary text-primary-foreground shadow-md">
+                    {currentItem.movement_type}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground font-medium uppercase">Plant</p>
+                    <p className="text-lg font-bold text-foreground">{currentItem.plant}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground font-medium uppercase">Storage Location</p>
+                    <p className="text-lg font-bold text-foreground">{currentItem.storage_location}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium uppercase">Required</p>
+                      <p className="text-xl font-bold text-foreground">{currentItem.quantity}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium uppercase">Picked</p>
+                      <p className="text-xl font-bold text-green-600 dark:text-green-400">{currentItem.quantity_consumed}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium uppercase">Remaining</p>
+                      <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
+                        {currentItem.quantity - currentItem.quantity_consumed}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="space-y-2 pt-2">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span className="text-muted-foreground">Progress</span>
+                    <span className="text-foreground">
+                      {Math.round((currentItem.quantity_consumed / currentItem.quantity) * 100)}%
+                    </span>
+                  </div>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500"
+                      style={{ width: `${Math.min((currentItem.quantity_consumed / currentItem.quantity) * 100, 100)}%` }}
+                    />
                   </div>
                 </div>
               </div>
             </Card>
           )}
 
+          {/* Material/Item Details Card */}
           {currentItem && (
-            <Card className="p-5 bg-card border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-foreground">Item Details</h2>
-                  <span className="text-xs font-semibold px-3 py-1 rounded bg-primary text-primary-foreground">
-                    {currentItem.movement_type}
-                  </span>
+            <Card className="p-6 bg-card border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 pb-3 border-b border-border">
+                  <div className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center">
+                    <Package className="text-accent-foreground" size={22} />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">Material Details</h2>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Material ID</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.material}</p>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-2 p-4 rounded-lg bg-muted/30">
+                    <p className="text-xs text-muted-foreground font-semibold uppercase">Material Number</p>
+                    <p className="text-2xl font-bold text-foreground tracking-wide">{currentItem.material}</p>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Order Ref</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Total Qty</p>
-                    <p className="text-base font-bold text-foreground">{currentItem.quantity}</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
+                      <p className="text-xs text-muted-foreground font-medium">Order Reference</p>
+                      <p className="text-base font-bold text-foreground">{currentItem.order_ref}</p>
+                    </div>
+                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
+                      <p className="text-xs text-muted-foreground font-medium">SAP Record ID</p>
+                      <p className="text-base font-bold text-foreground">{currentItem.id}</p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Picked</p>
-                    <p className="text-base font-bold text-success">{currentItem.quantity_consumed}</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
+                      <p className="text-xs text-muted-foreground font-medium">Plant Code</p>
+                      <p className="text-base font-bold text-foreground">{currentItem.plant}</p>
+                    </div>
+                    <div className="space-y-1 p-3 rounded-lg bg-muted/20">
+                      <p className="text-xs text-muted-foreground font-medium">Storage Loc</p>
+                      <p className="text-base font-bold text-foreground">{currentItem.storage_location}</p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Remaining</p>
-                    <p className="text-base font-bold text-warning">
-                      {currentItem.quantity - currentItem.quantity_consumed}
-                    </p>
+
+                  <div className="space-y-1 p-3 rounded-lg bg-muted/20">
+                    <p className="text-xs text-muted-foreground font-medium">Movement Type</p>
+                    <p className="text-base font-bold text-foreground">{currentItem.movement_type}</p>
                   </div>
                 </div>
               </div>
