@@ -305,28 +305,33 @@ const AdhocMode = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-4 bg-gradient-to-b from-background to-accent/5">
-        <div className="container max-w-4xl mx-auto space-y-6">
+        <div className="container max-w-6xl mx-auto space-y-6">
           {/* Search Section */}
           <Card className="border-2 shadow-lg">
-            <CardHeader className="border-b bg-card">
-              <CardTitle className="flex items-center gap-2">
-                <Package className="text-primary" size={24} />
+            <CardHeader className="border-b bg-card pb-4">
+              <CardTitle className="flex items-center gap-3 text-2xl">
+                <Package className="text-primary" size={28} />
                 Tray Search
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Tray ID</Label>
-                <div className="flex gap-2">
+            <CardContent className="p-8">
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Tray ID</Label>
+                <div className="flex gap-3">
                   <Input
                     placeholder="Enter Tray ID (e.g., TRAY-2)"
                     value={trayId}
                     onChange={(e) => setTrayId(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    className="flex-1"
+                    className="flex-1 h-14 text-lg px-5 border-2"
                   />
-                  <Button onClick={handleSearch} disabled={loading} size="lg">
-                    <Search className="mr-2" size={20} />
+                  <Button 
+                    onClick={handleSearch} 
+                    disabled={loading} 
+                    size="lg"
+                    className="h-14 px-8 text-base font-semibold min-w-[140px]"
+                  >
+                    <Search className="mr-2" size={22} />
                     Search
                   </Button>
                 </div>
@@ -337,10 +342,10 @@ const AdhocMode = () => {
           {/* Loading State */}
           {loading && (
             <Card className="border-2 shadow-lg">
-              <CardContent className="p-12 text-center">
-                <div className="animate-pulse space-y-3">
-                  <Package className="mx-auto text-primary" size={48} />
-                  <p className="text-muted-foreground font-medium">Loading items...</p>
+              <CardContent className="p-16 text-center">
+                <div className="animate-pulse space-y-4">
+                  <Package className="mx-auto text-primary" size={56} />
+                  <p className="text-muted-foreground font-semibold text-lg">Loading items...</p>
                 </div>
               </CardContent>
             </Card>
@@ -349,63 +354,63 @@ const AdhocMode = () => {
           {/* In Station Section */}
           {!loading && trayId && (
             <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-card">
+              <CardHeader className="border-b bg-card pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">In Station</CardTitle>
+                  <CardTitle className="text-2xl">In Station</CardTitle>
                   {stationItems.length > 0 && (
                     <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="text-sm">
+                      <Badge variant="outline" className="text-base py-1 px-3">
                         Tray: {stationItems[0].tray_id}
                       </Badge>
-                      <Badge className="text-sm">
+                      <Badge className="text-base py-1 px-3">
                         {stationItems.length} item{stationItems.length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-8">
                 {stationItems.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No trays in station</p>
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg font-medium">No trays in station</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {stationItems.map((item) => (
                       <Card 
                         key={`station-${item.id}-${item.item_id}`} 
-                        className="border-l-4 border-l-primary hover:shadow-md transition-all hover:border-l-accent"
+                        className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent"
                       >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div>
-                              <CardTitle className="text-lg font-bold">{item.item_id}</CardTitle>
-                              <p className="text-sm text-muted-foreground mt-1">{item.item_description}</p>
+                              <CardTitle className="text-xl font-bold">{item.item_id}</CardTitle>
+                              <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
                             </div>
                             <Badge
                               variant={item.tray_status === "active" ? "default" : "secondary"}
-                              className="ml-2"
+                              className="ml-2 text-sm py-1 px-3"
                             >
                               {item.tray_status}
                             </Badge>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/5 rounded-lg">
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-2 gap-6 p-5 bg-accent/5 rounded-lg">
                             <div>
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Available Qty</span>
-                              <p className="font-bold text-xl text-primary mt-1">
+                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Available Qty</span>
+                              <p className="font-bold text-2xl text-primary mt-2">
                                 {item.available_quantity}
                               </p>
                             </div>
                             <div>
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Inbound Date</span>
-                              <p className="font-medium mt-1">{item.inbound_date}</p>
+                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Inbound Date</span>
+                              <p className="font-semibold text-lg mt-2">{item.inbound_date}</p>
                             </div>
                           </div>
                           <Button
                             onClick={() => handleItemClick(item)}
-                            className="w-full"
+                            className="w-full h-12 text-base font-semibold"
                             size="lg"
                           >
                             Select for Putaway
@@ -422,64 +427,64 @@ const AdhocMode = () => {
           {/* In Storage Section */}
           {!loading && trayId && (
             <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-card">
+              <CardHeader className="border-b bg-card pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">In Storage</CardTitle>
+                  <CardTitle className="text-2xl">In Storage</CardTitle>
                   {storageItems.length > 0 && (
                     <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="text-sm">
+                      <Badge variant="outline" className="text-base py-1 px-3">
                         Tray: {storageItems[0].tray_id}
                       </Badge>
-                      <Badge className="text-sm">
+                      <Badge className="text-base py-1 px-3">
                         {storageItems.length} item{storageItems.length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-8">
                 {storageItems.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No trays in storage</p>
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg font-medium">No trays in storage</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {storageItems.map((item) => (
                       <Card 
                         key={`storage-${item.id}-${item.item_id}`} 
-                        className="border-l-4 border-l-secondary hover:shadow-md transition-all hover:border-l-accent"
+                        className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent"
                       >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div>
-                              <CardTitle className="text-lg font-bold">{item.item_id}</CardTitle>
-                              <p className="text-sm text-muted-foreground mt-1">{item.item_description}</p>
+                              <CardTitle className="text-xl font-bold">{item.item_id}</CardTitle>
+                              <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
                             </div>
                             <Badge
                               variant={item.tray_status === "active" ? "default" : "secondary"}
-                              className="ml-2"
+                              className="ml-2 text-sm py-1 px-3"
                             >
                               {item.tray_status}
                             </Badge>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/5 rounded-lg">
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-2 gap-6 p-5 bg-accent/5 rounded-lg">
                             <div>
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Available Qty</span>
-                              <p className="font-bold text-xl text-secondary mt-1">
+                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Available Qty</span>
+                              <p className="font-bold text-2xl text-secondary mt-2">
                                 {item.available_quantity}
                               </p>
                             </div>
                             <div>
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide">Inbound Date</span>
-                              <p className="font-medium mt-1">{item.inbound_date}</p>
+                              <span className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Inbound Date</span>
+                              <p className="font-semibold text-lg mt-2">{item.inbound_date}</p>
                             </div>
                           </div>
                           <Button
                             onClick={handleRequestTray}
                             variant="secondary"
-                            className="w-full"
+                            className="w-full h-12 text-base font-semibold"
                             size="lg"
                           >
                             Request Tray to Station
