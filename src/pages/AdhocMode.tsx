@@ -18,6 +18,7 @@ interface TrayItem {
   available_quantity: number;
   inbound_date: string;
   tray_status: string;
+  tray_lockcount: number;
 }
 
 interface Order {
@@ -466,6 +467,7 @@ const AdhocMode = () => {
                             <Button
                               onClick={() => handleItemClick(item)}
                               className="h-12 text-base font-semibold"
+                              disabled={item.tray_lockcount === 0}
                             >
                               Inbound
                             </Button>
@@ -473,6 +475,7 @@ const AdhocMode = () => {
                               onClick={() => handleReleaseTray(item.tray_id)}
                               variant="outline"
                               className="h-12 text-base font-semibold"
+                              disabled={item.tray_lockcount === 0}
                             >
                               Release
                             </Button>
