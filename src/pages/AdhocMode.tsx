@@ -203,19 +203,9 @@ const AdhocMode = () => {
         setReadyOrders(data.records || []);
       } else {
         setReadyOrders([]);
-        toast({
-          title: "Error",
-          description: "Failed to fetch ready orders",
-          variant: "destructive",
-        });
       }
     } catch (error) {
       setReadyOrders([]);
-      toast({
-        title: "Error",
-        description: "Failed to fetch ready orders",
-        variant: "destructive",
-      });
     }
   };
 
@@ -236,19 +226,9 @@ const AdhocMode = () => {
         setPendingOrders(data.records || []);
       } else {
         setPendingOrders([]);
-        toast({
-          title: "Error",
-          description: "Failed to fetch pending orders",
-          variant: "destructive",
-        });
       }
     } catch (error) {
       setPendingOrders([]);
-      toast({
-        title: "Error",
-        description: "Failed to fetch pending orders",
-        variant: "destructive",
-      });
     }
   };
 
