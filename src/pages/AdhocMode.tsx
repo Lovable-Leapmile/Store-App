@@ -875,7 +875,7 @@ const AdhocMode = () => {
                 
                 <TabsContent value="item" className="space-y-3">
                   <Label className="text-base font-semibold">Item ID</Label>
-                  <Input placeholder="Enter Item ID or leave empty to browse" value={itemId} onChange={e => {
+                  <Input value={itemId} onChange={e => {
                   setItemId(e.target.value);
                   if (!e.target.value.trim()) {
                     setItemStationItems([]);
@@ -883,7 +883,7 @@ const AdhocMode = () => {
                     setStorageOffset(0);
                     setStorageTotalCount(0);
                   }
-                }} className="h-14 text-lg px-5 border-2" />
+                }} className="h-14 text-lg px-5 border-2" placeholder="Enter Item ID" />
                   
                   {!itemId.trim() && <div className="space-y-3 mt-4">
                       <Label className="text-base font-semibold">Filters</Label>
