@@ -73,14 +73,14 @@ const AdhocMode = () => {
   const [releasingOrderId, setReleasingOrderId] = useState<number | null>(null);
   const [showTransactionDialog, setShowTransactionDialog] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [transactionType, setTransactionType] = useState<'inbound' | 'pickup' | null>(null);
+  const [transactionType, setTransactionType] = useState<"inbound" | "pickup" | null>(null);
   const [trayItemsForPickup, setTrayItemsForPickup] = useState<TrayItem[]>([]);
   const [selectedProductForPickup, setSelectedProductForPickup] = useState<string | null>(null);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
     if (activeTab !== "tray") return;
-    
+
     if (!trayId.trim()) return;
 
     const timer = setTimeout(() => {
@@ -109,7 +109,7 @@ const AdhocMode = () => {
   // Auto-search for item on input change with debounce
   useEffect(() => {
     if (activeTab !== "item") return;
-    
+
     if (!itemId.trim()) return;
 
     const timer = setTimeout(() => {
@@ -170,7 +170,7 @@ const AdhocMode = () => {
   // Poll ready orders every 5 seconds when modal is open
   useEffect(() => {
     if (!showReadyDialog) return;
-    
+
     fetchReadyOrders();
     const interval = setInterval(fetchReadyOrders, 5000);
     return () => clearInterval(interval);
@@ -179,7 +179,7 @@ const AdhocMode = () => {
   // Poll pending orders every 5 seconds when modal is open
   useEffect(() => {
     if (!showPendingDialog) return;
-    
+
     fetchPendingOrders();
     const interval = setInterval(fetchPendingOrders, 5000);
     return () => clearInterval(interval);
@@ -195,7 +195,7 @@ const AdhocMode = () => {
               accept: "application/json",
               Authorization: `Bearer ${API_TOKEN}`,
             },
-          }
+          },
         ),
         fetch(
           `${BASE_URL}/nanostore/orders?tray_status=inprogress&status=active&order_by_field=updated_at&order_by_type=DESC`,
@@ -204,7 +204,7 @@ const AdhocMode = () => {
               accept: "application/json",
               Authorization: `Bearer ${API_TOKEN}`,
             },
-          }
+          },
         ),
       ]);
 
@@ -237,7 +237,7 @@ const AdhocMode = () => {
             accept: "application/json",
             Authorization: `Bearer ${API_TOKEN}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -260,7 +260,7 @@ const AdhocMode = () => {
             accept: "application/json",
             Authorization: `Bearer ${API_TOKEN}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -277,16 +277,13 @@ const AdhocMode = () => {
   const handleReleaseOrder = async (orderId: number) => {
     setReleasingOrderId(orderId);
     try {
-      const response = await fetch(
-        `${BASE_URL}/nanostore/orders/complete?record_id=${orderId}`,
-        {
-          method: "PATCH",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
-          },
-        }
-      );
+      const response = await fetch(`${BASE_URL}/nanostore/orders/complete?record_id=${orderId}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to release order");
@@ -320,10 +317,10 @@ const AdhocMode = () => {
     setShowTransactionDialog(true);
   };
 
-  const handleTransactionTypeSelect = async (type: 'inbound' | 'pickup') => {
+  const handleTransactionTypeSelect = async (type: "inbound" | "pickup") => {
     setTransactionType(type);
-    
-    if (type === 'pickup' && selectedOrder) {
+
+    if (type === "pickup" && selectedOrder) {
       // Fetch items for the tray
       try {
         const response = await fetch(
@@ -333,7 +330,7 @@ const AdhocMode = () => {
               accept: "application/json",
               Authorization: `Bearer ${API_TOKEN}`,
             },
-          }
+          },
         );
 
         if (response.ok) {
@@ -376,7 +373,7 @@ const AdhocMode = () => {
             Authorization: `Bearer ${API_TOKEN}`,
           },
           body: "",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -421,7 +418,7 @@ const AdhocMode = () => {
             Authorization: `Bearer ${API_TOKEN}`,
           },
           body: "",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -451,7 +448,7 @@ const AdhocMode = () => {
     try {
       const hasItemParam = showEmptyBins ? "false" : "true";
       const dividerParam = trayDividerFilter !== null ? `&tray_divider=${trayDividerFilter}` : "";
-      
+
       const response = await fetch(
         `${BASE_URL}/nanostore/trays_for_order?in_station=false${dividerParam}&has_item=${hasItemParam}&num_records=10&offset=${offset}&order_flow=fifo`,
         {
@@ -469,7 +466,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setAllTrays(data.records || []);
-      setTotalCount(data.total_count || data.count || 0);
+      setTotalCount(data.total_count || 0);
     } catch (error) {
       setAllTrays([]);
       toast({
@@ -524,15 +521,15 @@ const AdhocMode = () => {
 
       const data = await response.json();
       const items = data.records || [];
-      
+
       // Fetch station info for each tray
       const itemsWithStation = await Promise.all(
         items.map(async (item: TrayItem) => {
           const stationName = await fetchStationInfo(item.tray_id);
           return { ...item, station_friendly_name: stationName };
-        })
+        }),
       );
-      
+
       setStationItems(itemsWithStation);
     } catch (error) {
       setStationItems([]);
@@ -589,15 +586,15 @@ const AdhocMode = () => {
 
       const data = await response.json();
       const items = data.records || [];
-      
+
       // Fetch station info for each tray
       const itemsWithStation = await Promise.all(
         items.map(async (item: TrayItem) => {
           const stationName = await fetchStationInfo(item.tray_id);
           return { ...item, station_friendly_name: stationName };
-        })
+        }),
       );
-      
+
       setItemStationItems(itemsWithStation);
     } catch (error) {
       setItemStationItems([]);
@@ -807,17 +804,14 @@ const AdhocMode = () => {
       const data = await response.json();
       if (data.records && data.records.length > 0) {
         const order: Order = data.records[0];
-        
-        const patchResponse = await fetch(
-          `${BASE_URL}/nanostore/orders/complete?record_id=${order.id}`,
-          {
-            method: "PATCH",
-            headers: {
-              accept: "application/json",
-              Authorization: `Bearer ${API_TOKEN}`,
-            },
+
+        const patchResponse = await fetch(`${BASE_URL}/nanostore/orders/complete?record_id=${order.id}`, {
+          method: "PATCH",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
           },
-        );
+        });
 
         if (!patchResponse.ok) {
           throw new Error("Failed to release tray");
@@ -929,10 +923,10 @@ const AdhocMode = () => {
               </div>
               <h1 className="text-xl font-bold text-foreground">Adhoc Mode</h1>
             </div>
-            
+
             {/* Count Boxes */}
             <div className="flex gap-3">
-              <Card 
+              <Card
                 className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
                 onClick={() => {
                   fetchReadyOrders();
@@ -948,8 +942,8 @@ const AdhocMode = () => {
                   </div>
                 </CardContent>
               </Card>
-              
-              <Card 
+
+              <Card
                 className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
                 onClick={() => {
                   fetchPendingOrders();
@@ -987,7 +981,7 @@ const AdhocMode = () => {
                   <TabsTrigger value="tray">Tray Search</TabsTrigger>
                   <TabsTrigger value="item">Item Search</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="tray" className="space-y-3">
                   <Label className="text-base font-semibold">Tray ID</Label>
                   <Input
@@ -1004,7 +998,7 @@ const AdhocMode = () => {
                     }}
                     className="h-14 text-lg px-5 border-2"
                   />
-                  
+
                   {!trayId.trim() && (
                     <div className="space-y-3 mt-4">
                       <Label className="text-base font-semibold">Filters</Label>
@@ -1064,7 +1058,7 @@ const AdhocMode = () => {
                     </div>
                   )}
                 </TabsContent>
-                
+
                 <TabsContent value="item" className="space-y-3">
                   <Label className="text-base font-semibold">Item ID</Label>
                   <Input
@@ -1081,7 +1075,7 @@ const AdhocMode = () => {
                     }}
                     className="h-14 text-lg px-5 border-2"
                   />
-                  
+
                   {!itemId.trim() && (
                     <div className="space-y-3 mt-4">
                       <Label className="text-base font-semibold">Filters</Label>
@@ -1165,9 +1159,7 @@ const AdhocMode = () => {
                   <CardTitle className="text-lg font-bold">
                     {showEmptyBins ? "Empty Bins" : "Trays in Storage"}
                   </CardTitle>
-                  <Badge className="text-sm py-1 px-2.5">
-                    {totalCount} total
-                  </Badge>
+                  <Badge className="text-sm py-1 px-2.5">{totalCount} total</Badge>
                 </div>
               </CardHeader>
               <CardContent className="p-4">
@@ -1227,9 +1219,7 @@ const AdhocMode = () => {
                               </div>
                             </div>
                             {tray.inbound_date && (
-                              <div className="text-xs text-muted-foreground">
-                                Inbound: {tray.inbound_date}
-                              </div>
+                              <div className="text-xs text-muted-foreground">Inbound: {tray.inbound_date}</div>
                             )}
                             <Button
                               onClick={() => handleRequestTray(tray.tray_id)}
@@ -1244,7 +1234,7 @@ const AdhocMode = () => {
                         </Card>
                       ))}
                     </div>
-                    
+
                     {/* Pagination */}
                     {totalCount > 0 && (
                       <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
@@ -1258,7 +1248,7 @@ const AdhocMode = () => {
                           <ChevronLeft size={16} />
                           Previous
                         </Button>
-                        
+
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
                             {allTrays.length} {allTrays.length !== 1 ? "trays" : "tray"}
@@ -1305,7 +1295,8 @@ const AdhocMode = () => {
                         </Badge>
                       )}
                       <Badge className="text-sm py-1 px-2.5">
-                        {(activeTab === "tray" ? stationItems : itemStationItems).length} item{(activeTab === "tray" ? stationItems : itemStationItems).length !== 1 ? "s" : ""}
+                        {(activeTab === "tray" ? stationItems : itemStationItems).length} item
+                        {(activeTab === "tray" ? stationItems : itemStationItems).length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
                   )}
@@ -1409,7 +1400,8 @@ const AdhocMode = () => {
                         </Badge>
                       )}
                       <Badge className="text-sm py-1 px-2.5">
-                        {(activeTab === "tray" ? storageItems : itemStorageItems).length} item{(activeTab === "tray" ? storageItems : itemStorageItems).length !== 1 ? "s" : ""}
+                        {(activeTab === "tray" ? storageItems : itemStorageItems).length} item
+                        {(activeTab === "tray" ? storageItems : itemStorageItems).length !== 1 ? "s" : ""}
                       </Badge>
                     </div>
                   )}
@@ -1472,7 +1464,7 @@ const AdhocMode = () => {
                         </CardContent>
                       </Card>
                     ))}
-                    
+
                     {/* Storage Pagination */}
                     {storageTotalCount > 0 && (
                       <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
@@ -1488,7 +1480,7 @@ const AdhocMode = () => {
                           <ChevronLeft size={16} />
                           Previous
                         </Button>
-                        
+
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
                             {storageTotalCount} {storageTotalCount !== 1 ? "items" : "item"}
@@ -1549,11 +1541,7 @@ const AdhocMode = () => {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleSelectOrder(order)}
-                          variant="default"
-                          size="sm"
-                        >
+                        <Button onClick={() => handleSelectOrder(order)} variant="default" size="sm">
                           Select
                         </Button>
                         <Button
@@ -1616,7 +1604,11 @@ const AdhocMode = () => {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
-              {!transactionType ? "Select Transaction Type" : transactionType === 'inbound' ? "Inbound Transaction" : "Pickup Transaction"}
+              {!transactionType
+                ? "Select Transaction Type"
+                : transactionType === "inbound"
+                  ? "Inbound Transaction"
+                  : "Pickup Transaction"}
             </DialogTitle>
           </DialogHeader>
 
@@ -1629,21 +1621,21 @@ const AdhocMode = () => {
                 </div>
               )}
               <Button
-                onClick={() => handleTransactionTypeSelect('inbound')}
+                onClick={() => handleTransactionTypeSelect("inbound")}
                 variant="outline"
                 className="w-full h-20 text-lg"
               >
                 Inbound
               </Button>
               <Button
-                onClick={() => handleTransactionTypeSelect('pickup')}
+                onClick={() => handleTransactionTypeSelect("pickup")}
                 variant="outline"
                 className="w-full h-20 text-lg"
               >
                 Pickup
               </Button>
             </div>
-          ) : transactionType === 'inbound' ? (
+          ) : transactionType === "inbound" ? (
             <div className="space-y-4">
               {selectedOrder && (
                 <div className="p-4 bg-accent/10 rounded-lg space-y-2">
@@ -1716,9 +1708,7 @@ const AdhocMode = () => {
               <div className="space-y-2">
                 <Label>Select Product</Label>
                 {trayItemsForPickup.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No items found in this tray
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground">No items found in this tray</div>
                 ) : (
                   <div className="space-y-2">
                     {trayItemsForPickup.map((item) => (
@@ -1737,9 +1727,7 @@ const AdhocMode = () => {
                               <p className="font-bold">{item.item_id}</p>
                               <p className="text-sm text-muted-foreground">{item.item_description}</p>
                             </div>
-                            <Badge variant="secondary">
-                              Qty: {item.available_quantity}
-                            </Badge>
+                            <Badge variant="secondary">Qty: {item.available_quantity}</Badge>
                           </div>
                         </CardContent>
                       </Card>
@@ -1784,11 +1772,7 @@ const AdhocMode = () => {
                 <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
                   Back
                 </Button>
-                <Button
-                  onClick={handleSubmitPickupTransaction}
-                  disabled={!selectedProductForPickup}
-                  className="flex-1"
-                >
+                <Button onClick={handleSubmitPickupTransaction} disabled={!selectedProductForPickup} className="flex-1">
                   Submit Pickup
                 </Button>
               </div>
