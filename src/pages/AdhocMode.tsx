@@ -561,8 +561,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setStorageItems(data.records || []);
-      // Use count for current page, enable next if we have full page
-      setStorageTotalCount(data.count || 0);
+      setStorageTotalCount(data.total_count || 0);
     } catch (error) {
       setStorageItems([]);
       setStorageTotalCount(0);
@@ -627,8 +626,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setItemStorageItems(data.records || []);
-      // Use count for current page, enable next if we have full page
-      setStorageTotalCount(data.count || 0);
+      setStorageTotalCount(data.total_count || 0);
     } catch (error) {
       setItemStorageItems([]);
       setStorageTotalCount(0);
@@ -1504,7 +1502,7 @@ const AdhocMode = () => {
                           onClick={() => {
                             setStorageOffset(storageOffset + 10);
                           }}
-                          disabled={storageTotalCount < 10}
+                          disabled={storageOffset + 10 >= storageTotalCount}
                           variant="outline"
                           size="sm"
                           className="gap-1"
