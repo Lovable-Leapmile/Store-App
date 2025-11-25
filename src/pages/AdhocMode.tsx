@@ -561,10 +561,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setStorageItems(data.records || []);
-      // Use total_count if available, otherwise keep existing count for pagination logic
-      if (data.total_count !== undefined) {
-        setStorageTotalCount(data.total_count);
-      }
+      setStorageTotalCount(0); // Storage API doesn't provide total_count
     } catch (error) {
       setStorageItems([]);
       setStorageTotalCount(0);
@@ -629,10 +626,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setItemStorageItems(data.records || []);
-      // Use total_count if available, otherwise keep existing count for pagination logic
-      if (data.total_count !== undefined) {
-        setStorageTotalCount(data.total_count);
-      }
+      setStorageTotalCount(0); // Storage API doesn't provide total_count
     } catch (error) {
       setItemStorageItems([]);
       setStorageTotalCount(0);
@@ -1415,7 +1409,7 @@ const AdhocMode = () => {
                         </Badge>
                       )}
                       <Badge className="text-sm py-1 px-2.5">
-                        {storageTotalCount > 0 ? `${storageTotalCount} total` : `${(activeTab === "tray" ? storageItems : itemStorageItems).length} item${(activeTab === "tray" ? storageItems : itemStorageItems).length !== 1 ? "s" : ""}`}
+                        {(activeTab === "tray" ? storageItems : itemStorageItems).length} on page
                       </Badge>
                     </div>
                   )}
@@ -1497,10 +1491,10 @@ const AdhocMode = () => {
                         
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
-                            {(activeTab === "tray" ? storageItems : itemStorageItems).length} trays
+                            Page {Math.floor(storageOffset / 10) + 1}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            (Page {Math.floor(storageOffset / 10) + 1}{storageTotalCount > 0 ? ` of ${Math.ceil(storageTotalCount / 10)}` : ""})
+                            ({(activeTab === "tray" ? storageItems : itemStorageItems).length} items)
                           </span>
                         </div>
 
@@ -1508,11 +1502,7 @@ const AdhocMode = () => {
                           onClick={() => {
                             setStorageOffset(storageOffset + 10);
                           }}
-                          disabled={
-                            storageTotalCount > 0 
-                              ? storageOffset + 10 >= storageTotalCount 
-                              : (activeTab === "tray" ? storageItems : itemStorageItems).length < 10
-                          }
+                          disabled={(activeTab === "tray" ? storageItems : itemStorageItems).length < 10}
                           variant="outline"
                           size="sm"
                           className="gap-1"
