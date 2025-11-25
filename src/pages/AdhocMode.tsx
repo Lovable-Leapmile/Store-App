@@ -1491,10 +1491,7 @@ const AdhocMode = () => {
                         
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
-                            Page {Math.floor(storageOffset / 10) + 1}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            ({(activeTab === "tray" ? storageItems : itemStorageItems).length} items)
+                            Showing {storageOffset + 1}-{storageOffset + (activeTab === "tray" ? storageItems : itemStorageItems).length}
                           </span>
                         </div>
 
