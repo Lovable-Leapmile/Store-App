@@ -412,7 +412,7 @@ const Home = () => {
                 )}
 
                 {(isUploading || uploadLogs.length > 0) && (
-                  <div className="space-y-4 flex-1 flex flex-col">
+                  <div className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-medium">Progress</span>
@@ -440,38 +440,40 @@ const Home = () => {
                       </div>
                     </div>
 
-                    <ScrollArea className="flex-1 rounded-lg border border-border h-[400px]">
-                      <div className="p-4 space-y-2">
-                        {uploadLogs.map((log, index) => (
-                          <div 
-                            key={index}
-                            className={`p-3 rounded-lg border ${
-                              log.status === 'success' 
-                                ? 'bg-green-500/5 border-green-500/20' 
-                                : 'bg-red-500/5 border-red-500/20'
-                            } animate-fade-in`}
-                          >
-                            <div className="flex items-start gap-3">
-                              {log.status === 'success' ? (
-                                <CheckCircle2 className="text-green-600 dark:text-green-400 shrink-0 mt-0.5" size={18} />
-                              ) : (
-                                <XCircle className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" size={18} />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-medium text-sm">{log.item_id}</span>
-                                  <span className="text-xs text-muted-foreground">•</span>
-                                  <span className="text-xs text-muted-foreground truncate">{log.item_description}</span>
-                                </div>
-                                {log.message && (
-                                  <p className="text-xs text-muted-foreground mt-1">{log.message}</p>
+                    <div className="rounded-lg border border-border overflow-hidden">
+                      <ScrollArea className="h-[400px]">
+                        <div className="p-4 space-y-2">
+                          {uploadLogs.map((log, index) => (
+                            <div 
+                              key={index}
+                              className={`p-3 rounded-lg border ${
+                                log.status === 'success' 
+                                  ? 'bg-green-500/5 border-green-500/20' 
+                                  : 'bg-red-500/5 border-red-500/20'
+                              } animate-fade-in`}
+                            >
+                              <div className="flex items-start gap-3">
+                                {log.status === 'success' ? (
+                                  <CheckCircle2 className="text-green-600 dark:text-green-400 shrink-0 mt-0.5" size={18} />
+                                ) : (
+                                  <XCircle className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" size={18} />
                                 )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-medium text-sm">{log.item_id}</span>
+                                    <span className="text-xs text-muted-foreground">•</span>
+                                    <span className="text-xs text-muted-foreground truncate">{log.item_description}</span>
+                                  </div>
+                                  {log.message && (
+                                    <p className="text-xs text-muted-foreground mt-1">{log.message}</p>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
 
                     {!isUploading && (
                       <Button 
