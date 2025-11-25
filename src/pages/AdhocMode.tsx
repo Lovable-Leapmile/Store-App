@@ -561,7 +561,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setStorageItems(data.records || []);
-      setStorageTotalCount(data.count || 0);
+      setStorageTotalCount(data.total_count || data.count || 0);
     } catch (error) {
       setStorageItems([]);
       setStorageTotalCount(0);
@@ -626,7 +626,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setItemStorageItems(data.records || []);
-      setStorageTotalCount(data.count || 0);
+      setStorageTotalCount(data.total_count || data.count || 0);
     } catch (error) {
       setItemStorageItems([]);
       setStorageTotalCount(0);
