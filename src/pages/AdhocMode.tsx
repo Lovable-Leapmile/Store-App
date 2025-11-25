@@ -1246,8 +1246,8 @@ const AdhocMode = () => {
                     </div>
                     
                     {/* Pagination */}
-                    {totalCount > 10 && (
-                      <div className="flex items-center justify-center gap-2 mt-6">
+                    {totalCount > 0 && (
+                      <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
                         <Button
                           onClick={() => setOffset(Math.max(0, offset - 10))}
                           disabled={offset === 0}
@@ -1261,10 +1261,10 @@ const AdhocMode = () => {
                         
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
-                            Page {Math.floor(offset / 10) + 1} of {Math.ceil(totalCount / 10)}
+                            {allTrays.length} {allTrays.length !== 1 ? "trays" : "tray"}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            ({offset + 1}-{Math.min(offset + 10, totalCount)} of {totalCount})
+                            (Page {Math.floor(offset / 10) + 1} of {Math.ceil(totalCount / 10)})
                           </span>
                         </div>
 
