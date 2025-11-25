@@ -9,18 +9,18 @@ interface ReconcileCardProps {
   onClick?: () => void;
 }
 
-const ReconcileCard = ({
-  material,
-  sapQuantity,
-  itemQuantity,
-  quantityDifference,
+const ReconcileCard = ({ 
+  material, 
+  sapQuantity, 
+  itemQuantity, 
+  quantityDifference, 
   reconcileStatus,
-  onClick
+  onClick 
 }: ReconcileCardProps) => {
   const getCardClassName = (status: string) => {
     const isClickable = (status === "sap_shortage" || status === "robot_shortage") && onClick;
     const baseClasses = isClickable ? "cursor-pointer" : "";
-
+    
     switch (status) {
       case "sap_shortage":
         return `${baseClasses} border-red-500 bg-red-500/5 hover:bg-red-500/10`;
@@ -53,7 +53,7 @@ const ReconcileCard = ({
   };
 
   return (
-    <Card
+    <Card 
       className={`p-4 transition-all duration-200 border-2 ${getCardClassName(reconcileStatus)} animate-fade-in`}
       onClick={handleClick}
     >
