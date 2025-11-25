@@ -440,7 +440,7 @@ const Home = () => {
                       </div>
                     </div>
 
-                    <ScrollArea className="flex-1 rounded-lg border border-border">
+                    <ScrollArea className="flex-1 rounded-lg border border-border h-[400px]">
                       <div className="p-4 space-y-2">
                         {uploadLogs.map((log, index) => (
                           <div 
