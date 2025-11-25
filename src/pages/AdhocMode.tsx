@@ -1261,10 +1261,7 @@ const AdhocMode = () => {
                         
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
-                            {allTrays.length} {allTrays.length !== 1 ? "trays" : "tray"}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            (Page {Math.floor(offset / 10) + 1} of {Math.ceil(totalCount / 10)})
+                            Showing {offset + 1}-{offset + allTrays.length} of {totalCount}
                           </span>
                         </div>
 
