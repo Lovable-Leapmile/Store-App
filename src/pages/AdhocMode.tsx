@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, Search, Package, Minus, Plus, Scan } from "lucide-react";
+import { ArrowLeft, Search, Package, Minus, Plus, Scan, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -1217,27 +1217,40 @@ const AdhocMode = () => {
                     </div>
                     
                     {/* Pagination */}
-                    <div className="flex items-center justify-between mt-6">
-                      <Button
-                        onClick={() => setOffset(Math.max(0, offset - 10))}
-                        disabled={offset === 0}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-sm text-muted-foreground">
-                        Showing {offset + 1} - {Math.min(offset + 10, totalCount)} of {totalCount}
-                      </span>
-                      <Button
-                        onClick={() => setOffset(offset + 10)}
-                        disabled={offset + 10 >= totalCount}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Next
-                      </Button>
-                    </div>
+                    {totalCount > 10 && (
+                      <div className="flex items-center justify-center gap-2 mt-6">
+                        <Button
+                          onClick={() => setOffset(Math.max(0, offset - 10))}
+                          disabled={offset === 0}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
+                          <ChevronLeft size={16} />
+                          Previous
+                        </Button>
+                        
+                        <div className="flex items-center gap-2 px-4">
+                          <span className="text-sm font-medium">
+                            Page {Math.floor(offset / 10) + 1} of {Math.ceil(totalCount / 10)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            ({offset + 1}-{Math.min(offset + 10, totalCount)} of {totalCount})
+                          </span>
+                        </div>
+
+                        <Button
+                          onClick={() => setOffset(offset + 10)}
+                          disabled={offset + 10 >= totalCount}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
+                          Next
+                          <ChevronRight size={16} />
+                        </Button>
+                      </div>
+                    )}
                   </>
                 )}
               </CardContent>
