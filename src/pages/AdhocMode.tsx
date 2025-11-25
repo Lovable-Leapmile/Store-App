@@ -61,6 +61,8 @@ const AdhocMode = () => {
   const [showEmptyBins, setShowEmptyBins] = useState(false);
   const [offset, setOffset] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [storageOffset, setStorageOffset] = useState(0);
+  const [storageTotalCount, setStorageTotalCount] = useState(0);
   const [retrievingTrayId, setRetrievingTrayId] = useState<string | null>(null);
   const [readyCount, setReadyCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
@@ -84,6 +86,7 @@ const AdhocMode = () => {
     const timer = setTimeout(() => {
       setStationItems([]);
       setStorageItems([]);
+      setStorageOffset(0);
       setLoading(true);
       Promise.all([fetchStationItems(), fetchStorageItems()]).finally(() => setLoading(false));
     }, 500);
@@ -112,6 +115,7 @@ const AdhocMode = () => {
     const timer = setTimeout(() => {
       setItemStationItems([]);
       setItemStorageItems([]);
+      setStorageOffset(0);
       setLoading(true);
       Promise.all([fetchItemStationItems(), fetchItemStorageItems()]).finally(() => setLoading(false));
     }, 500);
@@ -130,6 +134,21 @@ const AdhocMode = () => {
 
     return () => clearInterval(interval);
   }, [itemId, activeTab]);
+
+  // Reset storage offset when tab changes
+  useEffect(() => {
+    setStorageOffset(0);
+    setStorageTotalCount(0);
+  }, [activeTab]);
+
+  // Refetch storage items when storageOffset changes
+  useEffect(() => {
+    if (activeTab === "tray" && trayId.trim()) {
+      fetchStorageItems();
+    } else if (activeTab === "item" && itemId.trim()) {
+      fetchItemStorageItems();
+    }
+  }, [storageOffset]);
 
   // Fetch all trays when search fields are empty
   useEffect(() => {
@@ -525,7 +544,7 @@ const AdhocMode = () => {
 
     try {
       const response = await fetch(
-        `${BASE_URL}/nanostore/trays_for_order?in_station=false&tray_id=${trayId}&num_records=10&offset=0`,
+        `${BASE_URL}/nanostore/trays_for_order?in_station=false&tray_id=${trayId}&num_records=10&offset=${storageOffset}`,
         {
           headers: {
             accept: "application/json",
@@ -536,13 +555,16 @@ const AdhocMode = () => {
 
       if (!response.ok) {
         setStorageItems([]);
+        setStorageTotalCount(0);
         return;
       }
 
       const data = await response.json();
       setStorageItems(data.records || []);
+      setStorageTotalCount(data.count || 0);
     } catch (error) {
       setStorageItems([]);
+      setStorageTotalCount(0);
     }
   };
 
@@ -587,7 +609,7 @@ const AdhocMode = () => {
 
     try {
       const response = await fetch(
-        `${BASE_URL}/nanostore/trays_for_order?in_station=false&item_id=${itemId}&num_records=10&offset=0&order_flow=fifo`,
+        `${BASE_URL}/nanostore/trays_for_order?in_station=false&item_id=${itemId}&num_records=10&offset=${storageOffset}&order_flow=fifo`,
         {
           headers: {
             accept: "application/json",
@@ -598,13 +620,16 @@ const AdhocMode = () => {
 
       if (!response.ok) {
         setItemStorageItems([]);
+        setStorageTotalCount(0);
         return;
       }
 
       const data = await response.json();
       setItemStorageItems(data.records || []);
+      setStorageTotalCount(data.count || 0);
     } catch (error) {
       setItemStorageItems([]);
+      setStorageTotalCount(0);
     }
   };
 
@@ -973,6 +998,8 @@ const AdhocMode = () => {
                       if (!e.target.value.trim()) {
                         setStationItems([]);
                         setStorageItems([]);
+                        setStorageOffset(0);
+                        setStorageTotalCount(0);
                       }
                     }}
                     className="h-14 text-lg px-5 border-2"
@@ -1048,6 +1075,8 @@ const AdhocMode = () => {
                       if (!e.target.value.trim()) {
                         setItemStationItems([]);
                         setItemStorageItems([]);
+                        setStorageOffset(0);
+                        setStorageTotalCount(0);
                       }
                     }}
                     className="h-14 text-lg px-5 border-2"
@@ -1443,6 +1472,46 @@ const AdhocMode = () => {
                         </CardContent>
                       </Card>
                     ))}
+                    
+                    {/* Storage Pagination */}
+                    {storageTotalCount > 0 && (
+                      <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
+                        <Button
+                          onClick={() => {
+                            setStorageOffset(Math.max(0, storageOffset - 10));
+                          }}
+                          disabled={storageOffset === 0}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
+                          <ChevronLeft size={16} />
+                          Previous
+                        </Button>
+                        
+                        <div className="flex items-center gap-2 px-4">
+                          <span className="text-sm font-medium">
+                            {storageTotalCount} {storageTotalCount !== 1 ? "items" : "item"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            (Page {Math.floor(storageOffset / 10) + 1})
+                          </span>
+                        </div>
+
+                        <Button
+                          onClick={() => {
+                            setStorageOffset(storageOffset + 10);
+                          }}
+                          disabled={storageOffset + 10 >= storageTotalCount}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
+                          Next
+                          <ChevronRight size={16} />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
