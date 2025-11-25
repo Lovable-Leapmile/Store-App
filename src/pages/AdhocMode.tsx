@@ -69,6 +69,11 @@ const AdhocMode = () => {
   const [showReadyDialog, setShowReadyDialog] = useState(false);
   const [showPendingDialog, setShowPendingDialog] = useState(false);
   const [releasingOrderId, setReleasingOrderId] = useState<number | null>(null);
+  const [showTransactionDialog, setShowTransactionDialog] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [transactionType, setTransactionType] = useState<'inbound' | 'pickup' | null>(null);
+  const [trayItemsForPickup, setTrayItemsForPickup] = useState<TrayItem[]>([]);
+  const [selectedProductForPickup, setSelectedProductForPickup] = useState<string | null>(null);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -283,6 +288,142 @@ const AdhocMode = () => {
       });
     } finally {
       setReleasingOrderId(null);
+    }
+  };
+
+  const handleSelectOrder = async (order: Order) => {
+    setSelectedOrder(order);
+    setTransactionType(null);
+    setTransactionItemId("");
+    setQuantity(1);
+    setSelectedProductForPickup(null);
+    setTrayItemsForPickup([]);
+    setShowTransactionDialog(true);
+  };
+
+  const handleTransactionTypeSelect = async (type: 'inbound' | 'pickup') => {
+    setTransactionType(type);
+    
+    if (type === 'pickup' && selectedOrder) {
+      // Fetch items for the tray
+      try {
+        const response = await fetch(
+          `${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${selectedOrder.tray_id}&order_flow=fifo`,
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.records && data.records.length > 0) {
+            setTrayItemsForPickup(data.records);
+          } else {
+            setTrayItemsForPickup([]);
+          }
+        } else {
+          setTrayItemsForPickup([]);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch tray items",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleSubmitInboundTransaction = async () => {
+    if (!selectedOrder || !transactionItemId.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter item ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/transaction?order_id=${selectedOrder.id}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: "",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit transaction");
+      }
+
+      toast({
+        title: "Success",
+        description: "Inbound transaction completed successfully",
+      });
+
+      setShowTransactionDialog(false);
+      setSelectedOrder(null);
+      setTransactionType(null);
+      await fetchReadyOrders();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit inbound transaction",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmitPickupTransaction = async () => {
+    if (!selectedOrder || !selectedProductForPickup) {
+      toast({
+        title: "Error",
+        description: "Please select a product",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/transaction?order_id=${selectedOrder.id}&item_id=${selectedProductForPickup}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${transactionDate}`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: "",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit transaction");
+      }
+
+      toast({
+        title: "Success",
+        description: "Pickup transaction completed successfully",
+      });
+
+      setShowTransactionDialog(false);
+      setSelectedOrder(null);
+      setTransactionType(null);
+      await fetchReadyOrders();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit pickup transaction",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1325,14 +1466,23 @@ const AdhocMode = () => {
                           </Badge>
                         </div>
                       </div>
-                      <Button
-                        onClick={() => handleReleaseOrder(order.id)}
-                        disabled={releasingOrderId === order.id}
-                        variant="destructive"
-                        size="sm"
-                      >
-                        {releasingOrderId === order.id ? "Releasing..." : "Release"}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleSelectOrder(order)}
+                          variant="default"
+                          size="sm"
+                        >
+                          Select
+                        </Button>
+                        <Button
+                          onClick={() => handleReleaseOrder(order.id)}
+                          disabled={releasingOrderId === order.id}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          {releasingOrderId === order.id ? "Releasing..." : "Release"}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1376,6 +1526,192 @@ const AdhocMode = () => {
               ))
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transaction Selection Dialog */}
+      <Dialog open={showTransactionDialog} onOpenChange={setShowTransactionDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              {!transactionType ? "Select Transaction Type" : transactionType === 'inbound' ? "Inbound Transaction" : "Pickup Transaction"}
+            </DialogTitle>
+          </DialogHeader>
+
+          {!transactionType ? (
+            <div className="space-y-4 py-4">
+              {selectedOrder && (
+                <div className="p-4 bg-accent/10 rounded-lg space-y-2 mb-4">
+                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
+                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
+                </div>
+              )}
+              <Button
+                onClick={() => handleTransactionTypeSelect('inbound')}
+                variant="outline"
+                className="w-full h-20 text-lg"
+              >
+                Inbound
+              </Button>
+              <Button
+                onClick={() => handleTransactionTypeSelect('pickup')}
+                variant="outline"
+                className="w-full h-20 text-lg"
+              >
+                Pickup
+              </Button>
+            </div>
+          ) : transactionType === 'inbound' ? (
+            <div className="space-y-4">
+              {selectedOrder && (
+                <div className="p-4 bg-accent/10 rounded-lg space-y-2">
+                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
+                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="inbound-item-id">Item ID</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="inbound-item-id"
+                    placeholder="Enter or scan item ID"
+                    value={transactionItemId}
+                    onChange={(e) => setTransactionItemId(e.target.value)}
+                  />
+                  <Button variant="outline" size="icon" onClick={handleScanItemId}>
+                    <Scan size={20} />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Quantity</Label>
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus size={20} />
+                  </Button>
+                  <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
+                  <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                    <Plus size={20} />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="inbound-transaction-date">Transaction Date</Label>
+                <Input
+                  id="inbound-transaction-date"
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
+                  Back
+                </Button>
+                <Button onClick={handleSubmitInboundTransaction} className="flex-1">
+                  Submit Inbound
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {selectedOrder && (
+                <div className="p-4 bg-accent/10 rounded-lg space-y-2">
+                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
+                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label>Select Product</Label>
+                {trayItemsForPickup.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No items found in this tray
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {trayItemsForPickup.map((item) => (
+                      <Card
+                        key={item.id}
+                        className={`cursor-pointer border-2 transition-all ${
+                          selectedProductForPickup === item.item_id
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                        onClick={() => setSelectedProductForPickup(item.item_id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-bold">{item.item_id}</p>
+                              <p className="text-sm text-muted-foreground">{item.item_description}</p>
+                            </div>
+                            <Badge variant="secondary">
+                              Qty: {item.available_quantity}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {selectedProductForPickup && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Quantity to Pick</Label>
+                    <div className="flex items-center justify-center gap-4">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        disabled={quantity <= 1}
+                      >
+                        <Minus size={20} />
+                      </Button>
+                      <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
+                      <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                        <Plus size={20} />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="pickup-transaction-date">Transaction Date</Label>
+                    <Input
+                      id="pickup-transaction-date"
+                      type="date"
+                      value={transactionDate}
+                      onChange={(e) => setTransactionDate(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="flex gap-2">
+                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
+                  Back
+                </Button>
+                <Button
+                  onClick={handleSubmitPickupTransaction}
+                  disabled={!selectedProductForPickup}
+                  className="flex-1"
+                >
+                  Submit Pickup
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
