@@ -469,7 +469,7 @@ const AdhocMode = () => {
 
       const data = await response.json();
       setAllTrays(data.records || []);
-      setTotalCount(data.count || 0);
+      setTotalCount(data.total_count || data.count || 0);
     } catch (error) {
       setAllTrays([]);
       toast({
