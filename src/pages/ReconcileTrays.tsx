@@ -528,23 +528,27 @@ const ReconcileTrays = () => {
       {/* Item Details Card */}
       {itemDetails && (
         <div className="container max-w-6xl mx-auto px-4 py-4">
-          <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground font-medium">SAP Quantity</p>
-                <p className="text-2xl font-bold text-foreground">{itemDetails.sap_quantity}</p>
+          <Card className="p-6 bg-muted/30 border border-border">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">SAP Quantity</p>
+                <p className="text-3xl font-bold text-foreground">{itemDetails.sap_quantity}</p>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground font-medium">Item Quantity</p>
-                <p className="text-2xl font-bold text-primary">{itemDetails.item_quantity}</p>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Item Quantity</p>
+                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{itemDetails.item_quantity}</p>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground font-medium">Difference</p>
-                <p className="text-2xl font-bold text-destructive">{itemDetails.quantity_difference}</p>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Difference</p>
+                <p className="text-3xl font-bold text-red-600 dark:text-red-400">{itemDetails.quantity_difference}</p>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground font-medium">Status</p>
-                <p className="text-lg font-semibold text-warning capitalize">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Status</p>
+                <p className={`text-lg font-bold capitalize ${
+                  itemDetails.reconcile_status === 'sap_shortage' ? 'text-orange-600 dark:text-orange-400' :
+                  itemDetails.reconcile_status === 'robot_shortage' ? 'text-amber-600 dark:text-amber-400' :
+                  'text-green-600 dark:text-green-400'
+                }`}>
                   {itemDetails.reconcile_status.replace('_', ' ')}
                 </p>
               </div>
@@ -656,39 +660,31 @@ const ReconcileTrays = () => {
                     const isRetrieving = retrievingTrayId === tray.tray_id;
 
                     return (
-                      <Card
+                       <Card
                         key={tray.id}
-                        className="p-4 bg-card border-2 border-border hover:border-primary/30 transition-all"
+                        className="p-5 bg-card border border-border hover:shadow-md transition-all"
                       >
                         <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 rounded-lg bg-secondary/20 flex items-center justify-center">
-                                <Package className="text-secondary" size={20} />
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Tray ID</p>
-                                <p className="font-bold text-foreground">{tray.tray_id}</p>
-                              </div>
-                            </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Tray ID</p>
+                            <p className="text-xl font-bold text-foreground">{tray.tray_id}</p>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
                             <div>
-                              <p className="text-muted-foreground">Quantity</p>
-                              <p className="font-bold text-foreground">{tray.available_quantity}</p>
+                              <p className="text-xs text-muted-foreground mb-1">Quantity</p>
+                              <p className="text-2xl font-bold text-foreground">{tray.available_quantity}</p>
                             </div>
                             <div>
-                              <p className="text-muted-foreground">Status</p>
-                              <p className="font-semibold text-warning">In Storage</p>
+                              <p className="text-xs text-muted-foreground mb-1">Status</p>
+                              <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">In Storage</p>
                             </div>
                           </div>
 
                           <Button
                             onClick={() => handleRetrieveTray(tray)}
                             disabled={isRetrieving || isSubmitting}
-                            className="w-full"
-                            size="sm"
+                            className="w-full bg-teal-600 hover:bg-teal-700 dark:bg-teal-600 dark:hover:bg-teal-700"
                           >
                             {isRetrieving ? <RefreshCw className="animate-spin mr-2" size={16} /> : null}
                             {isRetrieving ? "Retrieving..." : "Retrieve Tray"}
