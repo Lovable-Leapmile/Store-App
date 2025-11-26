@@ -355,9 +355,44 @@ const AdhocMode = () => {
     }
     try {
       const userId = localStorage.getItem("userId") || "1";
+      let orderId = selectedOrder.id;
       
-      // First, update order with user_id
-      const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${selectedOrder.id}`, {
+      // First, try to fetch existing order
+      const fetchOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC&num_records=1`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`
+        }
+      });
+      
+      if (fetchOrderResponse.ok) {
+        const orderData = await fetchOrderResponse.json();
+        if (orderData.records && orderData.records.length > 0) {
+          orderId = orderData.records[0].id;
+        }
+      }
+      
+      // If no order found, create one
+      if (!orderId) {
+        const createOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&user_id=${userId}&auto_complete_time=10`, {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`
+          },
+          body: ""
+        });
+        
+        if (!createOrderResponse.ok) {
+          throw new Error("Failed to create order");
+        }
+        
+        const newOrderData = await createOrderResponse.json();
+        orderId = newOrderData.record_id || newOrderData.id;
+      }
+      
+      // Update order with user_id
+      const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${orderId}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -372,7 +407,7 @@ const AdhocMode = () => {
       }
       
       // Then proceed with transaction
-      const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${selectedOrder.id}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`, {
+      const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`, {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -410,9 +445,44 @@ const AdhocMode = () => {
     }
     try {
       const userId = localStorage.getItem("userId") || "1";
+      let orderId = selectedOrder.id;
       
-      // First, update order with user_id
-      const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${selectedOrder.id}`, {
+      // First, try to fetch existing order
+      const fetchOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC&num_records=1`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`
+        }
+      });
+      
+      if (fetchOrderResponse.ok) {
+        const orderData = await fetchOrderResponse.json();
+        if (orderData.records && orderData.records.length > 0) {
+          orderId = orderData.records[0].id;
+        }
+      }
+      
+      // If no order found, create one
+      if (!orderId) {
+        const createOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&user_id=${userId}&auto_complete_time=10`, {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`
+          },
+          body: ""
+        });
+        
+        if (!createOrderResponse.ok) {
+          throw new Error("Failed to create order");
+        }
+        
+        const newOrderData = await createOrderResponse.json();
+        orderId = newOrderData.record_id || newOrderData.id;
+      }
+      
+      // Update order with user_id
+      const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${orderId}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -427,7 +497,7 @@ const AdhocMode = () => {
       }
       
       // Then proceed with transaction
-      const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${selectedOrder.id}&item_id=${selectedProductForPickup}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${transactionDate}`, {
+      const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${selectedProductForPickup}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${transactionDate}`, {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -710,38 +780,9 @@ const AdhocMode = () => {
     handleRequestTrayWithTime(requestTrayId);
   };
   const handleSelectStationItem = async (item: TrayItem) => {
-    const userId = localStorage.getItem("userId") || "1";
-    
-    try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${item.tray_id}&tray_status=tray_ready_to_use&status=active&user_id=${userId}&order_by_field=updated_at&order_by_type=DESC`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
-      
-      if (!response.ok) throw new Error("Failed to fetch order");
-      
-      const data = await response.json();
-      if (data.records && data.records.length > 0) {
-        const order = data.records[0];
-        setSelectedOrder(order);
-        setShowTransactionDialog(true);
-      } else {
-        toast({
-          title: "No Order Found",
-          description: "No active order found for this tray",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching order:", error);
-      toast({
-        title: "Error",
-        description: "Failed to check order status",
-        variant: "destructive"
-      });
-    }
+    // Store the item for later use in transaction
+    setSelectedOrder({ tray_id: item.tray_id } as Order);
+    setShowTransactionDialog(true);
   };
   const handleReleaseTray = async (trayId: string) => {
     const userId = localStorage.getItem("userId") || "1";
