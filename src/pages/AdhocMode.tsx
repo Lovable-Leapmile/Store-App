@@ -376,6 +376,59 @@ const AdhocMode = () => {
       });
     }
   };
+
+  const handleSelectStorageItem = async (item: TrayItem) => {
+    const userId = localStorage.getItem("userId") || "1";
+    
+    try {
+      // First, request the tray to create an order
+      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${item.tray_id}&user_id=${userId}&auto_complete_time=2`, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`
+        },
+        body: ""
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to request tray");
+      }
+      
+      const data = await response.json();
+      
+      // Create a mock order object from the response
+      const order: Order = {
+        id: data.id || data.record_id,
+        tray_id: item.tray_id,
+        user_id: parseInt(userId),
+        station_id: data.station_id || "",
+        station_friendly_name: data.station_friendly_name || "",
+        tray_status: "tray_ready_to_use",
+        status: "active"
+      };
+      
+      setSelectedOrder(order);
+      setTransactionType(null);
+      setTransactionItemId("");
+      setQuantity(1);
+      setSelectedProductForPickup(null);
+      setTrayItemsForPickup([]);
+      setShowTransactionDialog(true);
+      
+      toast({
+        title: "Success",
+        description: `Tray ${item.tray_id} requested successfully`
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to request tray",
+        variant: "destructive"
+      });
+    }
+  };
   const fetchAllTrays = async () => {
     setLoading(true);
     try {
@@ -1149,9 +1202,14 @@ const AdhocMode = () => {
                               <p className="font-bold text-sm">{item.inbound_date}</p>
                             </div>
                           </div>
-                          <Button onClick={() => handleRequestTray(item.tray_id)} variant="secondary" className="w-full h-14 text-lg font-semibold" size="lg">
-                            Request Tray to Station
-                          </Button>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Button onClick={() => handleSelectStorageItem(item)} className="h-12 text-base font-semibold">
+                              Select
+                            </Button>
+                            <Button onClick={() => handleRequestTray(item.tray_id)} variant="outline" className="h-12 text-base font-semibold">
+                              Request
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>)}
                     
