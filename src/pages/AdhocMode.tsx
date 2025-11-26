@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, Search, Package, Minus, Plus, Scan, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Search, Package, Minus, Plus, Scan, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { Html5QrcodeScanner } from "html5-qrcode";
 interface TrayItem {
   id: number;
   tray_id: string;
@@ -74,6 +75,10 @@ const AdhocMode = () => {
   const [showTimeDialog, setShowTimeDialog] = useState(false);
   const [selectedTrayForRequest, setSelectedTrayForRequest] = useState<string | null>(null);
   const [autoCompleteTime, setAutoCompleteTime] = useState<number>(10);
+  const [showQrScanner, setShowQrScanner] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const qrScannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const scannerDivRef = useRef<HTMLDivElement>(null);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -879,11 +884,89 @@ const AdhocMode = () => {
     }
   };
   const handleScanItemId = () => {
-    const scannedId = prompt("Simulate Barcode Scan - Enter Item ID:");
-    if (scannedId) {
-      setTransactionItemId(scannedId);
+    setShowQrScanner(true);
+    setIsScanning(true);
+  };
+
+  const stopScanning = () => {
+    if (qrScannerRef.current) {
+      qrScannerRef.current.clear().catch(err => console.error("Failed to clear scanner:", err));
+      qrScannerRef.current = null;
+    }
+    setIsScanning(false);
+    setShowQrScanner(false);
+  };
+
+  const processBarcodeFromAPI = async (barcode: string) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/nanostore/barcode?barcode=${encodeURIComponent(barcode)}`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch barcode data");
+      }
+
+      const data = await response.json();
+      
+      if (data.status === "success" && data.records && data.records.length > 0) {
+        const record = data.records[0];
+        setTransactionItemId(record.product_id);
+        setQuantity(record.product_quantity);
+        
+        toast({
+          title: "Barcode Scanned",
+          description: `Product: ${record.product_id}, Qty: ${record.product_quantity}`
+        });
+      } else {
+        throw new Error("No data found for barcode");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process barcode",
+        variant: "destructive"
+      });
     }
   };
+
+  useEffect(() => {
+    if (showQrScanner && isScanning && scannerDivRef.current) {
+      const scanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { 
+          fps: 10, 
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0
+        },
+        false
+      );
+
+      scanner.render(
+        async (decodedText) => {
+          await processBarcodeFromAPI(decodedText);
+          stopScanning();
+        },
+        (errorMessage) => {
+          // Ignore errors during scanning
+        }
+      );
+
+      qrScannerRef.current = scanner;
+
+      return () => {
+        if (qrScannerRef.current) {
+          qrScannerRef.current.clear().catch(err => console.error("Cleanup error:", err));
+        }
+      };
+    }
+  }, [showQrScanner, isScanning]);
   return <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
@@ -1322,26 +1405,28 @@ const AdhocMode = () => {
                 <p className="text-muted-foreground">No ready orders</p>
               </div> : readyOrders.map(order => <Card key={order.id} className="border-2">
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="font-bold text-lg">{order.tray_id}</p>
-                        <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
-                        <div className="flex gap-2 mt-2">
-                          <Badge variant="secondary" className="text-xs">
-                            User: {order.user_id}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Station: {order.station_id}
-                          </Badge>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="font-bold text-lg">{order.tray_id}</p>
+                          <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Button onClick={() => handleSelectOrder(order)} variant="default" size="sm">
+                            Select
+                          </Button>
+                          <Button onClick={() => handleReleaseOrder(order.id)} disabled={releasingOrderId === order.id} variant="destructive" size="sm">
+                            {releasingOrderId === order.id ? "Releasing..." : "Release"}
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button onClick={() => handleSelectOrder(order)} variant="default" size="sm">
-                          Select
-                        </Button>
-                        <Button onClick={() => handleReleaseOrder(order.id)} disabled={releasingOrderId === order.id} variant="destructive" size="sm">
-                          {releasingOrderId === order.id ? "Releasing..." : "Release"}
-                        </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          User: {order.user_id}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Station: {order.station_id}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -1361,18 +1446,18 @@ const AdhocMode = () => {
                 <p className="text-muted-foreground">No pending orders</p>
               </div> : pendingOrders.map(order => <Card key={order.id} className="border-2">
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
+                    <div className="flex flex-col gap-3">
+                      <div>
                         <p className="font-bold text-lg">{order.tray_id}</p>
                         <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
-                        <div className="flex gap-2 mt-2">
-                          <Badge variant="secondary" className="text-xs">
-                            User: {order.user_id}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Station: {order.station_id}
-                          </Badge>
-                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          User: {order.user_id}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Station: {order.station_id}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -1588,6 +1673,28 @@ const AdhocMode = () => {
                 Submit Putaway
               </Button>
             </div>}
+        </DialogContent>
+      </Dialog>
+
+      {/* QR Code Scanner Dialog */}
+      <Dialog open={showQrScanner} onOpenChange={(open) => {
+        if (!open) stopScanning();
+      }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle>Scan QR Code</DialogTitle>
+              <Button variant="ghost" size="icon" onClick={stopScanning}>
+                <X size={20} />
+              </Button>
+            </div>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div id="qr-reader" ref={scannerDivRef} className="w-full"></div>
+            <p className="text-sm text-muted-foreground text-center">
+              Position the QR code within the camera frame
+            </p>
+          </div>
         </DialogContent>
       </Dialog>
     </div>;
