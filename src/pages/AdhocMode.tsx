@@ -79,6 +79,7 @@ const AdhocMode = () => {
   const [isScanning, setIsScanning] = useState(false);
   const qrScannerRef = useRef<Html5QrcodeScanner | null>(null);
   const scannerDivRef = useRef<HTMLDivElement>(null);
+  const [lastTransactionType, setLastTransactionType] = useState<'inbound' | 'pickup'>('inbound');
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -278,8 +279,8 @@ const AdhocMode = () => {
     setSelectedProductForPickup(null);
     setTrayItemsForPickup([]);
     
-    // Directly go to pickup flow
-    setTransactionType('pickup');
+    // Use the last transaction type selected
+    setTransactionType(lastTransactionType);
     setShowTransactionDialog(true);
     
     // Fetch items for the tray
@@ -358,6 +359,8 @@ const AdhocMode = () => {
       });
       return;
     }
+    // Remember this transaction type for next time
+    setLastTransactionType('inbound');
     try {
       const userId = localStorage.getItem("userId") || "1";
       let orderId = selectedOrder.id;
@@ -448,6 +451,8 @@ const AdhocMode = () => {
       });
       return;
     }
+    // Remember this transaction type for next time
+    setLastTransactionType('pickup');
     try {
       const userId = localStorage.getItem("userId") || "1";
       let orderId = selectedOrder.id;
@@ -787,6 +792,8 @@ const AdhocMode = () => {
   const handleSelectStationItem = async (item: TrayItem) => {
     // Store the item for later use in transaction
     setSelectedOrder({ tray_id: item.tray_id } as Order);
+    // Auto-select last used transaction type
+    setTransactionType(lastTransactionType);
     setShowTransactionDialog(true);
   };
   const handleReleaseTray = async (trayId: string) => {
@@ -938,12 +945,8 @@ const AdhocMode = () => {
 
   useEffect(() => {
     if (showQrScanner && isScanning) {
-      console.log("QR Scanner: Starting initialization");
-      
-      // Add a small delay to ensure the dialog DOM is ready
       const timeoutId = setTimeout(() => {
         const readerElement = document.getElementById("qr-reader");
-        console.log("QR Scanner: Element found:", !!readerElement);
         
         if (readerElement) {
           try {
@@ -953,15 +956,14 @@ const AdhocMode = () => {
                 fps: 10, 
                 qrbox: { width: 250, height: 250 },
                 aspectRatio: 1.0,
-                rememberLastUsedCamera: true
+                rememberLastUsedCamera: true,
+                showTorchButtonIfSupported: true
               },
               false
             );
 
-            console.log("QR Scanner: Rendering scanner");
             scanner.render(
               async (decodedText) => {
-                console.log("QR Scanner: Scanned text:", decodedText);
                 await processBarcodeFromAPI(decodedText);
                 stopScanning();
               },
@@ -971,24 +973,20 @@ const AdhocMode = () => {
             );
 
             qrScannerRef.current = scanner;
-            console.log("QR Scanner: Initialization complete");
           } catch (error) {
-            console.error("QR Scanner: Initialization error:", error);
+            console.error("QR Scanner Error:", error);
             toast({
               title: "Scanner Error",
               description: "Failed to initialize camera. Please check permissions.",
               variant: "destructive"
             });
           }
-        } else {
-          console.error("QR Scanner: Element not found");
         }
       }, 300);
 
       return () => {
         clearTimeout(timeoutId);
         if (qrScannerRef.current) {
-          console.log("QR Scanner: Cleaning up");
           qrScannerRef.current.clear().catch(err => console.error("Cleanup error:", err));
           qrScannerRef.current = null;
         }
