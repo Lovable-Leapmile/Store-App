@@ -74,6 +74,8 @@ const AdhocMode = () => {
   const [showTimeDialog, setShowTimeDialog] = useState(false);
   const [selectedTrayForRequest, setSelectedTrayForRequest] = useState<string | null>(null);
   const [autoCompleteTime, setAutoCompleteTime] = useState<number>(2);
+  const [selectedItemForSelect, setSelectedItemForSelect] = useState<TrayItem | null>(null);
+  const [showSelectTimeDialog, setShowSelectTimeDialog] = useState(false);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -673,10 +675,20 @@ const AdhocMode = () => {
   const handleRequestTray = async (requestTrayId: string) => {
     handleRequestTrayWithTime(requestTrayId);
   };
-  const handleSelectStationItem = async (item: TrayItem) => {
+  const handleSelectStationItem = (item: TrayItem) => {
+    setSelectedItemForSelect(item);
+    setAutoCompleteTime(2);
+    setShowSelectTimeDialog(true);
+  };
+
+  const handleConfirmSelectStation = async () => {
+    if (!selectedItemForSelect) return;
+    
     const userId = localStorage.getItem("userId") || "1";
+    setShowSelectTimeDialog(false);
+    
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${item.tray_id}&tray_status=tray_ready_to_use&status=active&user_id=${userId}&order_by_field=updated_at&order_by_type=DESC`, {
+      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedItemForSelect.tray_id}&tray_status=tray_ready_to_use&status=active&user_id=${userId}&order_by_field=updated_at&order_by_type=DESC`, {
         headers: {
           accept: "application/json",
           Authorization: `Bearer ${API_TOKEN}`
@@ -702,6 +714,8 @@ const AdhocMode = () => {
         description: "Failed to check order status",
         variant: "destructive"
       });
+    } finally {
+      setSelectedItemForSelect(null);
     }
   };
   const handleReleaseTray = async (trayId: string) => {
@@ -1425,6 +1439,42 @@ const AdhocMode = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Select Time Dialog for In Station */}
+      <Dialog open={showSelectTimeDialog} onOpenChange={setShowSelectTimeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select Transaction</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedItemForSelect && <div className="p-4 bg-accent/10 rounded-lg">
+                <p className="text-sm font-medium">Tray: {selectedItemForSelect.tray_id}</p>
+                <p className="text-sm text-muted-foreground">Item: {selectedItemForSelect.item_id}</p>
+              </div>}
+            
+            <div className="space-y-2">
+              <Label htmlFor="select-auto-complete-time">Time to Stay (minutes)</Label>
+              <Input 
+                id="select-auto-complete-time" 
+                type="number" 
+                min="1"
+                value={autoCompleteTime} 
+                onChange={e => setAutoCompleteTime(parseInt(e.target.value) || 2)} 
+                placeholder="Enter time in minutes"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={() => setShowSelectTimeDialog(false)} variant="outline" className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmSelectStation} className="flex-1">
+                Continue
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
