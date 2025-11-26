@@ -1567,14 +1567,17 @@ const AdhocMode = () => {
                   <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
                 </div>}
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label htmlFor="inbound-item-id">Item ID</Label>
-                <div className="flex gap-2">
-                  <Input id="inbound-item-id" placeholder="Enter or scan item ID" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
-                  <Button variant="outline" size="icon" onClick={handleScanItemId}>
-                    <Scan size={20} />
-                  </Button>
-                </div>
+                <Input id="inbound-item-id" placeholder="Enter item ID manually" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleScanItemId}
+                >
+                  <Scan className="mr-2" size={20} />
+                  Scan Product
+                </Button>
               </div>
 
               <div className="space-y-2">
@@ -1713,14 +1716,17 @@ const AdhocMode = () => {
                 <p className="text-sm font-medium">Available: {selectedItem.available_quantity} units</p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label htmlFor="item-id">Item ID</Label>
-                <div className="flex gap-2">
-                  <Input id="item-id" placeholder="Enter or scan item ID" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
-                  <Button variant="outline" size="icon" onClick={handleScanItemId}>
-                    <Scan size={20} />
-                  </Button>
-                </div>
+                <Input id="item-id" placeholder="Enter item ID manually" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleScanItemId}
+                >
+                  <Scan className="mr-2" size={20} />
+                  Scan Product
+                </Button>
               </div>
 
               <div className="space-y-2">
