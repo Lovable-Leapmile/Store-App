@@ -279,8 +279,8 @@ const AdhocMode = () => {
     setSelectedProductForPickup(null);
     setTrayItemsForPickup([]);
     
-    // Use the last transaction type selected
-    setTransactionType(lastTransactionType);
+    // Always ask user to choose transaction type
+    setTransactionType(null);
     setShowTransactionDialog(true);
     
     // Fetch items for the tray
@@ -792,8 +792,8 @@ const AdhocMode = () => {
   const handleSelectStationItem = async (item: TrayItem) => {
     // Store the item for later use in transaction
     setSelectedOrder({ tray_id: item.tray_id } as Order);
-    // Auto-select last used transaction type
-    setTransactionType(lastTransactionType);
+    // Always ask user to choose transaction type
+    setTransactionType(null);
     setShowTransactionDialog(true);
   };
   const handleReleaseTray = async (trayId: string) => {
