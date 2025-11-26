@@ -73,7 +73,7 @@ const AdhocMode = () => {
   const [selectedProductForPickup, setSelectedProductForPickup] = useState<string | null>(null);
   const [showTimeDialog, setShowTimeDialog] = useState(false);
   const [selectedTrayForRequest, setSelectedTrayForRequest] = useState<string | null>(null);
-  const [autoCompleteTime, setAutoCompleteTime] = useState<number>(2);
+  const [autoCompleteTime, setAutoCompleteTime] = useState<number>(10);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -354,6 +354,24 @@ const AdhocMode = () => {
       return;
     }
     try {
+      const userId = localStorage.getItem("userId") || "1";
+      
+      // First, update order with user_id
+      const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${selectedOrder.id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user_id: parseInt(userId) })
+      });
+      
+      if (!patchResponse.ok) {
+        throw new Error("Failed to update order");
+      }
+      
+      // Then proceed with transaction
       const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${selectedOrder.id}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`, {
         method: "POST",
         headers: {
@@ -391,6 +409,24 @@ const AdhocMode = () => {
       return;
     }
     try {
+      const userId = localStorage.getItem("userId") || "1";
+      
+      // First, update order with user_id
+      const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${selectedOrder.id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user_id: parseInt(userId) })
+      });
+      
+      if (!patchResponse.ok) {
+        throw new Error("Failed to update order");
+      }
+      
+      // Then proceed with transaction
       const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${selectedOrder.id}&item_id=${selectedProductForPickup}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${transactionDate}`, {
         method: "POST",
         headers: {
@@ -421,7 +457,7 @@ const AdhocMode = () => {
 
   const handleRequestTrayWithTime = (trayId: string) => {
     setSelectedTrayForRequest(trayId);
-    setAutoCompleteTime(2);
+    setAutoCompleteTime(10);
     setShowTimeDialog(true);
   };
 
