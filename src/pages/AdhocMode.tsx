@@ -1206,6 +1206,28 @@ const AdhocMode = () => {
                             </div>
                           </CardHeader>
                           <CardContent className="space-y-3">
+                            {/* Tray Image - Clickable */}
+                            <div 
+                              className="relative w-full h-40 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
+                              onClick={() => {
+                                setSelectedTrayForDetail(tray);
+                                setShowTrayDetailDialog(true);
+                              }}
+                            >
+                              <img 
+                                src={`https://amsstores1.blr1.digitaloceanspaces.com/${tray.tray_id}.jpg`}
+                                alt={`Tray ${tray.tray_id}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                                <p className="text-white font-semibold text-sm">Click to view details</p>
+                              </div>
+                            </div>
+                            
                             <div className="grid grid-cols-2 gap-3 p-3 bg-accent/10 rounded-lg text-sm">
                               <div className="space-y-1">
                                 <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
