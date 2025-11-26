@@ -71,6 +71,9 @@ const AdhocMode = () => {
   const [transactionType, setTransactionType] = useState<'inbound' | 'pickup' | null>(null);
   const [trayItemsForPickup, setTrayItemsForPickup] = useState<TrayItem[]>([]);
   const [selectedProductForPickup, setSelectedProductForPickup] = useState<string | null>(null);
+  const [showTimeDialog, setShowTimeDialog] = useState(false);
+  const [selectedTrayForRequest, setSelectedTrayForRequest] = useState<string | null>(null);
+  const [autoCompleteTime, setAutoCompleteTime] = useState<number>(2);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -265,12 +268,40 @@ const AdhocMode = () => {
   };
   const handleSelectOrder = async (order: Order) => {
     setSelectedOrder(order);
-    setTransactionType(null);
     setTransactionItemId("");
     setQuantity(1);
     setSelectedProductForPickup(null);
     setTrayItemsForPickup([]);
+    
+    // Directly go to pickup flow
+    setTransactionType('pickup');
     setShowTransactionDialog(true);
+    
+    // Fetch items for the tray
+    try {
+      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${order.tray_id}&order_flow=fifo`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.records && data.records.length > 0) {
+          setTrayItemsForPickup(data.records);
+        } else {
+          setTrayItemsForPickup([]);
+        }
+      } else {
+        setTrayItemsForPickup([]);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch tray items",
+        variant: "destructive"
+      });
+    }
   };
   const handleTransactionTypeSelect = async (type: 'inbound' | 'pickup') => {
     setTransactionType(type);
@@ -377,12 +408,21 @@ const AdhocMode = () => {
     }
   };
 
-  const handleSelectStorageItem = async (item: TrayItem) => {
+  const handleRequestTrayWithTime = (trayId: string) => {
+    setSelectedTrayForRequest(trayId);
+    setAutoCompleteTime(2);
+    setShowTimeDialog(true);
+  };
+
+  const handleConfirmRequestTray = async () => {
+    if (!selectedTrayForRequest) return;
+    
     const userId = localStorage.getItem("userId") || "1";
+    setRetrievingTrayId(selectedTrayForRequest);
+    setShowTimeDialog(false);
     
     try {
-      // First, request the tray to create an order
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${item.tray_id}&user_id=${userId}&auto_complete_time=2`, {
+      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedTrayForRequest}&user_id=${userId}&auto_complete_time=${autoCompleteTime}`, {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -395,38 +435,30 @@ const AdhocMode = () => {
         throw new Error("Failed to request tray");
       }
       
-      const data = await response.json();
-      
-      // Create a mock order object from the response
-      const order: Order = {
-        id: data.id || data.record_id,
-        tray_id: item.tray_id,
-        user_id: parseInt(userId),
-        station_id: data.station_id || "",
-        station_friendly_name: data.station_friendly_name || "",
-        tray_status: "tray_ready_to_use",
-        status: "active"
-      };
-      
-      setSelectedOrder(order);
-      setTransactionType(null);
-      setTransactionItemId("");
-      setQuantity(1);
-      setSelectedProductForPickup(null);
-      setTrayItemsForPickup([]);
-      setShowTransactionDialog(true);
-      
       toast({
         title: "Success",
-        description: `Tray ${item.tray_id} requested successfully`
+        description: `Tray ${selectedTrayForRequest} requested successfully (${autoCompleteTime} min)`
       });
-      
+
+      // Fetch updated items based on active tab
+      if (activeTab === "tray") {
+        if (trayId.trim()) {
+          await Promise.all([fetchStationItems(), fetchStorageItems()]);
+        } else {
+          await fetchAllTrays();
+        }
+      } else {
+        await Promise.all([fetchItemStationItems(), fetchItemStorageItems()]);
+      }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to request tray",
         variant: "destructive"
       });
+    } finally {
+      setRetrievingTrayId(null);
+      setSelectedTrayForRequest(null);
     }
   };
   const fetchAllTrays = async () => {
@@ -628,54 +660,9 @@ const AdhocMode = () => {
     }
   };
   const handleRequestTray = async (requestTrayId: string) => {
-    if (!requestTrayId.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a tray ID",
-        variant: "destructive"
-      });
-      return;
-    }
-    const userId = localStorage.getItem("userId") || "1";
-    setRetrievingTrayId(requestTrayId);
-    try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${requestTrayId}&user_id=${userId}&auto_complete_time=2`, {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        },
-        body: ""
-      });
-      if (!response.ok) {
-        throw new Error("Failed to request tray");
-      }
-      toast({
-        title: "Success",
-        description: `Tray ${requestTrayId} requested successfully`
-      });
-
-      // Fetch updated items based on active tab
-      if (activeTab === "tray") {
-        if (trayId.trim()) {
-          await Promise.all([fetchStationItems(), fetchStorageItems()]);
-        } else {
-          await fetchAllTrays();
-        }
-      } else {
-        await Promise.all([fetchItemStationItems(), fetchItemStorageItems()]);
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to request tray",
-        variant: "destructive"
-      });
-    } finally {
-      setRetrievingTrayId(null);
-    }
+    handleRequestTrayWithTime(requestTrayId);
   };
-  const handleItemClick = async (item: TrayItem) => {
+  const handleSelectStationItem = async (item: TrayItem) => {
     const userId = localStorage.getItem("userId") || "1";
     try {
       const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${item.tray_id}&tray_status=tray_ready_to_use&status=active&user_id=${userId}&order_by_field=updated_at&order_by_type=DESC`, {
@@ -690,10 +677,7 @@ const AdhocMode = () => {
       const data = await response.json();
       if (data.records && data.records.length > 0) {
         const order: Order = data.records[0];
-        setOrderId(order.id);
-        setSelectedItem(item);
-        setTransactionItemId(item.item_id);
-        setShowPutawayDialog(true);
+        await handleSelectOrder(order);
       } else {
         toast({
           title: "No Active Order",
@@ -1137,11 +1121,11 @@ const AdhocMode = () => {
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
-                            <Button onClick={() => handleItemClick(item)} className="h-12 text-base font-semibold" disabled={item.tray_lockcount === 0}>
-                              Inbound
-                            </Button>
                             <Button onClick={() => handleReleaseTray(item.tray_id)} variant="outline" className="h-12 text-base font-semibold" disabled={item.tray_lockcount === 0}>
                               Release
+                            </Button>
+                            <Button onClick={() => handleSelectStationItem(item)} className="h-12 text-base font-semibold" disabled={item.tray_lockcount === 0}>
+                              Select
                             </Button>
                           </div>
                         </CardContent>
@@ -1202,14 +1186,9 @@ const AdhocMode = () => {
                               <p className="font-bold text-sm">{item.inbound_date}</p>
                             </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <Button onClick={() => handleSelectStorageItem(item)} className="h-12 text-base font-semibold">
-                              Select
-                            </Button>
-                            <Button onClick={() => handleRequestTray(item.tray_id)} variant="outline" className="h-12 text-base font-semibold">
-                              Request
-                            </Button>
-                          </div>
+                          <Button onClick={() => handleRequestTray(item.tray_id)} disabled={retrievingTrayId === item.tray_id} variant="default" className="w-full h-12 text-base font-semibold">
+                            {retrievingTrayId === item.tray_id ? "Requesting..." : "Request Tray to Station"}
+                          </Button>
                         </CardContent>
                       </Card>)}
                     
@@ -1311,124 +1290,99 @@ const AdhocMode = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Transaction Selection Dialog */}
+      {/* Transaction Dialog - Pickup Only */}
       <Dialog open={showTransactionDialog} onOpenChange={setShowTransactionDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
-              {!transactionType ? "Select Transaction Type" : transactionType === 'inbound' ? "Inbound Transaction" : "Pickup Transaction"}
-            </DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Pickup Transaction</DialogTitle>
           </DialogHeader>
 
-          {!transactionType ? <div className="space-y-4 py-4">
-              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2 mb-4">
-                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
-                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
-                </div>}
-              <Button onClick={() => handleTransactionTypeSelect('inbound')} variant="outline" className="w-full h-20 text-lg">
-                Inbound
-              </Button>
-              <Button onClick={() => handleTransactionTypeSelect('pickup')} variant="outline" className="w-full h-20 text-lg">
-                Pickup
-              </Button>
-            </div> : transactionType === 'inbound' ? <div className="space-y-4">
-              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
-                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
-                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
-                </div>}
+          <div className="space-y-4">
+            {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
+                <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
+                <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
+              </div>}
 
-              <div className="space-y-2">
-                <Label htmlFor="inbound-item-id">Item ID</Label>
-                <div className="flex gap-2">
-                  <Input id="inbound-item-id" placeholder="Enter or scan item ID" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
-                  <Button variant="outline" size="icon" onClick={handleScanItemId}>
-                    <Scan size={20} />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Quantity</Label>
-                <div className="flex items-center justify-center gap-4">
-                  <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
-                    <Minus size={20} />
-                  </Button>
-                  <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
-                  <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
-                    <Plus size={20} />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="inbound-transaction-date">Transaction Date</Label>
-                <Input id="inbound-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
-              </div>
-
-              <div className="flex gap-2">
-                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
-                  Back
-                </Button>
-                <Button onClick={handleSubmitInboundTransaction} className="flex-1">
-                  Submit Inbound
-                </Button>
-              </div>
-            </div> : <div className="space-y-4">
-              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
-                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
-                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
-                </div>}
-
-              <div className="space-y-2">
-                <Label>Select Product</Label>
-                {trayItemsForPickup.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-                    No items found in this tray
-                  </div> : <div className="space-y-2">
-                    {trayItemsForPickup.map(item => <Card key={item.id} className={`cursor-pointer border-2 transition-all ${selectedProductForPickup === item.item_id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`} onClick={() => setSelectedProductForPickup(item.item_id)}>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-bold">{item.item_id}</p>
-                              <p className="text-sm text-muted-foreground">{item.item_description}</p>
-                            </div>
-                            <Badge variant="secondary">
-                              Qty: {item.available_quantity}
-                            </Badge>
+            <div className="space-y-2">
+              <Label>Select Product</Label>
+              {trayItemsForPickup.length === 0 ? <div className="text-center py-8 text-muted-foreground">
+                  No items found in this tray
+                </div> : <div className="space-y-2">
+                  {trayItemsForPickup.map(item => <Card key={item.id} className={`cursor-pointer border-2 transition-all ${selectedProductForPickup === item.item_id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`} onClick={() => setSelectedProductForPickup(item.item_id)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-bold">{item.item_id}</p>
+                            <p className="text-sm text-muted-foreground">{item.item_description}</p>
                           </div>
-                        </CardContent>
-                      </Card>)}
-                  </div>}
-              </div>
+                          <Badge variant="secondary">
+                            Qty: {item.available_quantity}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>)}
+                </div>}
+            </div>
 
-              {selectedProductForPickup && <>
-                  <div className="space-y-2">
-                    <Label>Quantity to Pick</Label>
-                    <div className="flex items-center justify-center gap-4">
-                      <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
-                        <Minus size={20} />
-                      </Button>
-                      <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
-                      <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
-                        <Plus size={20} />
-                      </Button>
-                    </div>
+            {selectedProductForPickup && <>
+                <div className="space-y-2">
+                  <Label>Quantity to Pick</Label>
+                  <div className="flex items-center justify-center gap-4">
+                    <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                      <Minus size={20} />
+                    </Button>
+                    <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
+                    <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                      <Plus size={20} />
+                    </Button>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="pickup-transaction-date">Transaction Date</Label>
-                    <Input id="pickup-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
-                  </div>
-                </>}
+                <div className="space-y-2">
+                  <Label htmlFor="pickup-transaction-date">Transaction Date</Label>
+                  <Input id="pickup-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
+                </div>
+              </>}
 
-              <div className="flex gap-2">
-                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
-                  Back
-                </Button>
-                <Button onClick={handleSubmitPickupTransaction} disabled={!selectedProductForPickup} className="flex-1">
-                  Submit Pickup
-                </Button>
-              </div>
-            </div>}
+            <Button onClick={handleSubmitPickupTransaction} disabled={!selectedProductForPickup} className="w-full">
+              Submit Pickup
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Time Input Dialog for Request Tray */}
+      <Dialog open={showTimeDialog} onOpenChange={setShowTimeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request Tray to Station</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-4 bg-accent/10 rounded-lg">
+              <p className="text-sm font-medium">Tray: {selectedTrayForRequest}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="auto-complete-time">Time to Stay (minutes)</Label>
+              <Input 
+                id="auto-complete-time" 
+                type="number" 
+                min="1"
+                value={autoCompleteTime} 
+                onChange={e => setAutoCompleteTime(parseInt(e.target.value) || 2)} 
+                placeholder="Enter time in minutes"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={() => setShowTimeDialog(false)} variant="outline" className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmRequestTray} className="flex-1">
+                Confirm Request
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
