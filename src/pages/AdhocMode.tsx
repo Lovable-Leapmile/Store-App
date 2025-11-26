@@ -320,11 +320,22 @@ const AdhocMode = () => {
             setTrayItemsForPickup(data.records);
           } else {
             setTrayItemsForPickup([]);
+            toast({
+              title: "No Items",
+              description: "No items found in this tray",
+              variant: "destructive"
+            });
           }
         } else {
           setTrayItemsForPickup([]);
+          toast({
+            title: "Error",
+            description: "Failed to fetch tray items",
+            variant: "destructive"
+          });
         }
       } catch (error) {
+        setTrayItemsForPickup([]);
         toast({
           title: "Error",
           description: "Failed to fetch tray items",
@@ -435,10 +446,31 @@ const AdhocMode = () => {
         throw new Error("Failed to request tray");
       }
       
+      const data = await response.json();
+      
       toast({
         title: "Success",
         description: `Tray ${selectedTrayForRequest} requested successfully (${autoCompleteTime} min)`
       });
+
+      // Create order object and open transaction dialog
+      const order: Order = {
+        id: data.records?.[0]?.id || data.id || data.record_id,
+        tray_id: selectedTrayForRequest,
+        user_id: parseInt(userId),
+        station_id: data.records?.[0]?.station_id || data.station_id || "",
+        station_friendly_name: data.records?.[0]?.station_friendly_name || data.station_friendly_name || "",
+        tray_status: "tray_ready_to_use",
+        status: "active"
+      };
+      
+      setSelectedOrder(order);
+      setTransactionType(null);
+      setTransactionItemId("");
+      setQuantity(1);
+      setSelectedProductForPickup(null);
+      setTrayItemsForPickup([]);
+      setShowTransactionDialog(true);
 
       // Fetch updated items based on active tab
       if (activeTab === "tray") {
@@ -1290,64 +1322,130 @@ const AdhocMode = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Transaction Dialog - Pickup Only */}
+      {/* Transaction Dialog - Inbound or Pickup Selection */}
       <Dialog open={showTransactionDialog} onOpenChange={setShowTransactionDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Pickup Transaction</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">
+              {!transactionType ? "Select Transaction Type" : transactionType === 'inbound' ? "Inbound Transaction" : "Pickup Transaction"}
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
-                <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
-                <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
-              </div>}
-
-            <div className="space-y-2">
-              <Label>Select Product</Label>
-              {trayItemsForPickup.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-                  No items found in this tray
-                </div> : <div className="space-y-2">
-                  {trayItemsForPickup.map(item => <Card key={item.id} className={`cursor-pointer border-2 transition-all ${selectedProductForPickup === item.item_id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`} onClick={() => setSelectedProductForPickup(item.item_id)}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-bold">{item.item_id}</p>
-                            <p className="text-sm text-muted-foreground">{item.item_description}</p>
-                          </div>
-                          <Badge variant="secondary">
-                            Qty: {item.available_quantity}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>)}
+          {!transactionType ? (
+            <div className="space-y-4 py-4">
+              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2 mb-4">
+                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
+                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
                 </div>}
+              <Button onClick={() => handleTransactionTypeSelect('inbound')} variant="outline" className="w-full h-20 text-lg">
+                Inbound
+              </Button>
+              <Button onClick={() => handleTransactionTypeSelect('pickup')} variant="outline" className="w-full h-20 text-lg">
+                Pickup
+              </Button>
             </div>
+          ) : transactionType === 'inbound' ? (
+            <div className="space-y-4">
+              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
+                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
+                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
+                </div>}
 
-            {selectedProductForPickup && <>
-                <div className="space-y-2">
-                  <Label>Quantity to Pick</Label>
-                  <div className="flex items-center justify-center gap-4">
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
-                      <Minus size={20} />
-                    </Button>
-                    <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
-                    <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
-                      <Plus size={20} />
-                    </Button>
+              <div className="space-y-2">
+                <Label htmlFor="inbound-item-id">Item ID</Label>
+                <div className="flex gap-2">
+                  <Input id="inbound-item-id" placeholder="Enter or scan item ID" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
+                  <Button variant="outline" size="icon" onClick={handleScanItemId}>
+                    <Scan size={20} />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Quantity</Label>
+                <div className="flex items-center justify-center gap-4">
+                  <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                    <Minus size={20} />
+                  </Button>
+                  <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
+                  <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                    <Plus size={20} />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="inbound-transaction-date">Transaction Date</Label>
+                <Input id="inbound-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
+              </div>
+
+              <div className="flex gap-2">
+                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
+                  Back
+                </Button>
+                <Button onClick={handleSubmitInboundTransaction} className="flex-1">
+                  Submit Inbound
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
+                  <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
+                  <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
+                </div>}
+
+              <div className="space-y-2">
+                <Label>Select Product</Label>
+                {trayItemsForPickup.length === 0 ? <div className="text-center py-8 text-muted-foreground">
+                    No items found in this tray
+                  </div> : <div className="space-y-2">
+                    {trayItemsForPickup.map(item => <Card key={item.id} className={`cursor-pointer border-2 transition-all ${selectedProductForPickup === item.item_id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`} onClick={() => setSelectedProductForPickup(item.item_id)}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-bold">{item.item_id}</p>
+                              <p className="text-sm text-muted-foreground">{item.item_description}</p>
+                            </div>
+                            <Badge variant="secondary">
+                              Qty: {item.available_quantity}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>)}
+                  </div>}
+              </div>
+
+              {selectedProductForPickup && <>
+                  <div className="space-y-2">
+                    <Label>Quantity to Pick</Label>
+                    <div className="flex items-center justify-center gap-4">
+                      <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                        <Minus size={20} />
+                      </Button>
+                      <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
+                      <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                        <Plus size={20} />
+                      </Button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="pickup-transaction-date">Transaction Date</Label>
-                  <Input id="pickup-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
-                </div>
-              </>}
+                  <div className="space-y-2">
+                    <Label htmlFor="pickup-transaction-date">Transaction Date</Label>
+                    <Input id="pickup-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
+                  </div>
+                </>}
 
-            <Button onClick={handleSubmitPickupTransaction} disabled={!selectedProductForPickup} className="w-full">
-              Submit Pickup
-            </Button>
-          </div>
+              <div className="flex gap-2">
+                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
+                  Back
+                </Button>
+                <Button onClick={handleSubmitPickupTransaction} disabled={!selectedProductForPickup} className="flex-1">
+                  Submit Pickup
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
