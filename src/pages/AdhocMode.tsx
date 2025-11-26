@@ -637,7 +637,7 @@ const AdhocMode = () => {
   const fetchStationItems = async () => {
     if (!trayId.trim()) return;
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${trayId}&like=true&num_records=10&offset=0&order_flow=fifo`, {
+      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${trayId}&num_records=10&offset=0`, {
         headers: {
           accept: "application/json",
           Authorization: `Bearer ${API_TOKEN}`
@@ -666,7 +666,7 @@ const AdhocMode = () => {
   const fetchStorageItems = async () => {
     if (!trayId.trim()) return;
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=false&tray_id=${trayId}&like=true&num_records=10&offset=${storageOffset}&order_flow=fifo`, {
+      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=false&tray_id=${trayId}&num_records=10&offset=${storageOffset}`, {
         headers: {
           accept: "application/json",
           Authorization: `Bearer ${API_TOKEN}`
