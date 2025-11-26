@@ -80,6 +80,8 @@ const AdhocMode = () => {
   const qrScannerRef = useRef<Html5QrcodeScanner | null>(null);
   const scannerDivRef = useRef<HTMLDivElement>(null);
   const [lastTransactionType, setLastTransactionType] = useState<'inbound' | 'pickup'>('inbound');
+  const [showTrayDetailDialog, setShowTrayDetailDialog] = useState(false);
+  const [selectedTrayForDetail, setSelectedTrayForDetail] = useState<TrayItem | null>(null);
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -1353,7 +1355,7 @@ const AdhocMode = () => {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {(activeTab === "tray" ? storageItems : itemStorageItems).length === 0 ? <div className="text-center py-12">
+                  {(activeTab === "tray" ? storageItems : itemStorageItems).length === 0 ? <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays in storage</p>
                   </div> : <div className="space-y-4">
                     {(activeTab === "tray" ? storageItems : itemStorageItems).map(item => <Card key={`storage-${item.id}-${item.item_id}-${item.tray_id}`} className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent">
@@ -1372,6 +1374,28 @@ const AdhocMode = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
+                          {/* Tray Image - Clickable */}
+                          <div 
+                            className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
+                            onClick={() => {
+                              setSelectedTrayForDetail(item);
+                              setShowTrayDetailDialog(true);
+                            }}
+                          >
+                            <img 
+                              src={`https://amsstores1.blr1.digitaloceanspaces.com/${item.tray_id}.jpg`}
+                              alt={`Tray ${item.tray_id}`}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                              <p className="text-white font-semibold text-lg">Click to view details</p>
+                            </div>
+                          </div>
+                          
                           <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
                             <div className="space-y-2">
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
@@ -1721,6 +1745,115 @@ const AdhocMode = () => {
               Position the QR code within the camera frame
             </p>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tray Detail Dialog */}
+      <Dialog open={showTrayDetailDialog} onOpenChange={setShowTrayDetailDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Tray Details - {selectedTrayForDetail?.tray_id}</DialogTitle>
+          </DialogHeader>
+          
+          {selectedTrayForDetail && (
+            <div className="space-y-6">
+              {/* Tray Image */}
+              <div className="relative w-full h-96 rounded-lg overflow-hidden border-2 border-border">
+                <img 
+                  src={`https://amsstores1.blr1.digitaloceanspaces.com/${selectedTrayForDetail.tray_id}.jpg`}
+                  alt={`Tray ${selectedTrayForDetail.tray_id}`}
+                  className="w-full h-full object-contain bg-muted"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="800" height="600" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%239ca3af">No Image Available</text></svg>';
+                  }}
+                />
+              </div>
+
+              {/* Tray Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Tray Information</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Tray ID</span>
+                    <p className="font-bold text-lg">{selectedTrayForDetail.tray_id}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Status</span>
+                    <Badge variant={selectedTrayForDetail.tray_status === "active" ? "default" : "secondary"}>
+                      {selectedTrayForDetail.tray_status}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Available Qty</span>
+                    <p className="font-bold text-lg text-primary">{selectedTrayForDetail.available_quantity}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Divider</span>
+                    <p className="font-bold">{selectedTrayForDetail.tray_divider}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Height</span>
+                    <p className="font-bold">{selectedTrayForDetail.tray_height}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Weight</span>
+                    <p className="font-bold">{selectedTrayForDetail.tray_weight}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Lock Count</span>
+                    <p className="font-bold">{selectedTrayForDetail.tray_lockcount}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Inbound Date</span>
+                    <p className="font-bold">{selectedTrayForDetail.inbound_date}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Item Details */}
+              {selectedTrayForDetail.item_id && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Item Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-1">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Item ID</span>
+                      <p className="font-bold text-lg">{selectedTrayForDetail.item_id}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Description</span>
+                      <p className="text-base">{selectedTrayForDetail.item_description}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => {
+                    handleRequestTray(selectedTrayForDetail.tray_id);
+                    setShowTrayDetailDialog(false);
+                  }} 
+                  disabled={retrievingTrayId === selectedTrayForDetail.tray_id}
+                  className="flex-1"
+                >
+                  {retrievingTrayId === selectedTrayForDetail.tray_id ? "Requesting..." : "Request Tray to Station"}
+                </Button>
+                <Button 
+                  onClick={() => setShowTrayDetailDialog(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>;
