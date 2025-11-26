@@ -446,31 +446,10 @@ const AdhocMode = () => {
         throw new Error("Failed to request tray");
       }
       
-      const data = await response.json();
-      
       toast({
         title: "Success",
         description: `Tray ${selectedTrayForRequest} requested successfully (${autoCompleteTime} min)`
       });
-
-      // Create order object and open transaction dialog
-      const order: Order = {
-        id: data.records?.[0]?.id || data.id || data.record_id,
-        tray_id: selectedTrayForRequest,
-        user_id: parseInt(userId),
-        station_id: data.records?.[0]?.station_id || data.station_id || "",
-        station_friendly_name: data.records?.[0]?.station_friendly_name || data.station_friendly_name || "",
-        tray_status: "tray_ready_to_use",
-        status: "active"
-      };
-      
-      setSelectedOrder(order);
-      setTransactionType(null);
-      setTransactionItemId("");
-      setQuantity(1);
-      setSelectedProductForPickup(null);
-      setTrayItemsForPickup([]);
-      setShowTransactionDialog(true);
 
       // Fetch updated items based on active tab
       if (activeTab === "tray") {
