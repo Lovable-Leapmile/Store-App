@@ -937,32 +937,60 @@ const AdhocMode = () => {
   };
 
   useEffect(() => {
-    if (showQrScanner && isScanning && scannerDivRef.current) {
-      const scanner = new Html5QrcodeScanner(
-        "qr-reader",
-        { 
-          fps: 10, 
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0
-        },
-        false
-      );
+    if (showQrScanner && isScanning) {
+      console.log("QR Scanner: Starting initialization");
+      
+      // Add a small delay to ensure the dialog DOM is ready
+      const timeoutId = setTimeout(() => {
+        const readerElement = document.getElementById("qr-reader");
+        console.log("QR Scanner: Element found:", !!readerElement);
+        
+        if (readerElement) {
+          try {
+            const scanner = new Html5QrcodeScanner(
+              "qr-reader",
+              { 
+                fps: 10, 
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0,
+                rememberLastUsedCamera: true
+              },
+              false
+            );
 
-      scanner.render(
-        async (decodedText) => {
-          await processBarcodeFromAPI(decodedText);
-          stopScanning();
-        },
-        (errorMessage) => {
-          // Ignore errors during scanning
+            console.log("QR Scanner: Rendering scanner");
+            scanner.render(
+              async (decodedText) => {
+                console.log("QR Scanner: Scanned text:", decodedText);
+                await processBarcodeFromAPI(decodedText);
+                stopScanning();
+              },
+              (errorMessage) => {
+                // Ignore routine scanning errors
+              }
+            );
+
+            qrScannerRef.current = scanner;
+            console.log("QR Scanner: Initialization complete");
+          } catch (error) {
+            console.error("QR Scanner: Initialization error:", error);
+            toast({
+              title: "Scanner Error",
+              description: "Failed to initialize camera. Please check permissions.",
+              variant: "destructive"
+            });
+          }
+        } else {
+          console.error("QR Scanner: Element not found");
         }
-      );
-
-      qrScannerRef.current = scanner;
+      }, 300);
 
       return () => {
+        clearTimeout(timeoutId);
         if (qrScannerRef.current) {
+          console.log("QR Scanner: Cleaning up");
           qrScannerRef.current.clear().catch(err => console.error("Cleanup error:", err));
+          qrScannerRef.current = null;
         }
       };
     }
