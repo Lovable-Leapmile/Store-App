@@ -26,7 +26,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `https://testhostsushil.leapmile.com/user/validate?user_phone=${encodeURIComponent(phoneNumber)}&password=${encodeURIComponent(password)}`,
+        `https://robotmanagerv1test.qikpod.com/user/validate?user_phone=${encodeURIComponent(phoneNumber)}&password=${encodeURIComponent(password)}`,
         {
           method: 'GET',
           headers: {

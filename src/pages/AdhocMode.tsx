@@ -34,7 +34,7 @@ interface Order {
   auto_complete_time?: number;
 }
 const API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ";
-const BASE_URL = "https://testhostsushil.leapmile.com";
+const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tray");
