@@ -28,6 +28,8 @@ const Home = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadLogs, setUploadLogs] = useState<ItemUploadLog[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [remainingItems, setRemainingItems] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const itemCatalogInputRef = useRef<HTMLInputElement>(null);
 
@@ -155,7 +157,9 @@ const Home = () => {
         item_description: row["Material Description"]?.trim() || ''
       }));
 
-      const totalItems = mappedData.length;
+      const totalItemsCount = mappedData.length;
+      setTotalItems(totalItemsCount);
+      setRemainingItems(totalItemsCount);
       let processedItems = 0;
 
       for (const item of mappedData) {
@@ -198,17 +202,18 @@ const Home = () => {
         }
 
         processedItems++;
-        setUploadProgress((processedItems / totalItems) * 100);
+        setUploadProgress((processedItems / totalItemsCount) * 100);
+        setRemainingItems(totalItemsCount - processedItems);
 
         // Wait 1 second before next request
-        if (processedItems < totalItems) {
+        if (processedItems < totalItemsCount) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
 
       toast({
         title: "Upload Complete",
-        description: `Processed ${totalItems} items`
+        description: `Processed ${totalItemsCount} items`
       });
     } catch (error) {
       toast({
@@ -352,7 +357,20 @@ const Home = () => {
           </Dialog>
 
           {/* Upload Item Catalog Button */}
-          <Dialog open={isItemCatalogDialogOpen} onOpenChange={setIsItemCatalogDialogOpen}>
+          <Dialog 
+            open={isItemCatalogDialogOpen} 
+            onOpenChange={(open) => {
+              setIsItemCatalogDialogOpen(open);
+              if (!open) {
+                // Reset state when dialog is closed
+                setItemCatalogFile(null);
+                setUploadLogs([]);
+                setUploadProgress(0);
+                setTotalItems(0);
+                setRemainingItems(0);
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Card className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in">
                 <div className="flex flex-col items-center gap-4 text-center">
@@ -419,6 +437,18 @@ const Home = () => {
 
                 {(isUploading || uploadLogs.length > 0) && (
                   <div className="space-y-4">
+                    {/* Remaining Items Counter */}
+                    <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-primary mb-1">
+                          {remainingItems}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Remaining out of {totalItems} total items
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-medium">Progress</span>
