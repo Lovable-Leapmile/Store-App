@@ -147,12 +147,18 @@ const Home = () => {
       const data = await itemCatalogFile.arrayBuffer();
       const workbook = XLSX.read(data);
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Array<{ item_id: string; item_description: string }>;
+      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Array<{ Material: string; "Material Description": string }>;
+      
+      // Map Excel columns to internal property names
+      const mappedData = jsonData.map(row => ({
+        item_id: row.Material?.trim() || '',
+        item_description: row["Material Description"]?.trim() || ''
+      }));
 
-      const totalItems = jsonData.length;
+      const totalItems = mappedData.length;
       let processedItems = 0;
 
-      for (const item of jsonData) {
+      for (const item of mappedData) {
         try {
           const response = await fetch(
             `https://robotmanagerv1test.qikpod.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`,
@@ -390,7 +396,7 @@ const Home = () => {
                         onChange={handleItemCatalogFileSelect}
                       />
                       <p className="text-xs text-muted-foreground mt-4">
-                        Excel file with columns: item_id, item_description
+                        Excel file with columns: Material, Material Description
                       </p>
                     </div>
 
