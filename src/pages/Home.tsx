@@ -308,6 +308,22 @@ const Home = () => {
             </div>
           </Card>
 
+          {/* Station Picking Button */}
+          <Card
+            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
+            onClick={() => navigate("/station-picking")}
+          >
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Package className="text-primary" size={48} />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">Station Picking</h2>
+                <p className="text-muted-foreground">Manage station-based picking workflow</p>
+              </div>
+            </div>
+          </Card>
+
           {/* Upload SAP Button */}
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogTrigger asChild>
