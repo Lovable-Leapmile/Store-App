@@ -386,7 +386,7 @@ const Home = () => {
                     <Database className="text-primary" size={48} />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-foreground mb-2">Item Catalog</h2>
+                    <h2 className="text-3xl font-bold text-foreground mb-2">Upload Item Catalog</h2>
                     <p className="text-muted-foreground">Upload item catalog file</p>
                   </div>
                 </div>
