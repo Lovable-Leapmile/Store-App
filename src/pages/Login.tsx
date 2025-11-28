@@ -15,7 +15,7 @@ const Login = () => {
 
   // Check if user is already logged in
   useEffect(() => {
-    const authToken = localStorage.getItem('authToken');
+    const authToken = localStorage.getItem("authToken");
     if (authToken) {
       navigate("/home");
     }
@@ -28,20 +28,20 @@ const Login = () => {
       const response = await fetch(
         `https://robotmanagerv1test.qikpod.com/user/validate?user_phone=${encodeURIComponent(phoneNumber)}&password=${encodeURIComponent(password)}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'accept': 'application/json',
+            accept: "application/json",
           },
-        }
+        },
       );
 
       const data = await response.json();
 
       if (response.ok && data.status === "success") {
         // Store token and user info in localStorage
-        localStorage.setItem('authToken', data.token);
-        localStorage.setItem('userName', data.user_name);
-        localStorage.setItem('userId', data.user_id.toString());
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("userName", data.user_name);
+        localStorage.setItem("userId", data.user_id.toString());
 
         toast({
           title: "Login Successful",
@@ -69,11 +69,7 @@ const Login = () => {
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="flex justify-center">
-          <img
-            src={logo}
-            alt="ACE Micromatic Group"
-            className="h-32 w-32 object-contain"
-          />
+          <img src={logo} alt="ACE Micromatic Group" className="h-32 w-32 object-contain" />
         </div>
 
         {/* Login Form */}
@@ -126,9 +122,7 @@ const Login = () => {
           </form>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Powered by ACE Micromatic Group
-        </p>
+        <p className="text-center text-sm text-muted-foreground">Powered by LeapMile Robotics</p>
       </div>
     </div>
   );
