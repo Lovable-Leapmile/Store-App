@@ -317,7 +317,7 @@ const Home = () => {
                     <Upload className="text-primary" size={48} />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-foreground mb-2">Upload SAP</h2>
+                    <h2 className="text-3xl font-bold text-foreground mb-2">Upload SAP Order</h2>
                     <p className="text-muted-foreground">Upload SAP order files</p>
                   </div>
                 </div>
