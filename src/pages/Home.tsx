@@ -8,12 +8,12 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 
 interface ItemUploadLog {
   item_id: string;
   item_description: string;
-  status: 'success' | 'failed';
+  status: "success" | "failed";
   message?: string;
 }
 
@@ -35,40 +35,41 @@ const Home = () => {
 
   // Check if user is authenticated
   useEffect(() => {
-    const authToken = localStorage.getItem('authToken');
+    const authToken = localStorage.getItem("authToken");
     if (!authToken) {
       navigate("/");
     }
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userId');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userId");
     navigate("/");
   };
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      formData.append('file', file);
-      const response = await fetch('https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/upload_file', {
-        method: 'POST',
+      formData.append("file", file);
+      const response = await fetch("https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/upload_file", {
+        method: "POST",
         headers: {
-          'accept': 'application/json',
-          'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ'
+          accept: "application/json",
+          Authorization:
+            "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
         },
-        body: formData
+        body: formData,
       });
       if (!response.ok) {
-        throw new Error('Upload failed');
+        throw new Error("Upload failed");
       }
       return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "SAP file uploaded successfully"
+        description: "SAP file uploaded successfully",
       });
       setSelectedFile(null);
       setIsUploadDialogOpen(false);
@@ -77,9 +78,9 @@ const Home = () => {
       toast({
         title: "Error",
         description: "Failed to upload SAP file",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -149,12 +150,15 @@ const Home = () => {
       const data = await itemCatalogFile.arrayBuffer();
       const workbook = XLSX.read(data);
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Array<{ Material: string; "Material Description": string }>;
-      
+      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Array<{
+        Material: string;
+        "Material Description": string;
+      }>;
+
       // Map Excel columns to internal property names
-      const mappedData = jsonData.map(row => ({
-        item_id: row.Material?.trim() || '',
-        item_description: row["Material Description"]?.trim() || ''
+      const mappedData = jsonData.map((row) => ({
+        item_id: row.Material?.trim() || "",
+        item_description: row["Material Description"]?.trim() || "",
       }));
 
       const totalItemsCount = mappedData.length;
@@ -167,59 +171,69 @@ const Home = () => {
           const response = await fetch(
             `https://robotmanagerv1test.qikpod.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`,
             {
-              method: 'POST',
+              method: "POST",
               headers: {
-                'accept': 'application/json',
-                'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ'
+                accept: "application/json",
+                Authorization:
+                  "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
               },
-              body: ''
-            }
+              body: "",
+            },
           );
 
           const result = await response.json();
 
-          if (response.ok && result.status === 'success') {
-            setUploadLogs(prev => [...prev, {
-              item_id: item.item_id,
-              item_description: item.item_description,
-              status: 'success'
-            }]);
+          if (response.ok && result.status === "success") {
+            setUploadLogs((prev) => [
+              ...prev,
+              {
+                item_id: item.item_id,
+                item_description: item.item_description,
+                status: "success",
+              },
+            ]);
           } else {
-            setUploadLogs(prev => [...prev, {
-              item_id: item.item_id,
-              item_description: item.item_description,
-              status: 'failed',
-              message: result.message || 'Unknown error'
-            }]);
+            setUploadLogs((prev) => [
+              ...prev,
+              {
+                item_id: item.item_id,
+                item_description: item.item_description,
+                status: "failed",
+                message: result.message || "Unknown error",
+              },
+            ]);
           }
         } catch (error) {
-          setUploadLogs(prev => [...prev, {
-            item_id: item.item_id,
-            item_description: item.item_description,
-            status: 'failed',
-            message: 'Network error'
-          }]);
+          setUploadLogs((prev) => [
+            ...prev,
+            {
+              item_id: item.item_id,
+              item_description: item.item_description,
+              status: "failed",
+              message: "Network error",
+            },
+          ]);
         }
 
         processedItems++;
         setUploadProgress((processedItems / totalItemsCount) * 100);
         setRemainingItems(totalItemsCount - processedItems);
 
-        // Wait 1 second before next request
+        // Wait 30ms before next request
         if (processedItems < totalItemsCount) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 30));
         }
       }
 
       toast({
         title: "Upload Complete",
-        description: `Processed ${totalItemsCount} items`
+        description: `Processed ${totalItemsCount} items`,
       });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to process file",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsUploading(false);
@@ -247,8 +261,8 @@ const Home = () => {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="container max-w-2xl mx-auto space-y-6">
           {/* SAP Orders Button */}
-          <Card 
-            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in" 
+          <Card
+            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
             onClick={() => navigate("/sap-orders")}
           >
             <div className="flex flex-col items-center gap-4 text-center">
@@ -263,8 +277,8 @@ const Home = () => {
           </Card>
 
           {/* SAP Reconcile Button */}
-          <Card 
-            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in" 
+          <Card
+            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
             onClick={() => navigate("/sap-reconcile")}
           >
             <div className="flex flex-col items-center gap-4 text-center">
@@ -279,8 +293,8 @@ const Home = () => {
           </Card>
 
           {/* Adhoc Mode Button */}
-          <Card 
-            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in" 
+          <Card
+            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
             onClick={() => navigate("/adhoc-mode")}
           >
             <div className="flex flex-col items-center gap-4 text-center">
@@ -314,18 +328,16 @@ const Home = () => {
                 <DialogTitle>Upload SAP File</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div 
+                <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    isDragging ? 'border-primary bg-primary/10' : 'border-border'
+                    isDragging ? "border-primary bg-primary/10" : "border-border"
                   }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                 >
                   <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Drag and drop your file here, or
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-2">Drag and drop your file here, or</p>
                   <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
                     Browse Files
                   </Button>
@@ -345,20 +357,16 @@ const Home = () => {
                   </div>
                 )}
 
-                <Button 
-                  onClick={handleUpload} 
-                  disabled={!selectedFile || uploadMutation.isPending}
-                  className="w-full"
-                >
-                  {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
+                <Button onClick={handleUpload} disabled={!selectedFile || uploadMutation.isPending} className="w-full">
+                  {uploadMutation.isPending ? "Uploading..." : "Upload"}
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
 
           {/* Upload Item Catalog Button */}
-          <Dialog 
-            open={isItemCatalogDialogOpen} 
+          <Dialog
+            open={isItemCatalogDialogOpen}
             onOpenChange={(open) => {
               setIsItemCatalogDialogOpen(open);
               if (!open) {
@@ -391,18 +399,16 @@ const Home = () => {
               <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
                 {!isUploading && uploadLogs.length === 0 && (
                   <>
-                    <div 
+                    <div
                       className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                        isItemCatalogDragging ? 'border-primary bg-primary/10' : 'border-border'
+                        isItemCatalogDragging ? "border-primary bg-primary/10" : "border-border"
                       }`}
                       onDragOver={handleItemCatalogDragOver}
                       onDragLeave={handleItemCatalogDragLeave}
                       onDrop={handleItemCatalogDrop}
                     >
                       <Database className="mx-auto mb-4 text-muted-foreground" size={48} />
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Drag and drop your Excel file here, or
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-2">Drag and drop your Excel file here, or</p>
                       <Button variant="outline" onClick={() => itemCatalogInputRef.current?.click()}>
                         Browse Files
                       </Button>
@@ -425,11 +431,7 @@ const Home = () => {
                       </div>
                     )}
 
-                    <Button 
-                      onClick={handleItemCatalogUpload} 
-                      disabled={!itemCatalogFile}
-                      className="w-full"
-                    >
+                    <Button onClick={handleItemCatalogUpload} disabled={!itemCatalogFile} className="w-full">
                       Upload & Process
                     </Button>
                   </>
@@ -440,12 +442,8 @@ const Home = () => {
                     {/* Remaining Items Counter */}
                     <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-primary mb-1">
-                          {remainingItems}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Remaining out of {totalItems} total items
-                        </div>
+                        <div className="text-3xl font-bold text-primary mb-1">{remainingItems}</div>
+                        <div className="text-sm text-muted-foreground">Remaining out of {totalItems} total items</div>
                       </div>
                     </div>
 
@@ -464,13 +462,13 @@ const Home = () => {
                       </div>
                       <div className="p-3 bg-green-500/10 rounded-lg text-center">
                         <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {uploadLogs.filter(l => l.status === 'success').length}
+                          {uploadLogs.filter((l) => l.status === "success").length}
                         </div>
                         <div className="text-xs text-muted-foreground">Success</div>
                       </div>
                       <div className="p-3 bg-red-500/10 rounded-lg text-center">
                         <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                          {uploadLogs.filter(l => l.status === 'failed').length}
+                          {uploadLogs.filter((l) => l.status === "failed").length}
                         </div>
                         <div className="text-xs text-muted-foreground">Failed</div>
                       </div>
@@ -480,17 +478,20 @@ const Home = () => {
                       <ScrollArea className="h-[400px]">
                         <div className="p-4 space-y-2">
                           {uploadLogs.map((log, index) => (
-                            <div 
+                            <div
                               key={index}
                               className={`p-3 rounded-lg border ${
-                                log.status === 'success' 
-                                  ? 'bg-green-500/5 border-green-500/20' 
-                                  : 'bg-red-500/5 border-red-500/20'
+                                log.status === "success"
+                                  ? "bg-green-500/5 border-green-500/20"
+                                  : "bg-red-500/5 border-red-500/20"
                               } animate-fade-in`}
                             >
                               <div className="flex items-start gap-3">
-                                {log.status === 'success' ? (
-                                  <CheckCircle2 className="text-green-600 dark:text-green-400 shrink-0 mt-0.5" size={18} />
+                                {log.status === "success" ? (
+                                  <CheckCircle2
+                                    className="text-green-600 dark:text-green-400 shrink-0 mt-0.5"
+                                    size={18}
+                                  />
                                 ) : (
                                   <XCircle className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" size={18} />
                                 )}
@@ -498,11 +499,11 @@ const Home = () => {
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <span className="font-medium text-sm">{log.item_id}</span>
                                     <span className="text-xs text-muted-foreground">•</span>
-                                    <span className="text-xs text-muted-foreground truncate">{log.item_description}</span>
+                                    <span className="text-xs text-muted-foreground truncate">
+                                      {log.item_description}
+                                    </span>
                                   </div>
-                                  {log.message && (
-                                    <p className="text-xs text-muted-foreground mt-1">{log.message}</p>
-                                  )}
+                                  {log.message && <p className="text-xs text-muted-foreground mt-1">{log.message}</p>}
                                 </div>
                               </div>
                             </div>
@@ -512,7 +513,7 @@ const Home = () => {
                     </div>
 
                     {!isUploading && (
-                      <Button 
+                      <Button
                         onClick={() => {
                           setUploadLogs([]);
                           setUploadProgress(0);
