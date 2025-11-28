@@ -55,7 +55,7 @@ const StationPicking = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://ace.amsworldwide.in/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC"
+        "https://robotmanagerv1test.qikpod/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC"
       );
       const data = await response.json();
       setStations(data);
@@ -87,7 +87,7 @@ const StationPicking = () => {
       // Create order
       const trayId = station.slot_name; // Assuming slot_name contains tray_id
       const orderResponse = await fetch(
-        `https://ace.amsworldwide.in/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
+        `https://robotmanagerv1test.qikpod/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
         { method: "POST" }
       );
       const orderData = await orderResponse.json();
@@ -95,7 +95,7 @@ const StationPicking = () => {
 
       // Block slot
       await fetch(
-        `https://ace.amsworldwide.in/robotmanager/block?slot_id=${station.slot_id}`,
+        `https://robotmanagerv1test.qikpod/robotmanager/block?slot_id=${station.slot_id}`,
         { method: "PATCH" }
       );
 
@@ -121,7 +121,7 @@ const StationPicking = () => {
   const fetchTrayItems = async (trayId: string) => {
     try {
       const response = await fetch(
-        `https://ace.amsworldwide.in/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`
+        `https://robotmanagerv1test.qikpod/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`
       );
       const data = await response.json();
       setTrayItems(data);
@@ -157,7 +157,7 @@ const StationPicking = () => {
     try {
       const today = new Date().toISOString().split("T")[0];
       await fetch(
-        `https://ace.amsworldwide.in/nanostore/transaction?order_id=${currentOrder.record_id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
+        `https://robotmanagerv1test.qikpod/nanostore/transaction?order_id=${currentOrder.record_id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
         { method: "POST" }
       );
 
@@ -189,7 +189,7 @@ const StationPicking = () => {
 
     try {
       const response = await fetch(
-        `https://ace.amsworldwide.in/nanostore/orders?tray_id=${currentOrder.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=DESC`
+        `https://robotmanagerv1test.qikpod/nanostore/orders?tray_id=${currentOrder.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=DESC`
       );
       const data = await response.json();
       if (data && data.length > 0) {
@@ -227,13 +227,13 @@ const StationPicking = () => {
     try {
       // Complete order
       await fetch(
-        `https://ace.amsworldwide.in/nanostore/orders/complete?record_id=${currentOrder.record_id}`,
+        `https://robotmanagerv1test.qikpod/nanostore/orders/complete?record_id=${currentOrder.record_id}`,
         { method: "PATCH" }
       );
 
       // Unblock slot
       await fetch(
-        `https://ace.amsworldwide.in/robotmanager/unblock?slot_id=${selectedStation.slot_id}`,
+        `https://robotmanagerv1test.qikpod/robotmanager/unblock?slot_id=${selectedStation.slot_id}`,
         { method: "PATCH" }
       );
 
