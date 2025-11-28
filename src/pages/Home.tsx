@@ -303,7 +303,7 @@ const Home = () => {
               </div>
               <div>
                 <h2 className="text-3xl font-bold text-foreground mb-2">Adhoc Mode</h2>
-                <p className="text-muted-foreground">Tray & product search with putaway</p>
+                <p className="text-muted-foreground">Tray & product search with Inbound or Pickup</p>
               </div>
             </div>
           </Card>
