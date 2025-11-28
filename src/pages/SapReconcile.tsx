@@ -334,7 +334,7 @@ const SapReconcile = () => {
                   onDrop={handleDrop}
                 >
                   <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
-                  <p className="text-sm text-muted-foreground mb-2">Drag and drop a file here</p>
+                  <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                   <p className="text-sm text-muted-foreground mb-2">or</p>
                   <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
                     Browse Files
