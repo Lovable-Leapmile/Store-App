@@ -408,7 +408,8 @@ const Home = () => {
                       onDrop={handleItemCatalogDrop}
                     >
                       <Database className="mx-auto mb-4 text-muted-foreground" size={48} />
-                      <p className="text-sm text-muted-foreground mb-2">Drag and drop your Excel file here, or</p>
+                      <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
+                      <p className="text-sm text-muted-foreground mb-2"> or</p>
                       <Button variant="outline" onClick={() => itemCatalogInputRef.current?.click()}>
                         Browse Files
                       </Button>
