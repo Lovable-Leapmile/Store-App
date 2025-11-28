@@ -12,6 +12,7 @@ import OrderDetails from "./pages/OrderDetails";
 import TraysForItem from "./pages/TraysForItem";
 import ReconcileTrays from "./pages/ReconcileTrays";
 import AdhocMode from "./pages/AdhocMode";
+import StationPicking from "./pages/StationPicking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/sap-reconcile" element={<SapReconcile />} />
           <Route path="/scan-tray" element={<ScanTray />} />
           <Route path="/adhoc-mode" element={<AdhocMode />} />
+          <Route path="/station-picking" element={<StationPicking />} />
           <Route path="/order/:orderId" element={<OrderDetails />} />
           <Route path="/trays/:orderId/:itemId" element={<TraysForItem />} />
           <Route path="/trays-for-item/reconcile/:material" element={<ReconcileTrays />} />
