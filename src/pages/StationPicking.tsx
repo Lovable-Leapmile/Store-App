@@ -62,13 +62,14 @@ const StationPicking = () => {
             accept: "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
       const data = await response.json();
       setStations(data.records || []);
       toast({
         title: "👋 Hey there!",
-        description: "I checked your system and found all available stations. Pick a station to see the trays ready for action!",
+        description:
+          "I checked your system and found all available stations. Pick a station to see the trays ready for action!",
       });
     } catch (error) {
       toast({
@@ -84,7 +85,7 @@ const StationPicking = () => {
   const handleStationSelect = async (station: Station) => {
     setSelectedStation(station);
     setLoading(true);
-    
+
     toast({
       title: "😊 Awesome!",
       description: "I'm preparing your order now… Just a sec while I lock this tray for you.",
@@ -96,28 +97,25 @@ const StationPicking = () => {
       const trayId = station.slot_name; // Assuming slot_name contains tray_id
       const orderResponse = await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
-        { 
+        {
           method: "POST",
           headers: {
             accept: "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
       const orderData = await orderResponse.json();
       setCurrentOrder(orderData);
 
       // Block slot
-      await fetch(
-        `https://robotmanagerv1test.qikpod.com/robotmanager/block?slot_id=${station.slot_id}`,
-        { 
-          method: "PATCH",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
       toast({
         title: "🔐 Station Locked!",
@@ -148,7 +146,7 @@ const StationPicking = () => {
             accept: "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
       const data = await response.json();
       setTrayItems(data.records || []);
@@ -186,13 +184,13 @@ const StationPicking = () => {
       const today = new Date().toISOString().split("T")[0];
       await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.record_id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
-        { 
+        {
           method: "POST",
           headers: {
             accept: "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
 
       toast({
@@ -230,7 +228,7 @@ const StationPicking = () => {
             accept: "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
       const data = await response.json();
       if (data && data.length > 0) {
@@ -270,30 +268,28 @@ const StationPicking = () => {
       // Complete order
       await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.record_id}`,
-        { 
+        {
           method: "PATCH",
           headers: {
             accept: "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-        }
+        },
       );
 
       // Unblock slot
-      await fetch(
-        `https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`,
-        { 
-          method: "PATCH",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
       toast({
         title: "🎉 Success!",
-        description: "Your order is completed and the tray has been released. Station unlocked! Everything is back to normal. 😊",
+        description:
+          "Your order is completed and the tray has been released. Station unlocked! Everything is back to normal. 😊",
       });
 
       // Reset state
@@ -407,9 +403,7 @@ const StationPicking = () => {
                   onChange={(e) => setQuantity(e.target.value)}
                   max={selectedItem?.available_quantity}
                 />
-                <p className="text-sm text-muted-foreground">
-                  Available: {selectedItem?.available_quantity}
-                </p>
+                <p className="text-sm text-muted-foreground">Available: {selectedItem?.available_quantity}</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -419,11 +413,7 @@ const StationPicking = () => {
                 >
                   Confirm Pick
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowQuantityDialog(false)}
-                  className="flex-1"
-                >
+                <Button variant="outline" onClick={() => setShowQuantityDialog(false)} className="flex-1">
                   Cancel
                 </Button>
               </div>
