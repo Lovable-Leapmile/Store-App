@@ -25,7 +25,7 @@ interface TrayItem {
 }
 
 interface Order {
-  record_id: string;
+  id: number;
   tray_id: string;
   user_id: number;
   status: string;
@@ -107,11 +107,12 @@ const StationPicking = () => {
         },
       );
       const orderData = await orderResponse.json();
-      setCurrentOrder(orderData);
+      const order = orderData.records[0];
+      setCurrentOrder(order);
 
       toast({
         title: "🔐 Station Locked!",
-        description: `Everything is secured and your order (#${orderData.record_id}) is active. Let me load all items available in this tray.`,
+        description: `Everything is secured and your order (#${order.id}) is active. Let me load all items available in this tray.`,
       });
 
       // Fetch tray items
@@ -175,7 +176,7 @@ const StationPicking = () => {
       const authToken = localStorage.getItem("authToken");
       const today = new Date().toISOString().split("T")[0];
       await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.record_id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
         {
           method: "POST",
           headers: {
@@ -259,7 +260,7 @@ const StationPicking = () => {
       const authToken = localStorage.getItem("authToken");
       // Complete order
       await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.record_id}`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.id}`,
         {
           method: "PATCH",
           headers: {
@@ -349,7 +350,7 @@ const StationPicking = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Lock className="h-5 w-5 text-destructive" />
-                    Order #{currentOrder.record_id}
+                    Order #{currentOrder.id}
                   </CardTitle>
                   <CardDescription>Tray: {currentOrder.tray_id}</CardDescription>
                 </CardHeader>
@@ -424,7 +425,7 @@ const StationPicking = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="font-medium">Order ID:</span>
-                    <span>{currentOrder.record_id}</span>
+                    <span>{currentOrder.id}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Tray ID:</span>
