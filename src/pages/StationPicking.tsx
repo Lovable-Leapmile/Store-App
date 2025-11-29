@@ -324,7 +324,7 @@ const StationPicking = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">{item.item_id}</CardTitle>
                     <CardDescription>{item.item_description}</CardDescription>
-                    <CardDescription>{item.tray_weight}</CardDescription>
+                    <CardDescription>Tray Weight:{item.tray_weight}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Badge>Available: {item.available_quantity}</Badge>
