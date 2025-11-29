@@ -151,7 +151,7 @@ const StationPicking = () => {
 
     try {
       const authToken = localStorage.getItem("authToken");
-      
+
       // Unblock slot before transaction
       await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
         method: "PATCH",
@@ -193,7 +193,6 @@ const StationPicking = () => {
     }
   };
 
-
   const handleRelease = async () => {
     if (!currentOrder || !selectedStation) return;
 
@@ -201,7 +200,7 @@ const StationPicking = () => {
 
     try {
       const authToken = localStorage.getItem("authToken");
-      
+
       // Unblock slot before releasing
       await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
         method: "PATCH",
@@ -212,16 +211,13 @@ const StationPicking = () => {
       });
 
       // Complete order
-      await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
+      await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
-      );
+      });
 
       toast({
         title: "Success!",
@@ -283,6 +279,7 @@ const StationPicking = () => {
                     <CardHeader>
                       <CardTitle className="text-lg">{station.slot_name}</CardTitle>
                       <CardDescription>Slot ID: {station.slot_id}</CardDescription>
+                      <CardDescription>Tray ID: {station.tray_id}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <Badge variant={station.slot_status === "inactive" ? "secondary" : "default"}>
@@ -372,7 +369,6 @@ const StationPicking = () => {
             </div>
           </DialogContent>
         </Dialog>
-
       </div>
     </div>
   );
