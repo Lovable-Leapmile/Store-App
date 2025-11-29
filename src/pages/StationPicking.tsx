@@ -151,7 +151,7 @@ const StationPicking = () => {
         }
       );
       const data = await response.json();
-      setTrayItems(data);
+      setTrayItems(data.records || []);
       toast({
         title: "✨ Here are all the items",
         description: "Tap on any item you want to pick!",
