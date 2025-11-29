@@ -63,7 +63,7 @@ const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> =
         Authorization:
           "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -75,15 +75,16 @@ const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> =
 };
 
 const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
+  const userId = localStorage.getItem("userId") || "1";
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
+    `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC`,
     {
       headers: {
         accept: "application/json",
         Authorization:
           "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -103,7 +104,7 @@ const fetchSapOrderItem = async (orderRef: string, material: string): Promise<Sa
         Authorization:
           "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -123,7 +124,7 @@ const fetchTransactions = async (orderRef: string, itemId: string): Promise<Tran
         Authorization:
           "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -160,7 +161,11 @@ const TraysForItem = () => {
   });
 
   // Fetch in-storage trays
-  const { data: storageTrays, error: storageError, refetch: refetchStorage } = useQuery({
+  const {
+    data: storageTrays,
+    error: storageError,
+    refetch: refetchStorage,
+  } = useQuery({
     queryKey: ["storage-trays", itemId],
     queryFn: () => fetchTrays(itemId || "", false),
     enabled: !!itemId,
@@ -170,20 +175,24 @@ const TraysForItem = () => {
   });
 
   // Fetch in-station trays with their orders
-  const { data: stationTraysData, error: stationError, refetch: refetchStation } = useQuery({
+  const {
+    data: stationTraysData,
+    error: stationError,
+    refetch: refetchStation,
+  } = useQuery({
     queryKey: ["station-trays", itemId],
     queryFn: async () => {
       const trays = await fetchTrays(itemId || "", true);
-      const orderPromises = trays.map(tray => fetchTrayOrder(tray.tray_id));
+      const orderPromises = trays.map((tray) => fetchTrayOrder(tray.tray_id));
       const orders = await Promise.all(orderPromises);
-      
+
       const ordersMap = new Map<string, TrayOrder>();
       orders.forEach((order, index) => {
         if (order) {
           ordersMap.set(trays[index].tray_id, order);
         }
       });
-      
+
       return { trays, ordersMap };
     },
     enabled: !!itemId,
@@ -233,7 +242,7 @@ const TraysForItem = () => {
             Authorization:
               "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
           },
-        }
+        },
       );
 
       const checkData = await checkResponse.json();
@@ -254,7 +263,7 @@ const TraysForItem = () => {
                 "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
             },
             body: "",
-          }
+          },
         );
 
         if (!createResponse.ok) {
@@ -282,7 +291,7 @@ const TraysForItem = () => {
 
   const handlePickItem = async (tray: Tray) => {
     const existingOrder = trayOrders.get(tray.tray_id);
-    
+
     if (existingOrder) {
       setSelectedTray(tray);
       setOrderIdInternal(existingOrder.id);
@@ -298,7 +307,7 @@ const TraysForItem = () => {
               Authorization:
                 "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
             },
-          }
+          },
         );
 
         const checkData = await checkResponse.json();
@@ -322,7 +331,7 @@ const TraysForItem = () => {
                 "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
             },
             body: "",
-          }
+          },
         );
 
         if (!createResponse.ok) {
@@ -394,7 +403,7 @@ const TraysForItem = () => {
               "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
           },
           body: "",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -410,7 +419,7 @@ const TraysForItem = () => {
       setSelectedTray(null);
       setOrderIdInternal(null);
       setQuantityToPick(0);
-      
+
       await refetchItem();
       queryClient.invalidateQueries({ queryKey: ["storage-trays"] });
       queryClient.invalidateQueries({ queryKey: ["station-trays"] });
@@ -450,7 +459,7 @@ const TraysForItem = () => {
               "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
           },
           body: "",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -491,7 +500,7 @@ const TraysForItem = () => {
               "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
           },
           body: "",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -507,7 +516,7 @@ const TraysForItem = () => {
       setSelectedTray(null);
       setOrderIdInternal(null);
       setQuantityToPick(0);
-      
+
       queryClient.invalidateQueries({ queryKey: ["storage-trays"] });
       queryClient.invalidateQueries({ queryKey: ["station-trays"] });
     } catch (error) {
@@ -542,12 +551,7 @@ const TraysForItem = () => {
               <p className="text-xs text-muted-foreground">Item: {itemId}</p>
             </div>
           </div>
-          <Button
-            onClick={handleRefresh}
-            variant="ghost"
-            size="icon"
-            className="text-accent hover:bg-accent/10"
-          >
+          <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-accent hover:bg-accent/10">
             <RefreshCw size={24} />
           </Button>
         </div>
@@ -582,7 +586,7 @@ const TraysForItem = () => {
                     {currentItem.movement_type}
                   </span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground">Material ID</p>
@@ -614,13 +618,10 @@ const TraysForItem = () => {
             </Card>
           )}
 
-
           <div>
             <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
               🏭 In Station Trays
-              <span className="text-sm text-muted-foreground font-normal">
-                ({stationTrays?.length || 0})
-              </span>
+              <span className="text-sm text-muted-foreground font-normal">({stationTrays?.length || 0})</span>
             </h2>
             <div className="space-y-3">
               {stationError && !stationTrays && (
@@ -636,7 +637,10 @@ const TraysForItem = () => {
               {stationTrays?.map((tray) => {
                 const trayOrder = trayOrders.get(tray.tray_id);
                 return (
-                  <Card key={tray.tray_id} className="p-5 border-2 border-primary/50 bg-primary/5 hover:shadow-lg transition-all duration-300 animate-fade-in">
+                  <Card
+                    key={tray.tray_id}
+                    className="p-5 border-2 border-primary/50 bg-primary/5 hover:shadow-lg transition-all duration-300 animate-fade-in"
+                  >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -677,19 +681,19 @@ const TraysForItem = () => {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 pt-2">
-                        <Button 
-                          onClick={() => handleRelease(tray)} 
+                        <Button
+                          onClick={() => handleRelease(tray)}
                           disabled={isSubmitting || !trayOrder || releasingTrayId === tray.tray_id}
                           variant="outline"
                           className="w-full"
                         >
                           🔁 Release
                         </Button>
-                        <Button 
-                          onClick={() => handlePickItem(tray)} 
+                        <Button
+                          onClick={() => handlePickItem(tray)}
                           disabled={
-                            isSubmitting || 
-                            releasingTrayId === tray.tray_id || 
+                            isSubmitting ||
+                            releasingTrayId === tray.tray_id ||
                             (currentItem && currentItem.quantity_consumed >= currentItem.quantity)
                           }
                           className="w-full"
@@ -707,9 +711,7 @@ const TraysForItem = () => {
           <div>
             <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
               🏗 In Storage Trays
-              <span className="text-sm text-muted-foreground font-normal">
-                ({storageTrays?.length || 0})
-              </span>
+              <span className="text-sm text-muted-foreground font-normal">({storageTrays?.length || 0})</span>
             </h2>
             <div className="space-y-3">
               {storageError && !storageTrays && (
@@ -723,7 +725,10 @@ const TraysForItem = () => {
                 </Card>
               )}
               {storageTrays?.map((tray) => (
-                <Card key={tray.tray_id} className="p-5 border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
+                <Card
+                  key={tray.tray_id}
+                  className="p-5 border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in"
+                >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -756,8 +761,8 @@ const TraysForItem = () => {
                       <p className="text-sm font-medium text-foreground">{tray.item_description}</p>
                     </div>
 
-                    <Button 
-                      onClick={() => handleRetrieveTray(tray)} 
+                    <Button
+                      onClick={() => handleRetrieveTray(tray)}
                       disabled={retrievingTrayId === tray.tray_id}
                       className="w-full"
                     >
@@ -772,26 +777,29 @@ const TraysForItem = () => {
           <div>
             <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
               📋 Picked Items
-              <span className="text-sm text-muted-foreground font-normal">
-                ({transactions?.length || 0})
-              </span>
+              <span className="text-sm text-muted-foreground font-normal">({transactions?.length || 0})</span>
             </h2>
             <div className="space-y-3">
               {transactions && transactions.length === 0 && (
                 <p className="text-center py-6 text-muted-foreground">No transaction history</p>
               )}
               {transactions?.map((transaction) => (
-                <Card key={`${transaction.id}-${transaction.created_at}`} className="p-4 border-2 border-border bg-card">
+                <Card
+                  key={`${transaction.id}-${transaction.created_at}`}
+                  className="p-4 border-2 border-border bg-card"
+                >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-foreground">Tray: {transaction.tray_id}</span>
                       </div>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        transaction.transaction_item_quantity < 0 
-                          ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                          : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                      }`}>
+                      <span
+                        className={`text-xs font-semibold px-2 py-1 rounded ${
+                          transaction.transaction_item_quantity < 0
+                            ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                            : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                        }`}
+                      >
                         Qty: {transaction.transaction_item_quantity}
                       </span>
                     </div>
@@ -815,7 +823,6 @@ const TraysForItem = () => {
               ))}
             </div>
           </div>
-
         </div>
       </ScrollArea>
 
@@ -837,9 +844,7 @@ const TraysForItem = () => {
             >
               <Minus size={20} />
             </Button>
-            <div className="text-4xl font-bold text-primary w-20 text-center">
-              {quantityToPick}
-            </div>
+            <div className="text-4xl font-bold text-primary w-20 text-center">{quantityToPick}</div>
             <Button
               variant="outline"
               size="icon"
@@ -848,10 +853,13 @@ const TraysForItem = () => {
                 const maxQty = Math.min(selectedTray?.available_quantity || 1, remainingQty);
                 setQuantityToPick(Math.min(maxQty, quantityToPick + 1));
               }}
-              disabled={quantityToPick >= Math.min(
-                selectedTray?.available_quantity || 1,
-                currentItem ? currentItem.quantity - currentItem.quantity_consumed : 1
-              )}
+              disabled={
+                quantityToPick >=
+                Math.min(
+                  selectedTray?.available_quantity || 1,
+                  currentItem ? currentItem.quantity - currentItem.quantity_consumed : 1,
+                )
+              }
             >
               <Plus size={20} />
             </Button>
