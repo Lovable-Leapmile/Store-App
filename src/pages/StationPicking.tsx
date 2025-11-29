@@ -20,6 +20,7 @@ interface Station {
 interface TrayItem {
   item_id: string;
   item_description: string;
+  tray_weight: number;
   available_quantity: number;
   tray_id: string;
 }
@@ -323,6 +324,7 @@ const StationPicking = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">{item.item_id}</CardTitle>
                     <CardDescription>{item.item_description}</CardDescription>
+                    <CardDescription>{item.tray_weight}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Badge>Available: {item.available_quantity}</Badge>
