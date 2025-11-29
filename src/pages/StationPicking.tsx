@@ -100,6 +100,15 @@ const StationPicking = () => {
       const order = orderData.records[0];
       setCurrentOrder(order);
 
+      // Unblock slot
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
       // Fetch tray items
       await fetchTrayItems(trayId);
       setStep("items");
