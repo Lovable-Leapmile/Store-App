@@ -54,8 +54,15 @@ const StationPicking = () => {
   const fetchStations = async () => {
     setLoading(true);
     try {
+      const authToken = localStorage.getItem("authToken");
       const response = await fetch(
-        "https://robotmanagerv1test.qikpod.com/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC"
+        "https://robotmanagerv1test.qikpod.com/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC",
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
       const data = await response.json();
       setStations(data);
@@ -84,11 +91,18 @@ const StationPicking = () => {
     });
 
     try {
+      const authToken = localStorage.getItem("authToken");
       // Create order
       const trayId = station.slot_name; // Assuming slot_name contains tray_id
       const orderResponse = await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
-        { method: "POST" }
+        { 
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
       const orderData = await orderResponse.json();
       setCurrentOrder(orderData);
@@ -96,7 +110,13 @@ const StationPicking = () => {
       // Block slot
       await fetch(
         `https://robotmanagerv1test.qikpod.com/robotmanager/block?slot_id=${station.slot_id}`,
-        { method: "PATCH" }
+        { 
+          method: "PATCH",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
 
       toast({
@@ -120,8 +140,15 @@ const StationPicking = () => {
 
   const fetchTrayItems = async (trayId: string) => {
     try {
+      const authToken = localStorage.getItem("authToken");
       const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`
+        `https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
       const data = await response.json();
       setTrayItems(data);
@@ -155,10 +182,17 @@ const StationPicking = () => {
     setShowQuantityDialog(false);
 
     try {
+      const authToken = localStorage.getItem("authToken");
       const today = new Date().toISOString().split("T")[0];
       await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.record_id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
-        { method: "POST" }
+        { 
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
 
       toast({
@@ -188,8 +222,15 @@ const StationPicking = () => {
     });
 
     try {
+      const authToken = localStorage.getItem("authToken");
       const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${currentOrder.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=DESC`
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${currentOrder.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=DESC`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
       const data = await response.json();
       if (data && data.length > 0) {
@@ -225,16 +266,29 @@ const StationPicking = () => {
     });
 
     try {
+      const authToken = localStorage.getItem("authToken");
       // Complete order
       await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.record_id}`,
-        { method: "PATCH" }
+        { 
+          method: "PATCH",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
 
       // Unblock slot
       await fetch(
         `https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`,
-        { method: "PATCH" }
+        { 
+          method: "PATCH",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
 
       toast({
