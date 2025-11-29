@@ -320,9 +320,9 @@ const TraysForItem = () => {
           });
           return;
         }
-
+        const user_Id = localStorage.getItem("userId") || "1";
         const createResponse = await fetch(
-          `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
+          `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=${user_Id}&auto_complete_time=10`,
           {
             method: "POST",
             headers: {
