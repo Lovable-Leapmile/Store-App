@@ -67,11 +67,6 @@ const StationPicking = () => {
       );
       const data = await response.json();
       setStations(data.records || []);
-      toast({
-        title: "👋 Hey there!",
-        description:
-          "I checked your system and found all available stations. Pick a station to see the trays ready for action!",
-      });
     } catch (error) {
       toast({
         title: "Error",
@@ -86,11 +81,6 @@ const StationPicking = () => {
   const handleStationSelect = async (station: Station) => {
     setSelectedStation(station);
     setLoading(true);
-
-    toast({
-      title: "😊 Awesome!",
-      description: "I'm preparing your order now… Just a sec while I lock this tray for you.",
-    });
 
     try {
       const authToken = localStorage.getItem("authToken");
@@ -109,11 +99,6 @@ const StationPicking = () => {
       const orderData = await orderResponse.json();
       const order = orderData.records[0];
       setCurrentOrder(order);
-
-      toast({
-        title: "🔐 Station Locked!",
-        description: `Everything is secured and your order (#${order.id}) is active. Let me load all items available in this tray.`,
-      });
 
       // Fetch tray items
       await fetchTrayItems(trayId);
@@ -143,10 +128,6 @@ const StationPicking = () => {
       );
       const data = await response.json();
       setTrayItems(data.records || []);
-      toast({
-        title: "✨ Here are all the items",
-        description: "Tap on any item you want to pick!",
-      });
     } catch (error) {
       toast({
         title: "Error",
@@ -160,10 +141,6 @@ const StationPicking = () => {
     setSelectedItem(item);
     setQuantity("");
     setShowQuantityDialog(true);
-    toast({
-      title: "😄 Great choice!",
-      description: "How many units do you want to pick from this item? Enter your quantity below.",
-    });
   };
 
   const handleCreateTransaction = async () => {
@@ -191,8 +168,10 @@ const StationPicking = () => {
         description: "Your pick has been recorded successfully.",
       });
 
-      // Fetch order status
-      await fetchOrderStatus();
+      // Refresh tray items
+      if (currentOrder) {
+        await fetchTrayItems(currentOrder.tray_id);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -204,57 +183,11 @@ const StationPicking = () => {
     }
   };
 
-  const fetchOrderStatus = async () => {
-    if (!currentOrder) return;
-
-    toast({
-      title: "✔ Your pick has been updated!",
-      description: "Now let's check the current order status for this tray…",
-    });
-
-    try {
-      const authToken = localStorage.getItem("authToken");
-      const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${currentOrder.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=DESC`,
-        {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        },
-      );
-      const data = await response.json();
-      if (data && data.length > 0) {
-        setCurrentOrder(data[0]);
-      }
-      setShowOrderDialog(true);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch order status",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSelectMore = () => {
-    setShowOrderDialog(false);
-    toast({
-      title: "🙌 Great!",
-      description: "You can continue picking items from this tray. Just choose another item from the list.",
-    });
-  };
 
   const handleRelease = async () => {
     if (!currentOrder || !selectedStation) return;
 
     setLoading(true);
-    setShowOrderDialog(false);
-
-    toast({
-      title: "Releasing your order… 🔄",
-      description: "Please wait…",
-    });
 
     try {
       const authToken = localStorage.getItem("authToken");
@@ -280,9 +213,8 @@ const StationPicking = () => {
       });
 
       toast({
-        title: "🎉 Success!",
-        description:
-          "Your order is completed and the tray has been released. Station unlocked! Everything is back to normal. 😊",
+        title: "Success!",
+        description: "Order completed and station released.",
       });
 
       // Reset state
@@ -322,25 +254,35 @@ const StationPicking = () => {
         )}
 
         {step === "stations" && !loading && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {stations.map((station) => (
-              <Card
-                key={station.slot_id}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => handleStationSelect(station)}
-              >
-                <CardHeader>
-                  <CardTitle className="text-lg">{station.slot_name}</CardTitle>
-                  <CardDescription>Slot ID: {station.slot_id}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Badge variant={station.slot_status === "inactive" ? "secondary" : "default"}>
-                    {station.slot_status}
-                  </Badge>
+          <>
+            {stations.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">No available trays found</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {stations.map((station) => (
+                  <Card
+                    key={station.slot_id}
+                    className="cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => handleStationSelect(station)}
+                  >
+                    <CardHeader>
+                      <CardTitle className="text-lg">{station.slot_name}</CardTitle>
+                      <CardDescription>Slot ID: {station.slot_id}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Badge variant={station.slot_status === "inactive" ? "secondary" : "default"}>
+                        {station.slot_status}
+                      </Badge>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {step === "items" && !loading && (
@@ -348,9 +290,15 @@ const StationPicking = () => {
             {currentOrder && (
               <Card className="mb-4">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lock className="h-5 w-5 text-destructive" />
-                    Order #{currentOrder.id}
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-5 w-5 text-destructive" />
+                      Order #{currentOrder.id}
+                    </div>
+                    <Button onClick={handleRelease} variant="destructive" size="sm">
+                      <Unlock className="h-4 w-4 mr-2" />
+                      Release
+                    </Button>
                   </CardTitle>
                   <CardDescription>Tray: {currentOrder.tray_id}</CardDescription>
                 </CardHeader>
@@ -414,44 +362,6 @@ const StationPicking = () => {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>📦 Here is your current order</DialogTitle>
-              <DialogDescription>What would you like to do next?</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              {currentOrder && (
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Order ID:</span>
-                    <span>{currentOrder.id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Tray ID:</span>
-                    <span>{currentOrder.tray_id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Status:</span>
-                    <Badge>{currentOrder.status}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Updated:</span>
-                    <span className="text-sm">{new Date(currentOrder.updated_at).toLocaleString()}</span>
-                  </div>
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-2">
-                <Button onClick={handleSelectMore} className="w-full" variant="default">
-                  🟦 SELECT
-                </Button>
-                <Button onClick={handleRelease} className="w-full" variant="destructive">
-                  🟥 RELEASE
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
