@@ -153,13 +153,23 @@ const StationPicking = () => {
   };
 
   const handleCreateTransaction = async () => {
-    if (!selectedItem || !currentOrder || !quantity) return;
+    if (!selectedItem || !currentOrder || !quantity || !selectedStation) return;
 
     setLoading(true);
     setShowQuantityDialog(false);
 
     try {
       const authToken = localStorage.getItem("authToken");
+      
+      // Unblock slot before transaction
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
       const today = new Date().toISOString().split("T")[0];
       await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
@@ -200,6 +210,16 @@ const StationPicking = () => {
 
     try {
       const authToken = localStorage.getItem("authToken");
+      
+      // Unblock slot before releasing
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
       // Complete order
       await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.id}`,
@@ -211,15 +231,6 @@ const StationPicking = () => {
           },
         },
       );
-
-      // Unblock slot
-      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
-        method: "PATCH",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
 
       toast({
         title: "Success!",
