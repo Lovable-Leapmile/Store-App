@@ -65,7 +65,7 @@ const StationPicking = () => {
         }
       );
       const data = await response.json();
-      setStations(data);
+      setStations(data.records || []);
       toast({
         title: "👋 Hey there!",
         description: "I checked your system and found all available stations. Pick a station to see the trays ready for action!",
