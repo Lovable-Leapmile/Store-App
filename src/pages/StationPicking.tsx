@@ -14,6 +14,7 @@ interface Station {
   slot_name: string;
   slot_status: string;
   tags: string;
+  tray_id: string;
 }
 
 interface TrayItem {
@@ -94,7 +95,7 @@ const StationPicking = () => {
     try {
       const authToken = localStorage.getItem("authToken");
       // Create order
-      const trayId = station.slot_name; // Assuming slot_name contains tray_id
+      const trayId = station.tray_id;
       const orderResponse = await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
         {
@@ -107,15 +108,6 @@ const StationPicking = () => {
       );
       const orderData = await orderResponse.json();
       setCurrentOrder(orderData);
-
-      // Block slot
-      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
-        method: "PATCH",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
 
       toast({
         title: "🔐 Station Locked!",
