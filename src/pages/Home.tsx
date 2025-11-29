@@ -9,14 +9,12 @@ import { toast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as XLSX from "xlsx";
-
 interface ItemUploadLog {
   item_id: string;
   item_description: string;
   status: "success" | "failed";
   message?: string;
 }
-
 const Home = () => {
   const navigate = useNavigate();
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -40,14 +38,12 @@ const Home = () => {
       navigate("/");
     }
   }, [navigate]);
-
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userName");
     localStorage.removeItem("userId");
     navigate("/");
   };
-
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -56,10 +52,9 @@ const Home = () => {
         method: "POST",
         headers: {
           accept: "application/json",
-          Authorization:
-            "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
+          Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
         },
-        body: formData,
+        body: formData
       });
       if (!response.ok) {
         throw new Error("Upload failed");
@@ -69,7 +64,7 @@ const Home = () => {
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "SAP file uploaded successfully",
+        description: "SAP file uploaded successfully"
       });
       setSelectedFile(null);
       setIsUploadDialogOpen(false);
@@ -78,20 +73,17 @@ const Home = () => {
       toast({
         title: "Error",
         description: "Failed to upload SAP file",
-        variant: "destructive",
+        variant: "destructive"
       });
-    },
+    }
   });
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
-
   const handleDragLeave = () => {
     setIsDragging(false);
   };
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -100,29 +92,24 @@ const Home = () => {
       setSelectedFile(file);
     }
   };
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
     }
   };
-
   const handleUpload = () => {
     if (selectedFile) {
       uploadMutation.mutate(selectedFile);
     }
   };
-
   const handleItemCatalogDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsItemCatalogDragging(true);
   };
-
   const handleItemCatalogDragLeave = () => {
     setIsItemCatalogDragging(false);
   };
-
   const handleItemCatalogDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsItemCatalogDragging(false);
@@ -131,21 +118,17 @@ const Home = () => {
       setItemCatalogFile(file);
     }
   };
-
   const handleItemCatalogFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setItemCatalogFile(file);
     }
   };
-
   const handleItemCatalogUpload = async () => {
     if (!itemCatalogFile) return;
-
     setIsUploading(true);
     setUploadProgress(0);
     setUploadLogs([]);
-
     try {
       const data = await itemCatalogFile.arrayBuffer();
       const workbook = XLSX.read(data);
@@ -156,92 +139,71 @@ const Home = () => {
       }>;
 
       // Map Excel columns to internal property names
-      const mappedData = jsonData.map((row) => ({
+      const mappedData = jsonData.map(row => ({
         item_id: row.Material?.trim() || "",
-        item_description: row["Material Description"]?.trim() || "",
+        item_description: row["Material Description"]?.trim() || ""
       }));
-
       const totalItemsCount = mappedData.length;
       setTotalItems(totalItemsCount);
       setRemainingItems(totalItemsCount);
       let processedItems = 0;
-
       for (const item of mappedData) {
         try {
-          const response = await fetch(
-            `https://robotmanagerv1test.qikpod.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`,
-            {
-              method: "POST",
-              headers: {
-                accept: "application/json",
-                Authorization:
-                  "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
-              },
-              body: "",
+          const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`, {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
             },
-          );
-
+            body: ""
+          });
           const result = await response.json();
-
           if (response.ok && result.status === "success") {
-            setUploadLogs((prev) => [
-              ...prev,
-              {
-                item_id: item.item_id,
-                item_description: item.item_description,
-                status: "success",
-              },
-            ]);
+            setUploadLogs(prev => [...prev, {
+              item_id: item.item_id,
+              item_description: item.item_description,
+              status: "success"
+            }]);
           } else {
-            setUploadLogs((prev) => [
-              ...prev,
-              {
-                item_id: item.item_id,
-                item_description: item.item_description,
-                status: "failed",
-                message: result.message || "Unknown error",
-              },
-            ]);
-          }
-        } catch (error) {
-          setUploadLogs((prev) => [
-            ...prev,
-            {
+            setUploadLogs(prev => [...prev, {
               item_id: item.item_id,
               item_description: item.item_description,
               status: "failed",
-              message: "Network error",
-            },
-          ]);
+              message: result.message || "Unknown error"
+            }]);
+          }
+        } catch (error) {
+          setUploadLogs(prev => [...prev, {
+            item_id: item.item_id,
+            item_description: item.item_description,
+            status: "failed",
+            message: "Network error"
+          }]);
         }
-
         processedItems++;
-        setUploadProgress((processedItems / totalItemsCount) * 100);
+        setUploadProgress(processedItems / totalItemsCount * 100);
         setRemainingItems(totalItemsCount - processedItems);
 
         // Wait 30ms before next request
         if (processedItems < totalItemsCount) {
-          await new Promise((resolve) => setTimeout(resolve, 30));
+          await new Promise(resolve => setTimeout(resolve, 30));
         }
       }
-
       toast({
         title: "Upload Complete",
-        description: `Processed ${totalItemsCount} items`,
+        description: `Processed ${totalItemsCount} items`
       });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to process file",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsUploading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
+  return <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
         <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -261,10 +223,7 @@ const Home = () => {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="container max-w-2xl mx-auto space-y-6">
           {/* SAP Orders Button */}
-          <Card
-            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
-            onClick={() => navigate("/sap-orders")}
-          >
+          <Card className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in" onClick={() => navigate("/sap-orders")}>
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Package className="text-primary" size={48} />
@@ -277,10 +236,7 @@ const Home = () => {
           </Card>
 
           {/* SAP Reconcile Button */}
-          <Card
-            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
-            onClick={() => navigate("/sap-reconcile")}
-          >
+          <Card className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in" onClick={() => navigate("/sap-reconcile")}>
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <FileText className="text-primary" size={48} />
@@ -293,10 +249,7 @@ const Home = () => {
           </Card>
 
           {/* Adhoc Mode Button */}
-          <Card
-            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
-            onClick={() => navigate("/adhoc-mode")}
-          >
+          <Card className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in" onClick={() => navigate("/adhoc-mode")}>
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Boxes className="text-primary" size={48} />
@@ -309,16 +262,13 @@ const Home = () => {
           </Card>
 
           {/* Station Picking Button */}
-          <Card
-            className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in"
-            onClick={() => navigate("/station-picking")}
-          >
+          <Card className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in" onClick={() => navigate("/station-picking")}>
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Package className="text-primary" size={48} />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-foreground mb-2">Station Picking</h2>
+                <h2 className="text-3xl font-bold text-foreground mb-2">​Over Wight </h2>
                 <p className="text-muted-foreground">Manage station-based picking workflow</p>
               </div>
             </div>
@@ -344,35 +294,20 @@ const Home = () => {
                 <DialogTitle>Upload SAP File</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    isDragging ? "border-primary bg-primary/10" : "border-border"
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
+                <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDragging ? "border-primary bg-primary/10" : "border-border"}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
                   <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
                   <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                   <p className="text-sm text-muted-foreground mb-2">or</p>
                   <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
                     Browse Files
                   </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className="hidden"
-                    accept=".xlsx,.xls"
-                    onChange={handleFileSelect}
-                  />
+                  <input ref={fileInputRef} type="file" className="hidden" accept=".xlsx,.xls" onChange={handleFileSelect} />
                 </div>
 
-                {selectedFile && (
-                  <div className="p-4 bg-muted rounded-lg">
+                {selectedFile && <div className="p-4 bg-muted rounded-lg">
                     <p className="text-sm font-medium">Selected file:</p>
                     <p className="text-sm text-muted-foreground">{selectedFile.name}</p>
-                  </div>
-                )}
+                  </div>}
 
                 <Button onClick={handleUpload} disabled={!selectedFile || uploadMutation.isPending} className="w-full">
                   {uploadMutation.isPending ? "Uploading..." : "Upload"}
@@ -382,20 +317,17 @@ const Home = () => {
           </Dialog>
 
           {/* Upload Item Catalog Button */}
-          <Dialog
-            open={isItemCatalogDialogOpen}
-            onOpenChange={(open) => {
-              setIsItemCatalogDialogOpen(open);
-              if (!open) {
-                // Reset state when dialog is closed
-                setItemCatalogFile(null);
-                setUploadLogs([]);
-                setUploadProgress(0);
-                setTotalItems(0);
-                setRemainingItems(0);
-              }
-            }}
-          >
+          <Dialog open={isItemCatalogDialogOpen} onOpenChange={open => {
+          setIsItemCatalogDialogOpen(open);
+          if (!open) {
+            // Reset state when dialog is closed
+            setItemCatalogFile(null);
+            setUploadLogs([]);
+            setUploadProgress(0);
+            setTotalItems(0);
+            setRemainingItems(0);
+          }
+        }}>
             <DialogTrigger asChild>
               <Card className="p-8 bg-card hover:shadow-xl transition-all duration-300 border-2 border-border hover:border-primary/50 cursor-pointer animate-fade-in">
                 <div className="flex flex-col items-center gap-4 text-center">
@@ -414,49 +346,31 @@ const Home = () => {
                 <DialogTitle>Upload Item Catalog</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-                {!isUploading && uploadLogs.length === 0 && (
-                  <>
-                    <div
-                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                        isItemCatalogDragging ? "border-primary bg-primary/10" : "border-border"
-                      }`}
-                      onDragOver={handleItemCatalogDragOver}
-                      onDragLeave={handleItemCatalogDragLeave}
-                      onDrop={handleItemCatalogDrop}
-                    >
+                {!isUploading && uploadLogs.length === 0 && <>
+                    <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isItemCatalogDragging ? "border-primary bg-primary/10" : "border-border"}`} onDragOver={handleItemCatalogDragOver} onDragLeave={handleItemCatalogDragLeave} onDrop={handleItemCatalogDrop}>
                       <Database className="mx-auto mb-4 text-muted-foreground" size={48} />
                       <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                       <p className="text-sm text-muted-foreground mb-2"> or</p>
                       <Button variant="outline" onClick={() => itemCatalogInputRef.current?.click()}>
                         Browse Files
                       </Button>
-                      <input
-                        ref={itemCatalogInputRef}
-                        type="file"
-                        className="hidden"
-                        accept=".xlsx,.xls"
-                        onChange={handleItemCatalogFileSelect}
-                      />
+                      <input ref={itemCatalogInputRef} type="file" className="hidden" accept=".xlsx,.xls" onChange={handleItemCatalogFileSelect} />
                       <p className="text-xs text-muted-foreground mt-4">
                         Excel file with columns: Material, Material Description
                       </p>
                     </div>
 
-                    {itemCatalogFile && (
-                      <div className="p-4 bg-muted rounded-lg">
+                    {itemCatalogFile && <div className="p-4 bg-muted rounded-lg">
                         <p className="text-sm font-medium">Selected file:</p>
                         <p className="text-sm text-muted-foreground">{itemCatalogFile.name}</p>
-                      </div>
-                    )}
+                      </div>}
 
                     <Button onClick={handleItemCatalogUpload} disabled={!itemCatalogFile} className="w-full">
                       Upload & Process
                     </Button>
-                  </>
-                )}
+                  </>}
 
-                {(isUploading || uploadLogs.length > 0) && (
-                  <div className="space-y-4">
+                {(isUploading || uploadLogs.length > 0) && <div className="space-y-4">
                     {/* Remaining Items Counter */}
                     <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
                       <div className="text-center">
@@ -480,13 +394,13 @@ const Home = () => {
                       </div>
                       <div className="p-3 bg-green-500/10 rounded-lg text-center">
                         <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {uploadLogs.filter((l) => l.status === "success").length}
+                          {uploadLogs.filter(l => l.status === "success").length}
                         </div>
                         <div className="text-xs text-muted-foreground">Success</div>
                       </div>
                       <div className="p-3 bg-red-500/10 rounded-lg text-center">
                         <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                          {uploadLogs.filter((l) => l.status === "failed").length}
+                          {uploadLogs.filter(l => l.status === "failed").length}
                         </div>
                         <div className="text-xs text-muted-foreground">Failed</div>
                       </div>
@@ -495,24 +409,9 @@ const Home = () => {
                     <div className="rounded-lg border border-border overflow-hidden">
                       <ScrollArea className="h-[400px]">
                         <div className="p-4 space-y-2">
-                          {uploadLogs.map((log, index) => (
-                            <div
-                              key={index}
-                              className={`p-3 rounded-lg border ${
-                                log.status === "success"
-                                  ? "bg-green-500/5 border-green-500/20"
-                                  : "bg-red-500/5 border-red-500/20"
-                              } animate-fade-in`}
-                            >
+                          {uploadLogs.map((log, index) => <div key={index} className={`p-3 rounded-lg border ${log.status === "success" ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20"} animate-fade-in`}>
                               <div className="flex items-start gap-3">
-                                {log.status === "success" ? (
-                                  <CheckCircle2
-                                    className="text-green-600 dark:text-green-400 shrink-0 mt-0.5"
-                                    size={18}
-                                  />
-                                ) : (
-                                  <XCircle className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" size={18} />
-                                )}
+                                {log.status === "success" ? <CheckCircle2 className="text-green-600 dark:text-green-400 shrink-0 mt-0.5" size={18} /> : <XCircle className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" size={18} />}
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <span className="font-medium text-sm">{log.item_id}</span>
@@ -524,34 +423,24 @@ const Home = () => {
                                   {log.message && <p className="text-xs text-muted-foreground mt-1">{log.message}</p>}
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            </div>)}
                         </div>
                       </ScrollArea>
                     </div>
 
-                    {!isUploading && (
-                      <Button
-                        onClick={() => {
-                          setUploadLogs([]);
-                          setUploadProgress(0);
-                          setItemCatalogFile(null);
-                        }}
-                        variant="outline"
-                        className="w-full"
-                      >
+                    {!isUploading && <Button onClick={() => {
+                  setUploadLogs([]);
+                  setUploadProgress(0);
+                  setItemCatalogFile(null);
+                }} variant="outline" className="w-full">
                         Upload Another File
-                      </Button>
-                    )}
-                  </div>
-                )}
+                      </Button>}
+                  </div>}
               </div>
             </DialogContent>
           </Dialog>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Home;
