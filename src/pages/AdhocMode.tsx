@@ -1735,9 +1735,6 @@ const AdhocMode = () => {
                           <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
-                          <Button onClick={() => handleSelectOrder(order)} variant="default" size="sm">
-                            Select
-                          </Button>
                           <Button
                             onClick={() => handleReleaseOrder(order.id)}
                             disabled={releasingOrderId === order.id}
@@ -1745,6 +1742,9 @@ const AdhocMode = () => {
                             size="sm"
                           >
                             {releasingOrderId === order.id ? "Releasing..." : "Release"}
+                          </Button>
+                          <Button onClick={() => handleSelectOrder(order)} variant="default" size="sm">
+                            Select
                           </Button>
                         </div>
                       </div>
