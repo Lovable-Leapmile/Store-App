@@ -15,6 +15,7 @@ interface Station {
   slot_status: string;
   tags: string;
   tray_id: string;
+  comment: string;
 }
 
 interface TrayItem {
@@ -88,7 +89,7 @@ const StationPicking = () => {
       // Create order
       const trayId = station.tray_id;
       const orderResponse = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2000`,
         {
           method: "POST",
           headers: {
@@ -100,8 +101,18 @@ const StationPicking = () => {
       const orderData = await orderResponse.json();
       const order = orderData.records[0];
       setCurrentOrder(order);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Unblock slot after creating order
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
-      // Fetch tray items
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       await fetchTrayItems(trayId);
       setStep("items");
     } catch (error) {
@@ -153,17 +164,22 @@ const StationPicking = () => {
     try {
       const authToken = localStorage.getItem("authToken");
 
-      // Unblock slot before transaction
-      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
-        method: "PATCH",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      // Get latest order before transaction
+      // await fetch(
+      //   `https://robotmanagerv1test.qikpod.com/nanostore/orders?record_id=${currentOrder.id}&order_by_field=updated_at&order_by_type=ASC&num_records=1`,
+      //   {
+      //     headers: {
+      //       accept: "application/json",
+      //       Authorization: `Bearer ${authToken}`,
+      //     },
+      //   },
+      // );
+
+      // Wait 1 second before transaction
+      // await new Promise(resolve => setTimeout(resolve, 1000));
 
       const today = new Date().toISOString().split("T")[0];
-      await fetch(
+      const transactionResponse = await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
         {
           method: "POST",
@@ -174,10 +190,18 @@ const StationPicking = () => {
         },
       );
 
-      toast({
-        title: "✔ Done!",
-        description: "Your pick has been recorded successfully.",
-      });
+      if (transactionResponse.ok) {
+        toast({
+          title: "✔ Done!",
+          description: "Your pick has been recorded successfully.",
+        });
+      } else {
+        toast({
+          title: "Failed",
+          description: "Transaction failed",
+          variant: "destructive",
+        });
+      }
 
       // Refresh tray items
       if (currentOrder) {
@@ -279,8 +303,9 @@ const StationPicking = () => {
                   >
                     <CardHeader>
                       <CardTitle className="text-lg">{station.slot_name}</CardTitle>
-                      <CardDescription>Slot ID: {station.slot_id}</CardDescription>
-                      <CardDescription>Tray ID: {station.tray_id}</CardDescription>
+                      <CardDescription>Slot ID : {station.slot_id}</CardDescription>
+                      <CardDescription>Tray ID : {station.tray_id}</CardDescription>
+                      <CardDescription>Comment : {station.comment || "No comment"}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <Badge variant={station.slot_status === "inactive" ? "secondary" : "default"}>
@@ -325,6 +350,7 @@ const StationPicking = () => {
                     <CardTitle className="text-lg">{item.item_id}</CardTitle>
                     <CardDescription>{item.item_description}</CardDescription>
                     <CardDescription>Tray Weight : {item.tray_weight}</CardDescription>
+                    <CardDescription>Item Quantity : {item.available_quantity}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Badge>Available: {item.available_quantity}</Badge>
