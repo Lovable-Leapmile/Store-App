@@ -34,7 +34,8 @@ interface Order {
   status?: string;
   auto_complete_time?: number;
 }
-const API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ";
+const API_TOKEN =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ";
 const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ const AdhocMode = () => {
   const [releasingOrderId, setReleasingOrderId] = useState<number | null>(null);
   const [showTransactionDialog, setShowTransactionDialog] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [transactionType, setTransactionType] = useState<'inbound' | 'pickup' | null>(null);
+  const [transactionType, setTransactionType] = useState<"inbound" | "pickup" | null>(null);
   const [trayItemsForPickup, setTrayItemsForPickup] = useState<TrayItem[]>([]);
   const [selectedProductForPickup, setSelectedProductForPickup] = useState<string | null>(null);
   const [showTimeDialog, setShowTimeDialog] = useState(false);
@@ -79,7 +80,7 @@ const AdhocMode = () => {
   const [isScanning, setIsScanning] = useState(false);
   const qrScannerRef = useRef<Html5QrcodeScanner | null>(null);
   const scannerDivRef = useRef<HTMLDivElement>(null);
-  const [lastTransactionType, setLastTransactionType] = useState<'inbound' | 'pickup'>('inbound');
+  const [lastTransactionType, setLastTransactionType] = useState<"inbound" | "pickup">("inbound");
   const [showTrayDetailDialog, setShowTrayDetailDialog] = useState(false);
   const [selectedTrayForDetail, setSelectedTrayForDetail] = useState<TrayItem | null>(null);
 
@@ -180,17 +181,26 @@ const AdhocMode = () => {
   }, [showPendingDialog]);
   const fetchCounts = async () => {
     try {
-      const [readyResponse, pendingResponse] = await Promise.all([fetch(`${BASE_URL}/nanostore/orders?tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      }), fetch(`${BASE_URL}/nanostore/orders?tray_status=inprogress&status=active&order_by_field=updated_at&order_by_type=DESC`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      })]);
+      const [readyResponse, pendingResponse] = await Promise.all([
+        fetch(
+          `${BASE_URL}/nanostore/orders?tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+          },
+        ),
+        fetch(
+          `${BASE_URL}/nanostore/orders?tray_status=inprogress&status=active&order_by_field=updated_at&order_by_type=DESC`,
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+          },
+        ),
+      ]);
       if (readyResponse.ok) {
         const readyData = await readyResponse.json();
         setReadyCount(readyData.count || 0);
@@ -211,12 +221,15 @@ const AdhocMode = () => {
   };
   const fetchReadyOrders = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (response.ok) {
         const data = await response.json();
         setReadyOrders(data.records || []);
@@ -229,12 +242,15 @@ const AdhocMode = () => {
   };
   const fetchPendingOrders = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_status=inprogress&status=active&order_by_field=updated_at&order_by_type=DESC`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_status=inprogress&status=active&order_by_field=updated_at&order_by_type=DESC`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (response.ok) {
         const data = await response.json();
         setPendingOrders(data.records || []);
@@ -252,15 +268,15 @@ const AdhocMode = () => {
         method: "PATCH",
         headers: {
           accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
       });
       if (!response.ok) {
         throw new Error("Failed to release order");
       }
       toast({
         title: "Success",
-        description: "Order released successfully"
+        description: "Order released successfully",
       });
       await fetchReadyOrders();
       await fetchCounts();
@@ -268,7 +284,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to release order",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setReleasingOrderId(null);
@@ -280,19 +296,22 @@ const AdhocMode = () => {
     setQuantity(1);
     setSelectedProductForPickup(null);
     setTrayItemsForPickup([]);
-    
+
     // Always ask user to choose transaction type
     setTransactionType(null);
     setShowTransactionDialog(true);
-    
+
     // Fetch items for the tray
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${order.tray_id}&order_flow=fifo`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${order.tray_id}&order_flow=fifo`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (response.ok) {
         const data = await response.json();
         if (data.records && data.records.length > 0) {
@@ -307,21 +326,24 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to fetch tray items",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
-  const handleTransactionTypeSelect = async (type: 'inbound' | 'pickup') => {
+  const handleTransactionTypeSelect = async (type: "inbound" | "pickup") => {
     setTransactionType(type);
-    if (type === 'pickup' && selectedOrder) {
+    if (type === "pickup" && selectedOrder) {
       // Fetch items for the tray
       try {
-        const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${selectedOrder.tray_id}&order_flow=fifo`, {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`
-          }
-        });
+        const response = await fetch(
+          `${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${selectedOrder.tray_id}&order_flow=fifo`,
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+          },
+        );
         if (response.ok) {
           const data = await response.json();
           if (data.records && data.records.length > 0) {
@@ -331,7 +353,7 @@ const AdhocMode = () => {
             toast({
               title: "No Items",
               description: "No items found in this tray",
-              variant: "destructive"
+              variant: "destructive",
             });
           }
         } else {
@@ -339,7 +361,7 @@ const AdhocMode = () => {
           toast({
             title: "Error",
             description: "Failed to fetch tray items",
-            variant: "destructive"
+            variant: "destructive",
           });
         }
       } catch (error) {
@@ -347,7 +369,7 @@ const AdhocMode = () => {
         toast({
           title: "Error",
           description: "Failed to fetch tray items",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
     }
@@ -357,80 +379,89 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Please enter item ID",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
     // Remember this transaction type for next time
-    setLastTransactionType('inbound');
+    setLastTransactionType("inbound");
     try {
       const userId = localStorage.getItem("userId") || "1";
       let orderId = selectedOrder.id;
-      
+
       // First, try to fetch existing order
-      const fetchOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC&num_records=1`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
-      
+      const fetchOrderResponse = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC&num_records=1`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
+
       if (fetchOrderResponse.ok) {
         const orderData = await fetchOrderResponse.json();
         if (orderData.records && orderData.records.length > 0) {
           orderId = orderData.records[0].id;
         }
       }
-      
+
       // If no order found, create one
       if (!orderId) {
-        const createOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&user_id=${userId}&auto_complete_time=10`, {
-          method: "POST",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`
+        const createOrderResponse = await fetch(
+          `${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&user_id=${userId}&auto_complete_time=10`,
+          {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+            body: "",
           },
-          body: ""
-        });
-        
+        );
+
         if (!createOrderResponse.ok) {
           throw new Error("Failed to create order");
         }
-        
+
         const newOrderData = await createOrderResponse.json();
         orderId = newOrderData.record_id || newOrderData.id;
       }
-      
+
       // Update order with user_id
       const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${orderId}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
           Authorization: `Bearer ${API_TOKEN}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user_id: parseInt(userId) })
+        body: JSON.stringify({ user_id: parseInt(userId) }),
       });
-      
+
       if (!patchResponse.ok) {
         throw new Error("Failed to update order");
       }
-      
+
       // Then proceed with transaction
-      const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`, {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
+      const response = await fetch(
+        `${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: "",
         },
-        body: ""
-      });
+      );
       if (!response.ok) {
         throw new Error("Failed to submit transaction");
       }
       toast({
         title: "Success",
-        description: "Inbound transaction completed successfully"
+        description: "Inbound transaction completed successfully",
       });
       setShowTransactionDialog(false);
       setSelectedOrder(null);
@@ -440,7 +471,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to submit inbound transaction",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -449,80 +480,89 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Please select a product",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
     // Remember this transaction type for next time
-    setLastTransactionType('pickup');
+    setLastTransactionType("pickup");
     try {
       const userId = localStorage.getItem("userId") || "1";
       let orderId = selectedOrder.id;
-      
+
       // First, try to fetch existing order
-      const fetchOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC&num_records=1`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
-      
+      const fetchOrderResponse = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC&num_records=1`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
+
       if (fetchOrderResponse.ok) {
         const orderData = await fetchOrderResponse.json();
         if (orderData.records && orderData.records.length > 0) {
           orderId = orderData.records[0].id;
         }
       }
-      
+
       // If no order found, create one
       if (!orderId) {
-        const createOrderResponse = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&user_id=${userId}&auto_complete_time=10`, {
-          method: "POST",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`
+        const createOrderResponse = await fetch(
+          `${BASE_URL}/nanostore/orders?tray_id=${selectedOrder.tray_id}&user_id=${userId}&auto_complete_time=10`,
+          {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+            body: "",
           },
-          body: ""
-        });
-        
+        );
+
         if (!createOrderResponse.ok) {
           throw new Error("Failed to create order");
         }
-        
+
         const newOrderData = await createOrderResponse.json();
         orderId = newOrderData.record_id || newOrderData.id;
       }
-      
+
       // Update order with user_id
       const patchResponse = await fetch(`${BASE_URL}/nanostore/orders?record_id=${orderId}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
           Authorization: `Bearer ${API_TOKEN}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user_id: parseInt(userId) })
+        body: JSON.stringify({ user_id: parseInt(userId) }),
       });
-      
+
       if (!patchResponse.ok) {
         throw new Error("Failed to update order");
       }
-      
+
       // Then proceed with transaction
-      const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${selectedProductForPickup}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${transactionDate}`, {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
+      const response = await fetch(
+        `${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${selectedProductForPickup}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${transactionDate}`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: "",
         },
-        body: ""
-      });
+      );
       if (!response.ok) {
         throw new Error("Failed to submit transaction");
       }
       toast({
         title: "Success",
-        description: "Pickup transaction completed successfully"
+        description: "Pickup transaction completed successfully",
       });
       setShowTransactionDialog(false);
       setSelectedOrder(null);
@@ -532,7 +572,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to submit pickup transaction",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -545,28 +585,31 @@ const AdhocMode = () => {
 
   const handleConfirmRequestTray = async () => {
     if (!selectedTrayForRequest) return;
-    
+
     const userId = localStorage.getItem("userId") || "1";
     setRetrievingTrayId(selectedTrayForRequest);
     setShowTimeDialog(false);
-    
+
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${selectedTrayForRequest}&user_id=${userId}&auto_complete_time=${autoCompleteTime}`, {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${selectedTrayForRequest}&user_id=${userId}&auto_complete_time=${autoCompleteTime}`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: "",
         },
-        body: ""
-      });
-      
+      );
+
       if (!response.ok) {
         throw new Error("Failed to request tray");
       }
-      
+
       toast({
         title: "Success",
-        description: `Tray ${selectedTrayForRequest} requested successfully (${autoCompleteTime} min)`
+        description: `Tray ${selectedTrayForRequest} requested successfully (${autoCompleteTime} min)`,
       });
 
       // Fetch updated items based on active tab
@@ -583,7 +626,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to request tray",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setRetrievingTrayId(null);
@@ -595,12 +638,15 @@ const AdhocMode = () => {
     try {
       const hasItemParam = showEmptyBins ? "false" : "true";
       const dividerParam = trayDividerFilter !== null ? `&tray_divider=${trayDividerFilter}` : "";
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=false${dividerParam}&has_item=${hasItemParam}&num_records=10&offset=${offset}&order_flow=fifo`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=false${dividerParam}&has_item=${hasItemParam}&num_records=10&offset=${offset}&order_flow=fifo`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (!response.ok) {
         setAllTrays([]);
         return;
@@ -613,7 +659,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to fetch trays",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -621,12 +667,15 @@ const AdhocMode = () => {
   };
   const fetchStationInfo = async (trayId: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC&num_records=1&offset=0`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC&num_records=1&offset=0`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (!response.ok) return null;
       const data = await response.json();
       return data.records?.[0]?.station_friendly_name || null;
@@ -637,12 +686,15 @@ const AdhocMode = () => {
   const fetchStationItems = async () => {
     if (!trayId.trim()) return;
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${trayId}&num_records=10&offset=0`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=true&tray_id=${trayId}&num_records=10&offset=0`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (!response.ok) {
         setStationItems([]);
         return;
@@ -651,13 +703,15 @@ const AdhocMode = () => {
       const items = data.records || [];
 
       // Fetch station info for each tray
-      const itemsWithStation = await Promise.all(items.map(async (item: TrayItem) => {
-        const stationName = await fetchStationInfo(item.tray_id);
-        return {
-          ...item,
-          station_friendly_name: stationName
-        };
-      }));
+      const itemsWithStation = await Promise.all(
+        items.map(async (item: TrayItem) => {
+          const stationName = await fetchStationInfo(item.tray_id);
+          return {
+            ...item,
+            station_friendly_name: stationName,
+          };
+        }),
+      );
       setStationItems(itemsWithStation);
     } catch (error) {
       setStationItems([]);
@@ -666,12 +720,15 @@ const AdhocMode = () => {
   const fetchStorageItems = async () => {
     if (!trayId.trim()) return;
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=false&tray_id=${trayId}&num_records=10&offset=${storageOffset}`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=false&tray_id=${trayId}&num_records=10&offset=${storageOffset}`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (!response.ok) {
         setStorageItems([]);
         setStorageTotalCount(0);
@@ -688,12 +745,15 @@ const AdhocMode = () => {
   const fetchItemStationItems = async () => {
     if (!itemId.trim()) return;
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=true&item_id=${itemId}&num_records=10&offset=0&order_flow=fifo`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=true&item_id=${itemId}&num_records=10&offset=0&order_flow=fifo`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (!response.ok) {
         setItemStationItems([]);
         return;
@@ -702,13 +762,15 @@ const AdhocMode = () => {
       const items = data.records || [];
 
       // Fetch station info for each tray
-      const itemsWithStation = await Promise.all(items.map(async (item: TrayItem) => {
-        const stationName = await fetchStationInfo(item.tray_id);
-        return {
-          ...item,
-          station_friendly_name: stationName
-        };
-      }));
+      const itemsWithStation = await Promise.all(
+        items.map(async (item: TrayItem) => {
+          const stationName = await fetchStationInfo(item.tray_id);
+          return {
+            ...item,
+            station_friendly_name: stationName,
+          };
+        }),
+      );
       setItemStationItems(itemsWithStation);
     } catch (error) {
       setItemStationItems([]);
@@ -717,12 +779,15 @@ const AdhocMode = () => {
   const fetchItemStorageItems = async () => {
     if (!itemId.trim()) return;
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/trays_for_order?in_station=false&item_id=${itemId}&num_records=10&offset=${storageOffset}&order_flow=fifo`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/trays_for_order?in_station=false&item_id=${itemId}&num_records=10&offset=${storageOffset}&order_flow=fifo`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (!response.ok) {
         setItemStorageItems([]);
         setStorageTotalCount(0);
@@ -741,7 +806,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Please enter a tray ID",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -756,7 +821,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to fetch tray items",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -767,7 +832,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Please enter an item ID",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -782,7 +847,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to fetch item trays",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -801,12 +866,15 @@ const AdhocMode = () => {
   const handleReleaseTray = async (trayId: string) => {
     const userId = localStorage.getItem("userId") || "1";
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&status=active&user_id=${userId}&order_by_field=updated_at&order_by_type=DESC`, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
-        }
-      });
+      const response = await fetch(
+        `${BASE_URL}/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&status=active&user_id=${userId}&order_by_field=updated_at&order_by_type=DESC`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       if (!response.ok) {
         throw new Error("No active order found");
       }
@@ -817,15 +885,15 @@ const AdhocMode = () => {
           method: "PATCH",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`
-          }
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
         });
         if (!patchResponse.ok) {
           throw new Error("Failed to release tray");
         }
         toast({
           title: "Success",
-          description: `Tray ${trayId} released successfully`
+          description: `Tray ${trayId} released successfully`,
         });
         if (activeTab === "tray") {
           await Promise.all([fetchStationItems(), fetchStorageItems()]);
@@ -836,14 +904,14 @@ const AdhocMode = () => {
         toast({
           title: "No Active Order",
           description: "No active order found for this tray",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to release tray",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -852,25 +920,28 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Missing required fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
     try {
-      const response = await fetch(`${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`, {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`
+      const response = await fetch(
+        `${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: "",
         },
-        body: ""
-      });
+      );
       if (!response.ok) {
         throw new Error("Transaction failed");
       }
       toast({
         title: "Success",
-        description: `Putaway completed: ${quantity} units of ${transactionItemId}`
+        description: `Putaway completed: ${quantity} units of ${transactionItemId}`,
       });
       setShowPutawayDialog(false);
       setSelectedItem(null);
@@ -888,7 +959,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to complete transaction",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -899,7 +970,7 @@ const AdhocMode = () => {
 
   const stopScanning = () => {
     if (qrScannerRef.current) {
-      qrScannerRef.current.clear().catch(err => console.error("Failed to clear scanner:", err));
+      qrScannerRef.current.clear().catch((err) => console.error("Failed to clear scanner:", err));
       qrScannerRef.current = null;
     }
     setIsScanning(false);
@@ -908,30 +979,27 @@ const AdhocMode = () => {
 
   const processBarcodeFromAPI = async (barcode: string) => {
     try {
-      const response = await fetch(
-        `${BASE_URL}/nanostore/barcode?barcode=${encodeURIComponent(barcode)}`,
-        {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`
-          }
-        }
-      );
+      const response = await fetch(`${BASE_URL}/nanostore/barcode?barcode=${encodeURIComponent(barcode)}`, {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch barcode data");
       }
 
       const data = await response.json();
-      
+
       if (data.status === "success" && data.records && data.records.length > 0) {
         const record = data.records[0];
         setTransactionItemId(record.product_id);
         setQuantity(record.product_quantity);
-        
+
         toast({
           title: "Barcode Scanned",
-          description: `Product: ${record.product_id}, Qty: ${record.product_quantity}`
+          description: `Product: ${record.product_id}, Qty: ${record.product_quantity}`,
         });
       } else {
         throw new Error("No data found for barcode");
@@ -940,7 +1008,7 @@ const AdhocMode = () => {
       toast({
         title: "Error",
         description: "Failed to process barcode",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -949,19 +1017,19 @@ const AdhocMode = () => {
     if (showQrScanner && isScanning) {
       const timeoutId = setTimeout(() => {
         const readerElement = document.getElementById("qr-reader");
-        
+
         if (readerElement) {
           try {
             const scanner = new Html5QrcodeScanner(
               "qr-reader",
-              { 
-                fps: 10, 
+              {
+                fps: 10,
                 qrbox: { width: 250, height: 250 },
                 aspectRatio: 1.0,
                 rememberLastUsedCamera: true,
-                showTorchButtonIfSupported: true
+                showTorchButtonIfSupported: true,
               },
-              false
+              false,
             );
 
             scanner.render(
@@ -971,7 +1039,7 @@ const AdhocMode = () => {
               },
               (errorMessage) => {
                 // Ignore routine scanning errors
-              }
+              },
             );
 
             qrScannerRef.current = scanner;
@@ -980,7 +1048,7 @@ const AdhocMode = () => {
             toast({
               title: "Scanner Error",
               description: "Failed to initialize camera. Please check permissions.",
-              variant: "destructive"
+              variant: "destructive",
             });
           }
         }
@@ -989,19 +1057,25 @@ const AdhocMode = () => {
       return () => {
         clearTimeout(timeoutId);
         if (qrScannerRef.current) {
-          qrScannerRef.current.clear().catch(err => console.error("Cleanup error:", err));
+          qrScannerRef.current.clear().catch((err) => console.error("Cleanup error:", err));
           qrScannerRef.current = null;
         }
       };
     }
   }, [showQrScanner, isScanning]);
-  return <div className="min-h-screen bg-background flex flex-col">
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
         <div className="container max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Button onClick={() => navigate("/home")} variant="ghost" size="icon" className="text-foreground hover:bg-accent/10">
+              <Button
+                onClick={() => navigate("/home")}
+                variant="ghost"
+                size="icon"
+                className="text-foreground hover:bg-accent/10"
+              >
                 <ArrowLeft size={20} />
               </Button>
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
@@ -1009,13 +1083,16 @@ const AdhocMode = () => {
               </div>
               <h1 className="text-xl font-bold text-foreground">Adhoc Mode</h1>
             </div>
-            
+
             {/* Count Boxes */}
             <div className="flex gap-3">
-              <Card className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50" onClick={() => {
-              fetchReadyOrders();
-              setShowReadyDialog(true);
-            }}>
+              <Card
+                className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
+                onClick={() => {
+                  fetchReadyOrders();
+                  setShowReadyDialog(true);
+                }}
+              >
                 <CardContent className="p-2 px-3">
                   <div className="flex items-center gap-2">
                     <div className="text-center">
@@ -1025,11 +1102,14 @@ const AdhocMode = () => {
                   </div>
                 </CardContent>
               </Card>
-              
-              <Card className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50" onClick={() => {
-              fetchPendingOrders();
-              setShowPendingDialog(true);
-            }}>
+
+              <Card
+                className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
+                onClick={() => {
+                  fetchPendingOrders();
+                  setShowPendingDialog(true);
+                }}
+              >
                 <CardContent className="p-2 px-3">
                   <div className="flex items-center gap-2">
                     <div className="text-center">
@@ -1061,144 +1141,210 @@ const AdhocMode = () => {
                   <TabsTrigger value="tray">Tray Search</TabsTrigger>
                   <TabsTrigger value="item">Item Search</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="tray" className="space-y-3">
                   <Label className="text-base font-semibold">Tray ID</Label>
-                  <Input value={trayId} onChange={e => {
-                  setTrayId(e.target.value);
-                  if (!e.target.value.trim()) {
-                    setStationItems([]);
-                    setStorageItems([]);
-                    setStorageOffset(0);
-                    setStorageTotalCount(0);
-                  }
-                }} className="h-14 text-lg px-5 border-2" placeholder="Enter Tray ID" />
-                  
-                  {!trayId.trim() && <div className="space-y-3 mt-4">
+                  <Input
+                    value={trayId}
+                    onChange={(e) => {
+                      setTrayId(e.target.value);
+                      if (!e.target.value.trim()) {
+                        setStationItems([]);
+                        setStorageItems([]);
+                        setStorageOffset(0);
+                        setStorageTotalCount(0);
+                      }
+                    }}
+                    className="h-14 text-lg px-5 border-2"
+                    placeholder="Enter Tray ID"
+                  />
+
+                  {!trayId.trim() && (
+                    <div className="space-y-3 mt-4">
                       <Label className="text-base font-semibold">Filters</Label>
                       <div className="flex gap-2 flex-wrap">
-                        <Button variant={trayDividerFilter === null && !showEmptyBins ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(null);
-                      setShowEmptyBins(false);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === null && !showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(null);
+                            setShowEmptyBins(false);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           All Trays
                         </Button>
-                        <Button variant={trayDividerFilter === 0 ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(0);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === 0 ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(0);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Divider: 0
                         </Button>
-                        <Button variant={trayDividerFilter === 4 ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(4);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === 4 ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(4);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Divider: 4
                         </Button>
-                        <Button variant={trayDividerFilter === 6 ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(6);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === 6 ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(6);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Divider: 6
                         </Button>
-                        <Button variant={showEmptyBins ? "default" : "outline"} onClick={() => {
-                      setShowEmptyBins(!showEmptyBins);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setShowEmptyBins(!showEmptyBins);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Empty Bins Only
                         </Button>
                       </div>
-                    </div>}
+                    </div>
+                  )}
                 </TabsContent>
-                
+
                 <TabsContent value="item" className="space-y-3">
                   <Label className="text-base font-semibold">Item ID</Label>
-                  <Input value={itemId} onChange={e => {
-                  setItemId(e.target.value);
-                  if (!e.target.value.trim()) {
-                    setItemStationItems([]);
-                    setItemStorageItems([]);
-                    setStorageOffset(0);
-                    setStorageTotalCount(0);
-                  }
-                }} className="h-14 text-lg px-5 border-2" placeholder="Enter Item ID" />
-                  
-                  {!itemId.trim() && <div className="space-y-3 mt-4">
+                  <Input
+                    value={itemId}
+                    onChange={(e) => {
+                      setItemId(e.target.value);
+                      if (!e.target.value.trim()) {
+                        setItemStationItems([]);
+                        setItemStorageItems([]);
+                        setStorageOffset(0);
+                        setStorageTotalCount(0);
+                      }
+                    }}
+                    className="h-14 text-lg px-5 border-2"
+                    placeholder="Enter Item ID"
+                  />
+
+                  {!itemId.trim() && (
+                    <div className="space-y-3 mt-4">
                       <Label className="text-base font-semibold">Filters</Label>
                       <div className="flex gap-2 flex-wrap">
-                        <Button variant={trayDividerFilter === null && !showEmptyBins ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(null);
-                      setShowEmptyBins(false);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === null && !showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(null);
+                            setShowEmptyBins(false);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           All Trays
                         </Button>
-                        <Button variant={trayDividerFilter === 0 ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(0);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === 0 ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(0);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Divider: 0
                         </Button>
-                        <Button variant={trayDividerFilter === 4 ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(4);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === 4 ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(4);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Divider: 4
                         </Button>
-                        <Button variant={trayDividerFilter === 6 ? "default" : "outline"} onClick={() => {
-                      setTrayDividerFilter(6);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={trayDividerFilter === 6 ? "default" : "outline"}
+                          onClick={() => {
+                            setTrayDividerFilter(6);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Divider: 6
                         </Button>
-                        <Button variant={showEmptyBins ? "default" : "outline"} onClick={() => {
-                      setShowEmptyBins(!showEmptyBins);
-                      setOffset(0);
-                    }} size="sm">
+                        <Button
+                          variant={showEmptyBins ? "default" : "outline"}
+                          onClick={() => {
+                            setShowEmptyBins(!showEmptyBins);
+                            setOffset(0);
+                          }}
+                          size="sm"
+                        >
                           Empty Bins Only
                         </Button>
                       </div>
-                    </div>}
+                    </div>
+                  )}
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
 
           {/* Loading State */}
-          {loading && <Card className="border-2 shadow-lg">
+          {loading && (
+            <Card className="border-2 shadow-lg">
               <CardContent className="p-16 text-center">
                 <div className="animate-pulse space-y-4">
                   <Package className="mx-auto text-primary" size={56} />
                   <p className="text-muted-foreground font-semibold text-lg">Loading items...</p>
                 </div>
               </CardContent>
-            </Card>}
+            </Card>
+          )}
 
           {/* All Trays List (when text field is empty) */}
-          {!loading && (activeTab === "tray" && !trayId.trim() || activeTab === "item" && !itemId.trim()) && <Card className="border-2 shadow-lg">
+          {!loading && ((activeTab === "tray" && !trayId.trim()) || (activeTab === "item" && !itemId.trim())) && (
+            <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-card pb-3 px-4">
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="text-lg font-bold">
                     {showEmptyBins ? "Empty Bins" : "Trays in Storage"}
                   </CardTitle>
-                  <Badge className="text-sm py-1 px-2.5">
-                    {totalCount} total
-                  </Badge>
+                  <Badge className="text-sm py-1 px-2.5">{totalCount} total</Badge>
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {allTrays.length === 0 ? <div className="text-center py-12">
+                {allTrays.length === 0 ? (
+                  <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays found</p>
-                  </div> : <>
+                  </div>
+                ) : (
+                  <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {allTrays.map(tray => <Card key={`all-tray-${tray.id}`} className="border-2 hover:shadow-lg transition-all hover:border-primary/50">
+                      {allTrays.map((tray) => (
+                        <Card
+                          key={`all-tray-${tray.id}`}
+                          className="border-2 hover:shadow-lg transition-all hover:border-primary/50"
+                        >
                           <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <CardTitle className="text-lg font-bold">{tray.tray_id}</CardTitle>
-                                {tray.item_description && <p className="text-sm text-muted-foreground mt-1">{tray.item_description}</p>}
-                                {tray.item_id && <p className="text-xs text-muted-foreground mt-1">Item: {tray.item_id}</p>}
+                                {tray.item_description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{tray.item_description}</p>
+                                )}
+                                {tray.item_id && (
+                                  <p className="text-xs text-muted-foreground mt-1">Item: {tray.item_id}</p>
+                                )}
                               </div>
                               <Badge variant="secondary" className="ml-2 text-xs py-1 px-2">
                                 {tray.tray_status}
@@ -1207,27 +1353,28 @@ const AdhocMode = () => {
                           </CardHeader>
                           <CardContent className="space-y-3">
                             {/* Tray Image - Clickable */}
-                            <div 
+                            <div
                               className="relative w-full h-40 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
                               onClick={() => {
                                 setSelectedTrayForDetail(tray);
                                 setShowTrayDetailDialog(true);
                               }}
                             >
-                              <img 
+                              <img
                                 src={`https://amsstores1.blr1.digitaloceanspaces.com/${tray.tray_id}.jpg`}
                                 alt={`Tray ${tray.tray_id}`}
                                 className="w-full h-full object-cover hover:scale-105 transition-transform"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
-                                  target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
+                                  target.src =
+                                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
                                 }}
                               />
                               <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
                                 <p className="text-white font-semibold text-sm">Click to view details</p>
                               </div>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-3 p-3 bg-accent/10 rounded-lg text-sm">
                               <div className="space-y-1">
                                 <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
@@ -1254,23 +1401,37 @@ const AdhocMode = () => {
                                 <p className="font-bold text-foreground">{tray.tray_weight}</p>
                               </div>
                             </div>
-                            {tray.inbound_date && <div className="text-xs text-muted-foreground">
-                                Inbound: {tray.inbound_date}
-                              </div>}
-                            <Button onClick={() => handleRequestTray(tray.tray_id)} disabled={retrievingTrayId === tray.tray_id} variant="default" className="w-full" size="sm">
+                            {tray.inbound_date && (
+                              <div className="text-xs text-muted-foreground">Inbound: {tray.inbound_date}</div>
+                            )}
+                            <Button
+                              onClick={() => handleRequestTray(tray.tray_id)}
+                              disabled={retrievingTrayId === tray.tray_id}
+                              variant="default"
+                              className="w-full"
+                              size="sm"
+                            >
                               {retrievingTrayId === tray.tray_id ? "Retrieving..." : "Retrieve to Station"}
                             </Button>
                           </CardContent>
-                        </Card>)}
+                        </Card>
+                      ))}
                     </div>
-                    
+
                     {/* Pagination */}
-                    {allTrays.length > 0 && <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
-                        <Button onClick={() => setOffset(Math.max(0, offset - 10))} disabled={offset === 0} variant="outline" size="sm" className="gap-1">
+                    {allTrays.length > 0 && (
+                      <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
+                        <Button
+                          onClick={() => setOffset(Math.max(0, offset - 10))}
+                          disabled={offset === 0}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
                           <ChevronLeft size={16} />
                           Previous
                         </Button>
-                        
+
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
                             Showing {offset + 1}-{offset + allTrays.length}
@@ -1278,38 +1439,62 @@ const AdhocMode = () => {
                           </span>
                         </div>
 
-                        <Button onClick={() => setOffset(offset + 10)} disabled={allTrays.length < 10} variant="outline" size="sm" className="gap-1">
+                        <Button
+                          onClick={() => setOffset(offset + 10)}
+                          disabled={allTrays.length < 10}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
                           Next
                           <ChevronRight size={16} />
                         </Button>
-                      </div>}
-                  </>}
+                      </div>
+                    )}
+                  </>
+                )}
               </CardContent>
-            </Card>}
+            </Card>
+          )}
 
           {/* In Station Section */}
-          {!loading && (activeTab === "tray" && trayId || activeTab === "item" && itemId) && <Card className="border-2 shadow-lg">
+          {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
+            <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-card pb-3 px-4">
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="text-lg font-bold">In Station</CardTitle>
-                  {(activeTab === "tray" ? stationItems : itemStationItems).length > 0 && <div className="flex items-center gap-2">
-                      {activeTab === "tray" && <Badge variant="outline" className="text-sm py-1 px-2.5">
+                  {(activeTab === "tray" ? stationItems : itemStationItems).length > 0 && (
+                    <div className="flex items-center gap-2">
+                      {activeTab === "tray" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
                           Tray: {stationItems[0].tray_id}
-                        </Badge>}
-                      {activeTab === "item" && <Badge variant="outline" className="text-sm py-1 px-2.5">
+                        </Badge>
+                      )}
+                      {activeTab === "item" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
                           Item: {itemStationItems[0].item_id}
-                        </Badge>}
+                        </Badge>
+                      )}
                       <Badge className="text-sm py-1 px-2.5">
-                        {(activeTab === "tray" ? stationItems : itemStationItems).length} item{(activeTab === "tray" ? stationItems : itemStationItems).length !== 1 ? "s" : ""}
+                        {(activeTab === "tray" ? stationItems : itemStationItems).length} item
+                        {(activeTab === "tray" ? stationItems : itemStationItems).length !== 1 ? "s" : ""}
                       </Badge>
-                    </div>}
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {(activeTab === "tray" ? stationItems : itemStationItems).length === 0 ? <div className="text-center py-12">
+                {(activeTab === "tray" ? stationItems : itemStationItems).length === 0 ? (
+                  <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays in station</p>
-                  </div> : <div className="space-y-4">
-                    {(activeTab === "tray" ? stationItems : itemStationItems).map(item => <Card key={`station-${item.id}-${item.item_id}-${item.tray_id}`} className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent">
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {(activeTab === "tray" ? stationItems : itemStationItems).map((item) => (
+                      <Card
+                        key={`station-${item.id}-${item.item_id}-${item.tray_id}`}
+                        className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent"
+                      >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -1317,14 +1502,21 @@ const AdhocMode = () => {
                                 {activeTab === "tray" ? item.item_id : item.tray_id}
                               </CardTitle>
                               <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
-                              {activeTab === "item" && <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>}
-                              {item.station_friendly_name && <div className="mt-2">
+                              {activeTab === "item" && (
+                                <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                              )}
+                              {item.station_friendly_name && (
+                                <div className="mt-2">
                                   <Badge variant="secondary" className="text-sm py-1 px-3">
-                                    📍 {item.station_friendly_name}
+                                    📌 {item.station_friendly_name}
                                   </Badge>
-                                </div>}
+                                </div>
+                              )}
                             </div>
-                            <Badge variant={item.tray_status === "active" ? "default" : "secondary"} className="ml-2 text-sm py-1 px-3">
+                            <Badge
+                              variant={item.tray_status === "active" ? "default" : "secondary"}
+                              className="ml-2 text-sm py-1 px-3"
+                            >
                               {item.tray_status}
                             </Badge>
                           </div>
@@ -1345,42 +1537,68 @@ const AdhocMode = () => {
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
-                            <Button onClick={() => handleReleaseTray(item.tray_id)} variant="outline" className="h-12 text-base font-semibold" disabled={item.tray_lockcount === 0}>
+                            <Button
+                              onClick={() => handleReleaseTray(item.tray_id)}
+                              variant="outline"
+                              className="h-12 text-base font-semibold"
+                              disabled={item.tray_lockcount === 0}
+                            >
                               Release
                             </Button>
-                            <Button onClick={() => handleSelectStationItem(item)} className="h-12 text-base font-semibold" disabled={item.tray_lockcount === 0}>
+                            <Button
+                              onClick={() => handleSelectStationItem(item)}
+                              className="h-12 text-base font-semibold"
+                              disabled={item.tray_lockcount === 0}
+                            >
                               Select
                             </Button>
                           </div>
                         </CardContent>
-                      </Card>)}
-                  </div>}
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
-            </Card>}
+            </Card>
+          )}
 
           {/* In Storage Section */}
-          {!loading && (activeTab === "tray" && trayId || activeTab === "item" && itemId) && <Card className="border-2 shadow-lg">
+          {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
+            <Card className="border-2 shadow-lg">
               <CardHeader className="border-b bg-card pb-3 px-4">
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="text-lg font-bold">In Storage</CardTitle>
-                  {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && <div className="flex items-center gap-2">
-                      {activeTab === "tray" && <Badge variant="outline" className="text-sm py-1 px-2.5">
+                  {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
+                    <div className="flex items-center gap-2">
+                      {activeTab === "tray" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
                           Tray: {storageItems[0].tray_id}
-                        </Badge>}
-                      {activeTab === "item" && <Badge variant="outline" className="text-sm py-1 px-2.5">
+                        </Badge>
+                      )}
+                      {activeTab === "item" && (
+                        <Badge variant="outline" className="text-sm py-1 px-2.5">
                           Item: {itemStorageItems[0].item_id}
-                        </Badge>}
+                        </Badge>
+                      )}
                       <Badge className="text-sm py-1 px-2.5">
                         {(activeTab === "tray" ? storageItems : itemStorageItems).length} on page
                       </Badge>
-                    </div>}
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                  {(activeTab === "tray" ? storageItems : itemStorageItems).length === 0 ? <div className="text-center py-12">
+                {(activeTab === "tray" ? storageItems : itemStorageItems).length === 0 ? (
+                  <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg font-medium">No trays in storage</p>
-                  </div> : <div className="space-y-4">
-                    {(activeTab === "tray" ? storageItems : itemStorageItems).map(item => <Card key={`storage-${item.id}-${item.item_id}-${item.tray_id}`} className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent">
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {(activeTab === "tray" ? storageItems : itemStorageItems).map((item) => (
+                      <Card
+                        key={`storage-${item.id}-${item.item_id}-${item.tray_id}`}
+                        className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent"
+                      >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -1388,36 +1606,42 @@ const AdhocMode = () => {
                                 {activeTab === "tray" ? item.item_id : item.tray_id}
                               </CardTitle>
                               <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
-                              {activeTab === "item" && <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>}
+                              {activeTab === "item" && (
+                                <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                              )}
                             </div>
-                            <Badge variant={item.tray_status === "active" ? "default" : "secondary"} className="ml-2 text-sm py-1 px-3">
+                            <Badge
+                              variant={item.tray_status === "active" ? "default" : "secondary"}
+                              className="ml-2 text-sm py-1 px-3"
+                            >
                               {item.tray_status}
                             </Badge>
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           {/* Tray Image - Clickable */}
-                          <div 
+                          <div
                             className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
                             onClick={() => {
                               setSelectedTrayForDetail(item);
                               setShowTrayDetailDialog(true);
                             }}
                           >
-                            <img 
+                            <img
                               src={`https://amsstores1.blr1.digitaloceanspaces.com/${item.tray_id}.jpg`}
                               alt={`Tray ${item.tray_id}`}
                               className="w-full h-full object-cover hover:scale-105 transition-transform"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
+                                target.src =
+                                  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
                               }}
                             />
                             <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
                               <p className="text-white font-semibold text-lg">Click to view details</p>
                             </div>
                           </div>
-                          
+
                           <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
                             <div className="space-y-2">
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
@@ -1432,37 +1656,60 @@ const AdhocMode = () => {
                               <p className="font-bold text-sm">{item.inbound_date}</p>
                             </div>
                           </div>
-                          <Button onClick={() => handleRequestTray(item.tray_id)} disabled={retrievingTrayId === item.tray_id} variant="default" className="w-full h-12 text-base font-semibold">
+                          <Button
+                            onClick={() => handleRequestTray(item.tray_id)}
+                            disabled={retrievingTrayId === item.tray_id}
+                            variant="default"
+                            className="w-full h-12 text-base font-semibold"
+                          >
                             {retrievingTrayId === item.tray_id ? "Requesting..." : "Request Tray to Station"}
                           </Button>
                         </CardContent>
-                      </Card>)}
-                    
+                      </Card>
+                    ))}
+
                     {/* Storage Pagination */}
-                    {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
-                        <Button onClick={() => {
-                  setStorageOffset(Math.max(0, storageOffset - 10));
-                }} disabled={storageOffset === 0} variant="outline" size="sm" className="gap-1">
+                    {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
+                      <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
+                        <Button
+                          onClick={() => {
+                            setStorageOffset(Math.max(0, storageOffset - 10));
+                          }}
+                          disabled={storageOffset === 0}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
                           <ChevronLeft size={16} />
                           Previous
                         </Button>
-                        
+
                         <div className="flex items-center gap-2 px-4">
                           <span className="text-sm font-medium">
-                            Showing {storageOffset + 1}-{storageOffset + (activeTab === "tray" ? storageItems : itemStorageItems).length}
+                            Showing {storageOffset + 1}-
+                            {storageOffset + (activeTab === "tray" ? storageItems : itemStorageItems).length}
                           </span>
                         </div>
 
-                        <Button onClick={() => {
-                  setStorageOffset(storageOffset + 10);
-                }} disabled={(activeTab === "tray" ? storageItems : itemStorageItems).length < 10} variant="outline" size="sm" className="gap-1">
+                        <Button
+                          onClick={() => {
+                            setStorageOffset(storageOffset + 10);
+                          }}
+                          disabled={(activeTab === "tray" ? storageItems : itemStorageItems).length < 10}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                        >
                           Next
                           <ChevronRight size={16} />
                         </Button>
-                      </div>}
-                  </div>}
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
-            </Card>}
+            </Card>
+          )}
         </div>
       </div>
 
@@ -1473,9 +1720,13 @@ const AdhocMode = () => {
             <DialogTitle className="text-2xl font-bold">Ready Orders ({readyCount})</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            {readyOrders.length === 0 ? <div className="text-center py-12">
+            {readyOrders.length === 0 ? (
+              <div className="text-center py-12">
                 <p className="text-muted-foreground">No ready orders</p>
-              </div> : readyOrders.map(order => <Card key={order.id} className="border-2">
+              </div>
+            ) : (
+              readyOrders.map((order) => (
+                <Card key={order.id} className="border-2">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-3">
                       <div className="flex items-start justify-between">
@@ -1487,7 +1738,12 @@ const AdhocMode = () => {
                           <Button onClick={() => handleSelectOrder(order)} variant="default" size="sm">
                             Select
                           </Button>
-                          <Button onClick={() => handleReleaseOrder(order.id)} disabled={releasingOrderId === order.id} variant="destructive" size="sm">
+                          <Button
+                            onClick={() => handleReleaseOrder(order.id)}
+                            disabled={releasingOrderId === order.id}
+                            variant="destructive"
+                            size="sm"
+                          >
                             {releasingOrderId === order.id ? "Releasing..." : "Release"}
                           </Button>
                         </div>
@@ -1502,7 +1758,9 @@ const AdhocMode = () => {
                       </div>
                     </div>
                   </CardContent>
-                </Card>)}
+                </Card>
+              ))
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -1514,9 +1772,13 @@ const AdhocMode = () => {
             <DialogTitle className="text-2xl font-bold">Pending Orders ({pendingCount})</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            {pendingOrders.length === 0 ? <div className="text-center py-12">
+            {pendingOrders.length === 0 ? (
+              <div className="text-center py-12">
                 <p className="text-muted-foreground">No pending orders</p>
-              </div> : pendingOrders.map(order => <Card key={order.id} className="border-2">
+              </div>
+            ) : (
+              pendingOrders.map((order) => (
+                <Card key={order.id} className="border-2">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-3">
                       <div>
@@ -1533,7 +1795,9 @@ const AdhocMode = () => {
                       </div>
                     </div>
                   </CardContent>
-                </Card>)}
+                </Card>
+              ))
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -1543,38 +1807,55 @@ const AdhocMode = () => {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
-              {!transactionType ? "Select Transaction Type" : transactionType === 'inbound' ? "Inbound Transaction" : "Pickup Transaction"}
+              {!transactionType
+                ? "Select Transaction Type"
+                : transactionType === "inbound"
+                  ? "Inbound Transaction"
+                  : "Pickup Transaction"}
             </DialogTitle>
           </DialogHeader>
 
           {!transactionType ? (
             <div className="space-y-4 py-4">
-              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2 mb-4">
+              {selectedOrder && (
+                <div className="p-4 bg-accent/10 rounded-lg space-y-2 mb-4">
                   <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
                   <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
-                </div>}
-              <Button onClick={() => handleTransactionTypeSelect('inbound')} variant="outline" className="w-full h-20 text-lg">
+                </div>
+              )}
+              <Button
+                onClick={() => handleTransactionTypeSelect("inbound")}
+                variant="outline"
+                className="w-full h-20 text-lg"
+              >
                 Inbound
               </Button>
-              <Button onClick={() => handleTransactionTypeSelect('pickup')} variant="outline" className="w-full h-20 text-lg">
+              <Button
+                onClick={() => handleTransactionTypeSelect("pickup")}
+                variant="outline"
+                className="w-full h-20 text-lg"
+              >
                 Pickup
               </Button>
             </div>
-          ) : transactionType === 'inbound' ? (
+          ) : transactionType === "inbound" ? (
             <div className="space-y-4">
-              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
+              {selectedOrder && (
+                <div className="p-4 bg-accent/10 rounded-lg space-y-2">
                   <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
                   <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
-                </div>}
+                </div>
+              )}
 
               <div className="space-y-3">
                 <Label htmlFor="inbound-item-id">Item ID</Label>
-                <Input id="inbound-item-id" placeholder="Enter item ID manually" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={handleScanItemId}
-                >
+                <Input
+                  id="inbound-item-id"
+                  placeholder="Enter item ID manually"
+                  value={transactionItemId}
+                  onChange={(e) => setTransactionItemId(e.target.value)}
+                />
+                <Button variant="outline" className="w-full" onClick={handleScanItemId}>
                   <Scan className="mr-2" size={20} />
                   Scan Product
                 </Button>
@@ -1583,7 +1864,12 @@ const AdhocMode = () => {
               <div className="space-y-2">
                 <Label>Quantity</Label>
                 <div className="flex items-center justify-center gap-4">
-                  <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
                     <Minus size={20} />
                   </Button>
                   <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
@@ -1595,7 +1881,12 @@ const AdhocMode = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="inbound-transaction-date">Transaction Date</Label>
-                <Input id="inbound-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
+                <Input
+                  id="inbound-transaction-date"
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                />
               </div>
 
               <div className="flex gap-2">
@@ -1609,37 +1900,51 @@ const AdhocMode = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {selectedOrder && <div className="p-4 bg-accent/10 rounded-lg space-y-2">
+              {selectedOrder && (
+                <div className="p-4 bg-accent/10 rounded-lg space-y-2">
                   <p className="text-sm font-medium">Tray: {selectedOrder.tray_id}</p>
                   <p className="text-sm text-muted-foreground">Station: {selectedOrder.station_friendly_name}</p>
-                </div>}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>Select Product</Label>
-                {trayItemsForPickup.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-                    No items found in this tray
-                  </div> : <div className="space-y-2">
-                    {trayItemsForPickup.map(item => <Card key={item.id} className={`cursor-pointer border-2 transition-all ${selectedProductForPickup === item.item_id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`} onClick={() => setSelectedProductForPickup(item.item_id)}>
+                {trayItemsForPickup.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">No items found in this tray</div>
+                ) : (
+                  <div className="space-y-2">
+                    {trayItemsForPickup.map((item) => (
+                      <Card
+                        key={item.id}
+                        className={`cursor-pointer border-2 transition-all ${selectedProductForPickup === item.item_id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
+                        onClick={() => setSelectedProductForPickup(item.item_id)}
+                      >
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="font-bold">{item.item_id}</p>
                               <p className="text-sm text-muted-foreground">{item.item_description}</p>
                             </div>
-                            <Badge variant="secondary">
-                              Qty: {item.available_quantity}
-                            </Badge>
+                            <Badge variant="secondary">Qty: {item.available_quantity}</Badge>
                           </div>
                         </CardContent>
-                      </Card>)}
-                  </div>}
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {selectedProductForPickup && <>
+              {selectedProductForPickup && (
+                <>
                   <div className="space-y-2">
                     <Label>Quantity to Pick</Label>
                     <div className="flex items-center justify-center gap-4">
-                      <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        disabled={quantity <= 1}
+                      >
                         <Minus size={20} />
                       </Button>
                       <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
@@ -1651,9 +1956,15 @@ const AdhocMode = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="pickup-transaction-date">Transaction Date</Label>
-                    <Input id="pickup-transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
+                    <Input
+                      id="pickup-transaction-date"
+                      type="date"
+                      value={transactionDate}
+                      onChange={(e) => setTransactionDate(e.target.value)}
+                    />
                   </div>
-                </>}
+                </>
+              )}
 
               <div className="flex gap-2">
                 <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
@@ -1678,15 +1989,15 @@ const AdhocMode = () => {
             <div className="p-4 bg-accent/10 rounded-lg">
               <p className="text-sm font-medium">Tray: {selectedTrayForRequest}</p>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="auto-complete-time">Time to Stay (minutes)</Label>
-              <Input 
-                id="auto-complete-time" 
-                type="number" 
+              <Input
+                id="auto-complete-time"
+                type="number"
                 min="1"
-                value={autoCompleteTime} 
-                onChange={e => setAutoCompleteTime(parseInt(e.target.value) || 2)} 
+                value={autoCompleteTime}
+                onChange={(e) => setAutoCompleteTime(parseInt(e.target.value) || 2)}
                 placeholder="Enter time in minutes"
               />
             </div>
@@ -1709,7 +2020,8 @@ const AdhocMode = () => {
           <DialogHeader>
             <DialogTitle>Putaway Transaction</DialogTitle>
           </DialogHeader>
-          {selectedItem && <div className="space-y-4">
+          {selectedItem && (
+            <div className="space-y-4">
               <div className="p-4 bg-accent/10 rounded-lg space-y-2">
                 <p className="text-sm text-muted-foreground">Tray: {selectedItem.tray_id}</p>
                 <p className="text-sm text-muted-foreground">Original Item: {selectedItem.item_id}</p>
@@ -1718,12 +2030,13 @@ const AdhocMode = () => {
 
               <div className="space-y-3">
                 <Label htmlFor="item-id">Item ID</Label>
-                <Input id="item-id" placeholder="Enter item ID manually" value={transactionItemId} onChange={e => setTransactionItemId(e.target.value)} />
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={handleScanItemId}
-                >
+                <Input
+                  id="item-id"
+                  placeholder="Enter item ID manually"
+                  value={transactionItemId}
+                  onChange={(e) => setTransactionItemId(e.target.value)}
+                />
+                <Button variant="outline" className="w-full" onClick={handleScanItemId}>
                   <Scan className="mr-2" size={20} />
                   Scan Product
                 </Button>
@@ -1732,7 +2045,12 @@ const AdhocMode = () => {
               <div className="space-y-2">
                 <Label>Quantity</Label>
                 <div className="flex items-center justify-center gap-4">
-                  <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
                     <Minus size={20} />
                   </Button>
                   <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
@@ -1744,20 +2062,29 @@ const AdhocMode = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="transaction-date">Transaction Date</Label>
-                <Input id="transaction-date" type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} />
+                <Input
+                  id="transaction-date"
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                />
               </div>
 
               <Button onClick={handleSubmitTransaction} className="w-full">
                 Submit Putaway
               </Button>
-            </div>}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
       {/* QR Code Scanner Dialog */}
-      <Dialog open={showQrScanner} onOpenChange={(open) => {
-        if (!open) stopScanning();
-      }}>
+      <Dialog
+        open={showQrScanner}
+        onOpenChange={(open) => {
+          if (!open) stopScanning();
+        }}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <div className="flex items-center justify-between">
@@ -1769,9 +2096,7 @@ const AdhocMode = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div id="qr-reader" ref={scannerDivRef} className="w-full"></div>
-            <p className="text-sm text-muted-foreground text-center">
-              Position the QR code within the camera frame
-            </p>
+            <p className="text-sm text-muted-foreground text-center">Position the QR code within the camera frame</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -1782,18 +2107,19 @@ const AdhocMode = () => {
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Tray Details - {selectedTrayForDetail?.tray_id}</DialogTitle>
           </DialogHeader>
-          
+
           {selectedTrayForDetail && (
             <div className="space-y-6">
               {/* Tray Image */}
               <div className="relative w-full h-96 rounded-lg overflow-hidden border-2 border-border">
-                <img 
+                <img
                   src={`https://amsstores1.blr1.digitaloceanspaces.com/${selectedTrayForDetail.tray_id}.jpg`}
                   alt={`Tray ${selectedTrayForDetail.tray_id}`}
                   className="w-full h-full object-contain bg-muted"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="800" height="600" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%239ca3af">No Image Available</text></svg>';
+                    target.src =
+                      'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="800" height="600" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%239ca3af">No Image Available</text></svg>';
                   }}
                 />
               </div>
@@ -1815,7 +2141,9 @@ const AdhocMode = () => {
                     </Badge>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Available Qty</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">
+                      Available Qty
+                    </span>
                     <p className="font-bold text-lg text-primary">{selectedTrayForDetail.available_quantity}</p>
                   </div>
                   <div className="space-y-1">
@@ -1835,7 +2163,9 @@ const AdhocMode = () => {
                     <p className="font-bold">{selectedTrayForDetail.tray_lockcount}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Inbound Date</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">
+                      Inbound Date
+                    </span>
                     <p className="font-bold">{selectedTrayForDetail.inbound_date}</p>
                   </div>
                 </CardContent>
@@ -1853,7 +2183,9 @@ const AdhocMode = () => {
                       <p className="font-bold text-lg">{selectedTrayForDetail.item_id}</p>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Description</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">
+                        Description
+                      </span>
                       <p className="text-base">{selectedTrayForDetail.item_description}</p>
                     </div>
                   </CardContent>
@@ -1862,21 +2194,17 @@ const AdhocMode = () => {
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button 
+                <Button
                   onClick={() => {
                     handleRequestTray(selectedTrayForDetail.tray_id);
                     setShowTrayDetailDialog(false);
-                  }} 
+                  }}
                   disabled={retrievingTrayId === selectedTrayForDetail.tray_id}
                   className="flex-1"
                 >
                   {retrievingTrayId === selectedTrayForDetail.tray_id ? "Requesting..." : "Request Tray to Station"}
                 </Button>
-                <Button 
-                  onClick={() => setShowTrayDetailDialog(false)}
-                  variant="outline"
-                  className="flex-1"
-                >
+                <Button onClick={() => setShowTrayDetailDialog(false)} variant="outline" className="flex-1">
                   Close
                 </Button>
               </div>
@@ -1884,6 +2212,7 @@ const AdhocMode = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>;
+    </div>
+  );
 };
 export default AdhocMode;
