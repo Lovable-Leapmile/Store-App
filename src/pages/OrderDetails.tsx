@@ -21,7 +21,7 @@ interface OrderItem {
 
 const fetchOrderItems = async (orderRef: string): Promise<OrderItem[]> => {
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/?order_ref=${orderRef}&order_by_field=updated_at&order_by_type=DESC`,
+    `https://testhostsushil.leapmile.com/nanostore/sap_orders/?order_ref=${orderRef}&order_by_field=updated_at&order_by_type=DESC`,
     {
       headers: {
         accept: "application/json",

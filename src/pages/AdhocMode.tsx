@@ -36,10 +36,10 @@ interface Order {
   auto_complete_time?: number;
 }
 
-const BASE_URL = "https://robotmanagerv1test.qikpod.com";
+const BASE_URL = "https://testhostsushil.leapmile.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("tray");
+  const [activeTab, setActiveTab] = useState("item");
   const [trayId, setTrayId] = useState("");
   const [itemId, setItemId] = useState("");
   const [stationItems, setStationItems] = useState<TrayItem[]>([]);
@@ -1141,8 +1141,9 @@ const AdhocMode = () => {
             <CardContent className="p-4">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="tray">Tray Search</TabsTrigger>
                   <TabsTrigger value="item">Item Search</TabsTrigger>
+                  <TabsTrigger value="tray">Tray Search</TabsTrigger>
+
                 </TabsList>
 
                 <TabsContent value="tray" className="space-y-3">
