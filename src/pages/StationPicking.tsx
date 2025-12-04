@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, Lock, Unlock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
 
 interface Station {
   slot_id: string;
@@ -164,19 +165,10 @@ const StationPicking = () => {
     try {
       const authToken = localStorage.getItem("authToken");
 
-      // Get latest order before transaction
-      // await fetch(
-      //   `https://robotmanagerv1test.qikpod.com/nanostore/orders?record_id=${currentOrder.id}&order_by_field=updated_at&order_by_type=ASC&num_records=1`,
-      //   {
-      //     headers: {
-      //       accept: "application/json",
-      //       Authorization: `Bearer ${authToken}`,
-      //     },
-      //   },
-      // );
-
-      // Wait 1 second before transaction
-      // await new Promise(resolve => setTimeout(resolve, 1000));
+      // Update order with user_id before transaction
+      if (authToken) {
+        await updateOrderBeforeTransaction(currentOrder.id, userId, authToken);
+      }
 
       const today = new Date().toISOString().split("T")[0];
       const transactionResponse = await fetch(

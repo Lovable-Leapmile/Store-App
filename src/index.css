@@ -1,10 +1,34 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* AG Grid Styles */
 @import 'ag-grid-community/styles/ag-grid.css';
 @import 'ag-grid-community/styles/ag-theme-alpine.css';
+
+.ag-theme-alpine {
+  --ag-header-background-color: #378a84;
+  --ag-header-foreground-color: #ffffff;
+  --ag-header-cell-hover-background-color: #2f7a75;
+  --ag-row-hover-color: hsl(var(--accent) / 0.05);
+  --ag-selected-row-background-color: hsl(var(--primary) / 0.1);
+  --ag-odd-row-background-color: hsl(var(--muted) / 0.3);
+  --ag-border-color: hsl(var(--border));
+  --ag-font-family: inherit;
+  --ag-font-size: 14px;
+  --ag-row-height: 52px;
+  --ag-header-height: 52px;
+}
+
+.ag-theme-alpine .ag-header-cell-label {
+  font-weight: 600;
+}
+
+.ag-theme-alpine .ag-root-wrapper {
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-card);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.

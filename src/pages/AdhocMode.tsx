@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Html5QrcodeScanner } from "html5-qrcode";
+import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
 interface TrayItem {
   id: number;
   tray_id: string;
@@ -34,8 +35,7 @@ interface Order {
   status?: string;
   auto_complete_time?: number;
 }
-const API_TOKEN =
-  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ";
+
 const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
@@ -187,7 +187,7 @@ const AdhocMode = () => {
           {
             headers: {
               accept: "application/json",
-              Authorization: `Bearer ${API_TOKEN}`,
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
           },
         ),
@@ -196,7 +196,7 @@ const AdhocMode = () => {
           {
             headers: {
               accept: "application/json",
-              Authorization: `Bearer ${API_TOKEN}`,
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
           },
         ),
@@ -226,7 +226,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -247,7 +247,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -268,7 +268,7 @@ const AdhocMode = () => {
         method: "PATCH",
         headers: {
           accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
       if (!response.ok) {
@@ -308,7 +308,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -340,7 +340,7 @@ const AdhocMode = () => {
           {
             headers: {
               accept: "application/json",
-              Authorization: `Bearer ${API_TOKEN}`,
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
           },
         );
@@ -395,7 +395,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -415,7 +415,7 @@ const AdhocMode = () => {
             method: "POST",
             headers: {
               accept: "application/json",
-              Authorization: `Bearer ${API_TOKEN}`,
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
             body: "",
           },
@@ -434,7 +434,7 @@ const AdhocMode = () => {
         method: "PATCH",
         headers: {
           accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ user_id: parseInt(userId) }),
@@ -444,6 +444,9 @@ const AdhocMode = () => {
         throw new Error("Failed to update order");
       }
 
+      // Update order with user_id before transaction
+      await updateOrderBeforeTransaction(orderId, userId, localStorage.getItem("authToken") || "");
+
       // Then proceed with transaction
       const response = await fetch(
         `${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`,
@@ -451,7 +454,7 @@ const AdhocMode = () => {
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: "",
         },
@@ -496,7 +499,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -516,7 +519,7 @@ const AdhocMode = () => {
             method: "POST",
             headers: {
               accept: "application/json",
-              Authorization: `Bearer ${API_TOKEN}`,
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
             body: "",
           },
@@ -535,7 +538,7 @@ const AdhocMode = () => {
         method: "PATCH",
         headers: {
           accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ user_id: parseInt(userId) }),
@@ -552,7 +555,7 @@ const AdhocMode = () => {
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: "",
         },
@@ -597,7 +600,7 @@ const AdhocMode = () => {
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: "",
         },
@@ -643,7 +646,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -672,7 +675,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -691,7 +694,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -725,7 +728,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -750,7 +753,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -784,7 +787,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -871,7 +874,7 @@ const AdhocMode = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         },
       );
@@ -885,7 +888,7 @@ const AdhocMode = () => {
           method: "PATCH",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         });
         if (!patchResponse.ok) {
@@ -931,7 +934,7 @@ const AdhocMode = () => {
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: "",
         },
@@ -982,7 +985,7 @@ const AdhocMode = () => {
       const response = await fetch(`${BASE_URL}/nanostore/barcode?barcode=${encodeURIComponent(barcode)}`, {
         headers: {
           accept: "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
 

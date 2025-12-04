@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Scan, Keyboard, Minus, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
 
 interface SapOrder {
   id: number;
@@ -30,7 +31,7 @@ interface OrderResponse {
   }>;
 }
 
-const API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ";
+
 
 const ScanTray = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const ScanTray = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         }
       );
@@ -89,7 +90,7 @@ const ScanTray = () => {
         {
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         }
       );
@@ -106,7 +107,7 @@ const ScanTray = () => {
             method: "POST",
             headers: {
               accept: "application/json",
-              Authorization: `Bearer ${API_TOKEN}`,
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
             body: "",
           }
@@ -136,13 +137,16 @@ const ScanTray = () => {
     if (!selectedOrder || !orderId) return;
 
     try {
+      // Update order with user_id before transaction
+      await updateOrderBeforeTransaction(orderId, 1, localStorage.getItem("authToken") || "");
+
       const transactionResponse = await fetch(
         `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${orderId}&item_id=${selectedOrder.material}&transaction_item_quantity=-${quantityToPick}&transaction_type=outbound&transaction_date=${selectedOrder.inbound_date || new Date().toISOString().split('T')[0]}&sap_order_reference=${selectedOrder.id}`,
         {
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: "",
         }
@@ -180,7 +184,7 @@ const ScanTray = () => {
           method: "PATCH",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: "",
         }

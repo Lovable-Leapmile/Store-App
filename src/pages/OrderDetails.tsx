@@ -25,8 +25,7 @@ const fetchOrderItems = async (orderRef: string): Promise<OrderItem[]> => {
     {
       headers: {
         accept: "application/json",
-        Authorization:
-          "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ",
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
     }
   );

@@ -6,10 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ArrowLeft, FileText, Upload, RefreshCw, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ReconcileCard from "@/components/ReconcileCard";
 import * as XLSX from "xlsx";
+import { AgGridReact } from "ag-grid-react";
+import { ColDef, ICellRendererParams } from "ag-grid-community";
 
 interface ReconcileRecord {
   material: string;
@@ -245,6 +247,50 @@ const SapReconcile = () => {
     });
   };
 
+  // AG Grid Column Definitions
+  const colDefs: ColDef<ReconcileRecord>[] = useMemo(() => [
+    { field: "material", headerName: "Material", flex: 1, filter: true },
+    { field: "sap_quantity", headerName: "SAP Quantity", width: 150, filter: true },
+    { field: "item_quantity", headerName: "Item Quantity", width: 150, filter: true },
+    {
+      field: "quantity_difference",
+      headerName: "Difference",
+      width: 150,
+      filter: true,
+      cellStyle: params => {
+        if (params.value > 0) return { color: 'var(--success)' };
+        if (params.value < 0) return { color: 'var(--destructive)' };
+        return null;
+      }
+    },
+    { field: "reconcile_status", headerName: "Status", flex: 1, filter: true },
+    {
+      headerName: "Action",
+      width: 120,
+      cellRenderer: (params: ICellRendererParams) => {
+        const record = params.data;
+        if (record.reconcile_status === "sap_shortage" || record.reconcile_status === "robot_shortage") {
+          return (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleCardClick(record.material)}
+              className="h-8 w-full text-primary hover:text-primary-hover hover:bg-primary/10"
+            >
+              View
+            </Button>
+          );
+        }
+        return null;
+      }
+    }
+  ], []);
+
+  const defaultColDef = useMemo(() => ({
+    sortable: true,
+    resizable: true,
+  }), []);
+
   const renderContent = (data: ReconcileRecord[] | undefined, isLoading: boolean, status: string) => {
     if (isLoading) {
       return (
@@ -263,23 +309,40 @@ const SapReconcile = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {data.map((record, index) => (
-          <ReconcileCard
-            key={index}
-            material={record.material}
-            sapQuantity={record.sap_quantity}
-            itemQuantity={record.item_quantity}
-            quantityDifference={record.quantity_difference}
-            reconcileStatus={record.reconcile_status}
-            onClick={
-              record.reconcile_status === "sap_shortage" || record.reconcile_status === "robot_shortage"
-                ? () => handleCardClick(record.material)
-                : undefined
-            }
-          />
-        ))}
-      </div>
+      <>
+        {/* Mobile View - Cards */}
+        <div className="block md:hidden grid grid-cols-1 gap-4 p-4">
+          {data.map((record, index) => (
+            <ReconcileCard
+              key={index}
+              material={record.material}
+              sapQuantity={record.sap_quantity}
+              itemQuantity={record.item_quantity}
+              quantityDifference={record.quantity_difference}
+              reconcileStatus={record.reconcile_status}
+              onClick={
+                record.reconcile_status === "sap_shortage" || record.reconcile_status === "robot_shortage"
+                  ? () => handleCardClick(record.material)
+                  : undefined
+              }
+            />
+          ))}
+        </div>
+
+        {/* Desktop View - AG Grid */}
+        <div className="hidden md:block h-[calc(100vh-300px)] w-full p-4">
+          <div className="ag-theme-alpine w-full h-full">
+            <AgGridReact
+              rowData={data}
+              columnDefs={colDefs}
+              defaultColDef={defaultColDef}
+              pagination={true}
+              paginationPageSize={20}
+              rowSelection="single"
+            />
+          </div>
+        </div>
+      </>
     );
   };
 
@@ -326,9 +389,8 @@ const SapReconcile = () => {
               </DialogHeader>
               <div className="space-y-4">
                 <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    isDragging ? "border-primary bg-primary/10" : "border-border"
-                  }`}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDragging ? "border-primary bg-primary/10" : "border-border"
+                    }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -390,21 +452,15 @@ const SapReconcile = () => {
           </TabsList>
 
           <TabsContent value="sap_shortage">
-            <ScrollArea className="h-[calc(100vh-280px)]">
-              {renderContent(sapShortageData, sapShortageLoading, "sap_shortage")}
-            </ScrollArea>
+            {renderContent(sapShortageData, sapShortageLoading, "sap_shortage")}
           </TabsContent>
 
           <TabsContent value="robot_shortage">
-            <ScrollArea className="h-[calc(100vh-280px)]">
-              {renderContent(robotShortageData, robotShortageLoading, "robot_shortage")}
-            </ScrollArea>
+            {renderContent(robotShortageData, robotShortageLoading, "robot_shortage")}
           </TabsContent>
 
           <TabsContent value="matched">
-            <ScrollArea className="h-[calc(100vh-280px)]">
-              {renderContent(matchedData, matchedLoading, "matched")}
-            </ScrollArea>
+            {renderContent(matchedData, matchedLoading, "matched")}
           </TabsContent>
         </Tabs>
       </div>

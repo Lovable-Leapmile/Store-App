@@ -46,7 +46,7 @@ const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> =
   const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`, {
     headers: {
       accept: "application/json",
-      Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`
     }
   });
   if (!response.ok) {
@@ -60,7 +60,7 @@ const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
   const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC`, {
     headers: {
       accept: "application/json",
-      Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`
     }
   });
   if (!response.ok) {
@@ -73,7 +73,7 @@ const fetchSapOrderItem = async (orderRef: string, material: string): Promise<Sa
   const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/?order_ref=${orderRef}&material=${material}&order_by_field=updated_at&order_by_type=DESC`, {
     headers: {
       accept: "application/json",
-      Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`
     }
   });
   if (!response.ok) {
@@ -86,7 +86,7 @@ const fetchTransactions = async (orderRef: string, itemId: string): Promise<Tran
   const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/transactions?order_ref=${orderRef}&item_id=${itemId}&order_by_field=updated_at&order_by_type=DESC`, {
     headers: {
       accept: "application/json",
-      Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`
     }
   });
   if (!response.ok) {
@@ -204,7 +204,7 @@ const TraysForItem = () => {
       const checkResponse = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`, {
         headers: {
           accept: "application/json",
-          Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`
         }
       });
       const checkData = await checkResponse.json();
@@ -218,7 +218,7 @@ const TraysForItem = () => {
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`
           },
           body: ""
         });
@@ -258,7 +258,7 @@ const TraysForItem = () => {
         const checkResponse = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`, {
           headers: {
             accept: "application/json",
-            Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`
           }
         });
         const checkData = await checkResponse.json();
@@ -275,7 +275,7 @@ const TraysForItem = () => {
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`
           },
           body: ""
         });
@@ -334,7 +334,7 @@ const TraysForItem = () => {
         method: "POST",
         headers: {
           accept: "application/json",
-          Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`
         },
         body: ""
       });
@@ -386,7 +386,7 @@ const TraysForItem = () => {
         method: "PATCH",
         headers: {
           accept: "application/json",
-          Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`
         },
         body: ""
       });
@@ -422,7 +422,7 @@ const TraysForItem = () => {
         method: "PATCH",
         headers: {
           accept: "application/json",
-          Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2wiOiJhZG1pbiIsImV4cCI6MTkwMDY2MDExOX0.m9Rrmvbo22sJpWgTVynJLDIXFxOfym48F-kGy-wSKqQ"
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`
         },
         body: ""
       });
@@ -454,271 +454,271 @@ const TraysForItem = () => {
     }
   };
   return <div className="min-h-screen bg-background flex flex-col">
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button onClick={() => navigate(`/order/${orderId}`)} variant="ghost" size="icon" className="text-foreground hover:bg-accent/10">
-              <ArrowLeft size={24} />
-            </Button>
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="text-primary-foreground" size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Trays</h1>
-              <p className="text-xs text-muted-foreground">Item: {itemId}</p>
+    <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
+      <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button onClick={() => navigate(`/order/${orderId}`)} variant="ghost" size="icon" className="text-foreground hover:bg-accent/10">
+            <ArrowLeft size={24} />
+          </Button>
+          <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
+            <Package className="text-primary-foreground" size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Trays</h1>
+            <p className="text-xs text-muted-foreground">Item: {itemId}</p>
+          </div>
+        </div>
+        <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-accent hover:bg-accent/10">
+          <RefreshCw size={24} />
+        </Button>
+      </div>
+    </header>
+
+    <ScrollArea className="flex-1">
+      <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* Order Summary Card */}
+        {currentItem && <Card className="p-5 bg-card border-2 border-primary shadow-lg animate-fade-in">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Package className="text-primary" size={20} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground font-medium">Order ID</p>
+                <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
+              </div>
             </div>
           </div>
-          <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-accent hover:bg-accent/10">
-            <RefreshCw size={24} />
-          </Button>
-        </div>
-      </header>
+        </Card>}
 
-      <ScrollArea className="flex-1">
-        <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
-          {/* Order Summary Card */}
-          {currentItem && <Card className="p-5 bg-card border-2 border-primary shadow-lg animate-fade-in">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Package className="text-primary" size={20} />
+        {/* Current Item Card */}
+        {currentItem && <Card className="p-5 bg-card border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-foreground">Item Details</h2>
+              <span className="text-xs font-semibold px-3 py-1 rounded bg-primary text-primary-foreground">
+                {currentItem.movement_type}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Material ID</p>
+                <p className="text-lg font-bold text-foreground">{currentItem.material}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Order Ref</p>
+                <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Total Qty</p>
+                <p className="text-base font-bold text-foreground">{currentItem.quantity}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Picked</p>
+                <p className="text-base font-bold text-success">{currentItem.quantity_consumed}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Remaining</p>
+                <p className="text-base font-bold text-warning">
+                  {currentItem.quantity - currentItem.quantity_consumed}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>}
+
+        <div>
+          <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+            🏭 In Station Trays
+            <span className="text-sm text-muted-foreground font-normal">({stationTrays?.length || 0})</span>
+          </h2>
+          <div className="space-y-3">
+            {stationError && !stationTrays && <Card className="p-6 border-2 border-destructive/50 bg-destructive/5">
+              <p className="text-center text-destructive font-medium">Failed to load station trays</p>
+            </Card>}
+            {!stationError && stationTrays && stationTrays.length === 0 && <Card className="p-6 border-2 border-border bg-muted/30">
+              <p className="text-center text-muted-foreground font-medium">No trays in station for this item</p>
+            </Card>}
+            {stationTrays?.map(tray => {
+              const trayOrder = trayOrders.get(tray.tray_id);
+              return <Card key={tray.tray_id} className="p-5 border-2 border-primary/50 bg-primary/5 hover:shadow-lg transition-all duration-300 animate-fade-in">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Package className="text-primary" size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-medium">Tray ID</p>
+                        <p className="text-lg font-bold text-foreground">{tray.tray_id}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      {trayOrder && <span className="text-xs font-semibold px-2 py-1 rounded text-accent-foreground bg-primary">
+                        {trayOrder.station_friendly_name}
+                      </span>}
+                      <span className="text-xs font-semibold px-2 py-1 rounded bg-success text-success-foreground">
+                        In Station
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground font-medium">Order ID</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Available</p>
+                      <p className="text-base font-bold text-foreground">{tray.available_quantity}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Inbound Date</p>
+                      <p className="text-sm font-medium text-foreground">{tray.inbound_date}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Description</p>
+                    <p className="text-sm font-medium text-foreground">{tray.item_description}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    <Button onClick={() => handleRelease(tray)} disabled={isSubmitting || !trayOrder || releasingTrayId === tray.tray_id} variant="outline" className="w-full">
+                      🔁 Release
+                    </Button>
+                    <Button onClick={() => handlePickItem(tray)} disabled={isSubmitting || releasingTrayId === tray.tray_id || currentItem && currentItem.quantity_consumed >= currentItem.quantity} className="w-full">
+                      📦 Pick Item
+                    </Button>
                   </div>
                 </div>
-              </div>
-            </Card>}
+              </Card>;
+            })}
+          </div>
+        </div>
 
-          {/* Current Item Card */}
-          {currentItem && <Card className="p-5 bg-card border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
+        <div>
+          <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+            🏗 In Storage Trays
+            <span className="text-sm text-muted-foreground font-normal">({storageTrays?.length || 0})</span>
+          </h2>
+          <div className="space-y-3">
+            {storageError && !storageTrays && <Card className="p-6 border-2 border-destructive/50 bg-destructive/5">
+              <p className="text-center text-destructive font-medium">Failed to load storage trays</p>
+            </Card>}
+            {!storageError && storageTrays && storageTrays.length === 0 && <Card className="p-6 border-2 border-border bg-muted/30">
+              <p className="text-center text-muted-foreground font-medium">No trays in storage for this item</p>
+            </Card>}
+            {storageTrays?.map(tray => <Card key={tray.tray_id} className="p-5 border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-foreground">Item Details</h2>
-                  <span className="text-xs font-semibold px-3 py-1 rounded bg-primary text-primary-foreground">
-                    {currentItem.movement_type}
+                  <div className="flex items-center gap-2">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Package className="text-primary" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Tray ID</p>
+                      <p className="text-lg font-bold text-foreground">{tray.tray_id}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-accent/20 text-accent-foreground">
+                    {tray.tray_status}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Material ID</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.material}</p>
+                    <p className="text-xs text-muted-foreground">Available</p>
+                    <p className="text-base font-bold text-foreground">{tray.available_quantity}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Order Ref</p>
-                    <p className="text-lg font-bold text-foreground">{currentItem.order_ref}</p>
+                    <p className="text-xs text-muted-foreground">Inbound Date</p>
+                    <p className="text-sm font-medium text-foreground">{tray.inbound_date}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Total Qty</p>
-                    <p className="text-base font-bold text-foreground">{currentItem.quantity}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Picked</p>
-                    <p className="text-base font-bold text-success">{currentItem.quantity_consumed}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Remaining</p>
-                    <p className="text-base font-bold text-warning">
-                      {currentItem.quantity - currentItem.quantity_consumed}
-                    </p>
-                  </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Description</p>
+                  <p className="text-sm font-medium text-foreground">{tray.item_description}</p>
                 </div>
+
+                <Button onClick={() => handleRetrieveTray(tray)} disabled={retrievingTrayId === tray.tray_id} className="w-full">
+                  Retrieve Tray
+                </Button>
               </div>
-            </Card>}
-
-          <div>
-            <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-              🏭 In Station Trays
-              <span className="text-sm text-muted-foreground font-normal">({stationTrays?.length || 0})</span>
-            </h2>
-            <div className="space-y-3">
-              {stationError && !stationTrays && <Card className="p-6 border-2 border-destructive/50 bg-destructive/5">
-                  <p className="text-center text-destructive font-medium">Failed to load station trays</p>
-                </Card>}
-              {!stationError && stationTrays && stationTrays.length === 0 && <Card className="p-6 border-2 border-border bg-muted/30">
-                  <p className="text-center text-muted-foreground font-medium">No trays in station for this item</p>
-                </Card>}
-              {stationTrays?.map(tray => {
-              const trayOrder = trayOrders.get(tray.tray_id);
-              return <Card key={tray.tray_id} className="p-5 border-2 border-primary/50 bg-primary/5 hover:shadow-lg transition-all duration-300 animate-fade-in">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Package className="text-primary" size={20} />
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground font-medium">Tray ID</p>
-                            <p className="text-lg font-bold text-foreground">{tray.tray_id}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {trayOrder && <span className="text-xs font-semibold px-2 py-1 rounded text-accent-foreground bg-primary">
-                              {trayOrder.station_friendly_name}
-                            </span>}
-                          <span className="text-xs font-semibold px-2 py-1 rounded bg-success text-success-foreground">
-                            In Station
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Available</p>
-                          <p className="text-base font-bold text-foreground">{tray.available_quantity}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Inbound Date</p>
-                          <p className="text-sm font-medium text-foreground">{tray.inbound_date}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Description</p>
-                        <p className="text-sm font-medium text-foreground">{tray.item_description}</p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-2">
-                        <Button onClick={() => handleRelease(tray)} disabled={isSubmitting || !trayOrder || releasingTrayId === tray.tray_id} variant="outline" className="w-full">
-                          🔁 Release
-                        </Button>
-                        <Button onClick={() => handlePickItem(tray)} disabled={isSubmitting || releasingTrayId === tray.tray_id || currentItem && currentItem.quantity_consumed >= currentItem.quantity} className="w-full">
-                          📦 Pick Item
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>;
-            })}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-              🏗 In Storage Trays
-              <span className="text-sm text-muted-foreground font-normal">({storageTrays?.length || 0})</span>
-            </h2>
-            <div className="space-y-3">
-              {storageError && !storageTrays && <Card className="p-6 border-2 border-destructive/50 bg-destructive/5">
-                  <p className="text-center text-destructive font-medium">Failed to load storage trays</p>
-                </Card>}
-              {!storageError && storageTrays && storageTrays.length === 0 && <Card className="p-6 border-2 border-border bg-muted/30">
-                  <p className="text-center text-muted-foreground font-medium">No trays in storage for this item</p>
-                </Card>}
-              {storageTrays?.map(tray => <Card key={tray.tray_id} className="p-5 border-2 border-border hover:shadow-lg transition-all duration-300 animate-fade-in">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <Package className="text-primary" size={20} />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground font-medium">Tray ID</p>
-                          <p className="text-lg font-bold text-foreground">{tray.tray_id}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-semibold px-2 py-1 rounded bg-accent/20 text-accent-foreground">
-                        {tray.tray_status}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Available</p>
-                        <p className="text-base font-bold text-foreground">{tray.available_quantity}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Inbound Date</p>
-                        <p className="text-sm font-medium text-foreground">{tray.inbound_date}</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Description</p>
-                      <p className="text-sm font-medium text-foreground">{tray.item_description}</p>
-                    </div>
-
-                    <Button onClick={() => handleRetrieveTray(tray)} disabled={retrievingTrayId === tray.tray_id} className="w-full">
-                      Retrieve Tray
-                    </Button>
-                  </div>
-                </Card>)}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-              📋 Picked Items
-              <span className="text-sm text-muted-foreground font-normal">({transactions?.length || 0})</span>
-            </h2>
-            <div className="space-y-3">
-              {transactions && transactions.length === 0 && <p className="text-center py-6 text-muted-foreground">No transaction history</p>}
-              {transactions?.map(transaction => <Card key={`${transaction.id}-${transaction.created_at}`} className="p-4 border-2 border-border bg-card">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-foreground">Tray: {transaction.tray_id}</span>
-                      </div>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${transaction.transaction_item_quantity < 0 ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"}`}>
-                        Qty: {transaction.transaction_item_quantity}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">User: </span>
-                        <span className="font-medium text-foreground">{transaction.user_name}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Station: </span>
-                        <span className="font-medium text-foreground">{transaction.station_friendly_name}</span>
-                      </div>
-                    </div>
-
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(transaction.created_at).toLocaleString()}
-                    </div>
-                  </div>
-                </Card>)}
-            </div>
+            </Card>)}
           </div>
         </div>
-      </ScrollArea>
 
-      <Dialog open={isPickingDialogOpen} onOpenChange={setIsPickingDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Pick Items from Tray</DialogTitle>
-            <DialogDescription>
-              Tray: {selectedTray?.tray_id} | Available: {selectedTray?.available_quantity}
-            </DialogDescription>
-          </DialogHeader>
+        <div>
+          <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+            📋 Picked Items
+            <span className="text-sm text-muted-foreground font-normal">({transactions?.length || 0})</span>
+          </h2>
+          <div className="space-y-3">
+            {transactions && transactions.length === 0 && <p className="text-center py-6 text-muted-foreground">No transaction history</p>}
+            {transactions?.map(transaction => <Card key={`${transaction.id}-${transaction.created_at}`} className="p-4 border-2 border-border bg-card">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-foreground">Tray: {transaction.tray_id}</span>
+                  </div>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded ${transaction.transaction_item_quantity < 0 ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"}`}>
+                    Qty: {transaction.transaction_item_quantity}
+                  </span>
+                </div>
 
-          <div className="flex items-center justify-center gap-4 py-6">
-            <Button variant="outline" size="icon" onClick={() => setQuantityToPick(Math.max(1, quantityToPick - 1))} disabled={quantityToPick <= 1}>
-              <Minus size={20} />
-            </Button>
-            <div className="text-4xl font-bold text-primary w-20 text-center">{quantityToPick}</div>
-            <Button variant="outline" size="icon" onClick={() => {
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">User: </span>
+                    <span className="font-medium text-foreground">{transaction.user_name}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Station: </span>
+                    <span className="font-medium text-foreground">{transaction.station_friendly_name}</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                  {new Date(transaction.created_at).toLocaleString()}
+                </div>
+              </div>
+            </Card>)}
+          </div>
+        </div>
+      </div>
+    </ScrollArea>
+
+    <Dialog open={isPickingDialogOpen} onOpenChange={setIsPickingDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Pick Items from Tray</DialogTitle>
+          <DialogDescription>
+            Tray: {selectedTray?.tray_id} | Available: {selectedTray?.available_quantity}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex items-center justify-center gap-4 py-6">
+          <Button variant="outline" size="icon" onClick={() => setQuantityToPick(Math.max(1, quantityToPick - 1))} disabled={quantityToPick <= 1}>
+            <Minus size={20} />
+          </Button>
+          <div className="text-4xl font-bold text-primary w-20 text-center">{quantityToPick}</div>
+          <Button variant="outline" size="icon" onClick={() => {
             const remainingQty = currentItem ? currentItem.quantity - currentItem.quantity_consumed : 0;
             const maxQty = Math.min(selectedTray?.available_quantity || 1, remainingQty);
             setQuantityToPick(Math.min(maxQty, quantityToPick + 1));
           }} disabled={quantityToPick >= Math.min(selectedTray?.available_quantity || 1, currentItem ? currentItem.quantity - currentItem.quantity_consumed : 1)}>
-              <Plus size={20} />
-            </Button>
-          </div>
+            <Plus size={20} />
+          </Button>
+        </div>
 
-          <DialogFooter>
-            <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Submitting..." : "✅ Submit"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>;
+        <DialogFooter>
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full">
+            {isSubmitting ? "Submitting..." : "✅ Submit"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  </div>;
 };
 export default TraysForItem;
