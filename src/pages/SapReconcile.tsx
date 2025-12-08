@@ -274,7 +274,7 @@ const SapReconcile = () => {
           return (
             <Button
               onClick={() => handleCardClick(record.material)}
-              className="h-8 w-full text-primary hover:text-primary-hover hover:bg-primary/10"
+              className="h-8 w-full text-white hover:text-primary-hover hover:bg-primary/10"
             >
               View
             </Button>

@@ -1539,12 +1539,12 @@ const AdhocMode = () => {
                 {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
                   <div className="flex items-center gap-2">
                     {activeTab === "tray" && (
-                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                      <Badge className="text-sm py-1 px-2.5  text-white">
                         Tray: {storageItems[0].tray_id}
                       </Badge>
                     )}
                     {activeTab === "item" && (
-                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                      <Badge className="text-sm py-1 px-2.5 text-white">
                         Item: {itemStorageItems[0].item_id}
                       </Badge>
                     )}
