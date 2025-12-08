@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import Scaffold from "@/components/Scaffold";
 
 interface ItemDetails {
   id: number;
@@ -491,40 +492,25 @@ const ReconcileTrays = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => navigate("/sap-reconcile")}
-              variant="ghost"
-              size="icon"
-              className="text-foreground hover:bg-accent/10"
-            >
-              <ArrowLeft size={24} />
-            </Button>
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="text-primary-foreground" size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{material}</h1>
-              <p className="text-sm text-muted-foreground">{itemDetails?.item_description || ""}</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={handleRefresh}
-              variant="ghost"
-              size="icon"
-              className="text-accent hover:bg-accent/10"
-            >
-              <RefreshCw size={24} />
-            </Button>
-          </div>
+    <Scaffold
+      title={
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{material}</h1>
+          <p className="text-sm text-muted-foreground">{itemDetails?.item_description || ""}</p>
         </div>
-      </header>
-
+      }
+      showBack
+      onBack={() => navigate("/sap-reconcile")}
+      icon={<Package className="text-primary-foreground" size={24} />}
+      actions={
+        <Button
+          onClick={handleRefresh}
+          className="h-10 w-10 text-accent hover:bg-accent/10"
+        >
+          <RefreshCw size={24} />
+        </Button>
+      }
+    >
       {/* Item Details Card */}
       {itemDetails && (
         <div className="container max-w-6xl mx-auto px-4 py-4">
@@ -545,8 +531,8 @@ const ReconcileTrays = () => {
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Status</p>
                 <p className={`text-lg font-bold capitalize ${itemDetails.reconcile_status === 'sap_shortage' ? 'text-orange-600 dark:text-orange-400' :
-                    itemDetails.reconcile_status === 'robot_shortage' ? 'text-amber-600 dark:text-amber-400' :
-                      'text-green-600 dark:text-green-400'
+                  itemDetails.reconcile_status === 'robot_shortage' ? 'text-amber-600 dark:text-amber-400' :
+                    'text-green-600 dark:text-green-400'
                   }`}>
                   {itemDetails.reconcile_status.replace('_', ' ')}
                 </p>
@@ -616,17 +602,14 @@ const ReconcileTrays = () => {
                             <Button
                               onClick={() => handleRelease(tray)}
                               disabled={isReleasing || isSubmitting}
-                              variant="outline"
-                              className="flex-1"
-                              size="sm"
+                              className="flex-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                             >
                               {isReleasing ? <RefreshCw className="animate-spin" size={16} /> : "Release"}
                             </Button>
                             <Button
                               onClick={() => handlePickItem(tray)}
                               disabled={isSubmitting}
-                              className="flex-1"
-                              size="sm"
+                              className="flex-1 h-9 rounded-md px-3"
                             >
                               Reconcile
                             </Button>
@@ -717,8 +700,7 @@ const ReconcileTrays = () => {
             </Button>
             <Button
               onClick={() => handleActionSelect('inbound')}
-              variant="secondary"
-              className="w-full py-6 text-lg"
+              className="w-full py-6 text-lg bg-secondary text-secondary-foreground hover:bg-secondary/80"
             >
               Inbound
             </Button>
@@ -771,7 +753,7 @@ const ReconcileTrays = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </Scaffold>
   );
 };
 

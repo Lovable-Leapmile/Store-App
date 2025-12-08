@@ -2,13 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { LogOut, Package, FileText, Upload, Boxes, CheckCircle2, XCircle, Database } from "lucide-react";
+import { Package, FileText, Upload, Boxes, CheckCircle2, XCircle, Database } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import * as XLSX from "xlsx";
+import Scaffold from "@/components/Scaffold";
+
 interface ItemUploadLog {
   item_id: string;
   item_description: string;
@@ -39,12 +41,7 @@ const Home = () => {
       navigate("/");
     }
   }, [navigate]);
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userId");
-    navigate("/");
-  };
+
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -218,23 +215,11 @@ const Home = () => {
     }
   };
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="text-primary-foreground" size={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">Home</h1>
-          </div>
-          <Button onClick={handleLogout} variant="ghost" size="icon" className="text-accent hover:bg-accent/10">
-            <LogOut size={24} />
-          </Button>
-        </div>
-      </header>
-
-      {/* Main Content */}
+    <Scaffold
+      title="Home"
+      showLogout
+      icon={<Package className="text-primary-foreground" size={24} />}
+    >
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="container max-w-2xl mx-auto space-y-6">
           {/* SAP Orders Button */}
@@ -330,7 +315,7 @@ const Home = () => {
                   <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
                   <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                   <p className="text-sm text-muted-foreground mb-2">or</p>
-                  <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                  <Button className="border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => fileInputRef.current?.click()}>
                     Browse Files
                   </Button>
                   <input
@@ -400,7 +385,7 @@ const Home = () => {
                       <Database className="mx-auto mb-4 text-muted-foreground" size={48} />
                       <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                       <p className="text-sm text-muted-foreground mb-2"> or</p>
-                      <Button variant="outline" onClick={() => itemCatalogInputRef.current?.click()}>
+                      <Button className="border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => itemCatalogInputRef.current?.click()}>
                         Browse Files
                       </Button>
                       <input
@@ -506,8 +491,7 @@ const Home = () => {
                           setUploadProgress(0);
                           setItemCatalogFile(null);
                         }}
-                        variant="outline"
-                        className="w-full"
+                        className="w-full border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                       >
                         Upload Another File
                       </Button>
@@ -519,7 +503,7 @@ const Home = () => {
           </Dialog>
         </div>
       </div>
-    </div>
+    </Scaffold>
   );
 };
 export default Home;

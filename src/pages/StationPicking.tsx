@@ -6,9 +6,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, Lock, Unlock } from "lucide-react";
+import { ArrowLeft, Loader2, Lock, Unlock, Package } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
+import Scaffold from "@/components/Scaffold";
 
 interface Station {
   slot_id: string;
@@ -259,18 +260,12 @@ const StationPicking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/home")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Station Picking</h1>
-            <p className="text-muted-foreground">Manage your picking workflow</p>
-          </div>
-        </div>
-
+    <Scaffold
+      title="Station Picking"
+      showBack
+      icon={<Package className="text-primary-foreground" size={24} />}
+    >
+      <div className="max-w-4xl mx-auto p-4">
         {loading && (
           <div className="flex justify-center items-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -300,7 +295,7 @@ const StationPicking = () => {
                       <CardDescription>Comment : {station.comment || "No comment"}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Badge variant={station.slot_status === "inactive" ? "secondary" : "default"}>
+                      <Badge className={station.slot_status === "inactive" ? "bg-secondary text-secondary-foreground hover:bg-secondary/80" : ""}>
                         {station.slot_status}
                       </Badge>
                     </CardContent>
@@ -321,7 +316,7 @@ const StationPicking = () => {
                       <Lock className="h-5 w-5 text-destructive" />
                       Order #{currentOrder.id}
                     </div>
-                    <Button onClick={handleRelease} variant="destructive" size="sm">
+                    <Button onClick={handleRelease} className="h-9 rounded-md px-3 bg-destructive text-destructive-foreground hover:bg-destructive/90">
                       <Unlock className="h-4 w-4 mr-2" />
                       Release
                     </Button>
@@ -345,7 +340,7 @@ const StationPicking = () => {
                     <CardDescription>Item Quantity : {item.available_quantity}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Badge>Available: {item.available_quantity}</Badge>
+                    <Badge className="border-transparent bg-primary text-primary-foreground hover:bg-primary/80">Available: {item.available_quantity}</Badge>
                   </CardContent>
                 </Card>
               ))}
@@ -382,7 +377,7 @@ const StationPicking = () => {
                 >
                   Confirm Pick
                 </Button>
-                <Button variant="outline" onClick={() => setShowQuantityDialog(false)} className="flex-1">
+                <Button onClick={() => setShowQuantityDialog(false)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                   Cancel
                 </Button>
               </div>
@@ -390,7 +385,7 @@ const StationPicking = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    </Scaffold>
   );
 };
 

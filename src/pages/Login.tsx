@@ -116,7 +116,7 @@ const Login = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" size="lg">
+            <Button type="submit" className="w-full h-11 rounded-md px-8">
               Sign In
             </Button>
           </form>

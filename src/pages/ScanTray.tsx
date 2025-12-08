@@ -9,6 +9,7 @@ import { ArrowLeft, Scan, Keyboard, Minus, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
+import Scaffold from "@/components/Scaffold";
 
 interface SapOrder {
   id: number;
@@ -30,8 +31,6 @@ interface OrderResponse {
     user_id: number;
   }>;
 }
-
-
 
 const ScanTray = () => {
   const navigate = useNavigate();
@@ -215,26 +214,11 @@ const ScanTray = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Button
-            onClick={() => navigate("/home")}
-            variant="ghost"
-            size="icon"
-            className="text-foreground hover:bg-accent/10"
-          >
-            <ArrowLeft size={24} />
-          </Button>
-          <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center">
-            <Scan className="text-accent-foreground" size={24} />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">Scan Tray in Station</h1>
-        </div>
-      </header>
-
-      {/* Main Content */}
+    <Scaffold
+      title="Scan Tray in Station"
+      showBack
+      icon={<Scan className="text-primary-foreground" size={24} />}
+    >
       <div className="flex-1 p-4">
         {!scannedTrayId ? (
           <div className="max-w-md mx-auto mt-8 space-y-4">
@@ -243,7 +227,6 @@ const ScanTray = () => {
                 <Button
                   onClick={handleScanTray}
                   className="w-full h-20 text-lg"
-                  size="lg"
                 >
                   <Scan className="mr-2" size={24} />
                   Scan Tray
@@ -251,9 +234,7 @@ const ScanTray = () => {
 
                 <Button
                   onClick={() => setShowInput(true)}
-                  variant="outline"
-                  className="w-full h-20 text-lg"
-                  size="lg"
+                  className="w-full h-20 text-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                 >
                   <Keyboard className="mr-2" size={24} />
                   Enter Tray ID
@@ -269,7 +250,7 @@ const ScanTray = () => {
                 <p className="text-sm text-muted-foreground">SAP Orders</p>
               </div>
               <Button
-                variant="outline"
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                 onClick={() => {
                   queryClient.invalidateQueries({ queryKey: ["sapOrders"] });
                   setScannedTrayId(null);
@@ -300,7 +281,7 @@ const ScanTray = () => {
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-lg">Order #{order.order_ref}</CardTitle>
-                        <Badge variant="secondary">ID: {order.id}</Badge>
+                        <Badge className="border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">ID: {order.id}</Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
@@ -371,12 +352,11 @@ const ScanTray = () => {
                 Submit
               </Button>
               <Button
-                variant="outline"
                 onClick={() => {
                   setShowInput(false);
                   setTrayId("");
                 }}
-                className="flex-1"
+                className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
               >
                 Cancel
               </Button>
@@ -403,8 +383,7 @@ const ScanTray = () => {
 
               <div className="flex items-center justify-center gap-4">
                 <Button
-                  variant="outline"
-                  size="icon"
+                  className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                   onClick={() => setQuantityToPick(Math.max(1, quantityToPick - 1))}
                   disabled={quantityToPick <= 1}
                 >
@@ -414,8 +393,7 @@ const ScanTray = () => {
                   {quantityToPick}
                 </div>
                 <Button
-                  variant="outline"
-                  size="icon"
+                  className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                   onClick={() => setQuantityToPick(quantityToPick + 1)}
                 >
                   <Plus size={20} />
@@ -426,7 +404,7 @@ const ScanTray = () => {
                 <Button onClick={handleSubmit} className="flex-1">
                   ✅ Submit
                 </Button>
-                <Button onClick={handleRelease} variant="outline" className="flex-1">
+                <Button onClick={handleRelease} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                   🔁 Release
                 </Button>
               </div>
@@ -434,7 +412,7 @@ const ScanTray = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </Scaffold>
   );
 };
 

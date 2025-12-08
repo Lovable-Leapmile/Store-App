@@ -12,6 +12,7 @@ import ReconcileCard from "@/components/ReconcileCard";
 import * as XLSX from "xlsx";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ICellRendererParams } from "ag-grid-community";
+import Scaffold from "@/components/Scaffold";
 
 interface ReconcileRecord {
   material: string;
@@ -272,8 +273,6 @@ const SapReconcile = () => {
         if (record.reconcile_status === "sap_shortage" || record.reconcile_status === "robot_shortage") {
           return (
             <Button
-              variant="ghost"
-              size="sm"
               onClick={() => handleCardClick(record.material)}
               className="h-8 w-full text-primary hover:text-primary-hover hover:bg-primary/10"
             >
@@ -347,32 +346,18 @@ const SapReconcile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => navigate("/home")}
-              variant="ghost"
-              size="icon"
-              className="text-foreground hover:bg-accent/10"
-            >
-              <ArrowLeft size={24} />
-            </Button>
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <FileText className="text-primary-foreground" size={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">SAP Reconcile</h1>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleRefresh} variant="ghost" size="icon" className="text-accent hover:bg-accent/10">
-              <RefreshCw size={24} />
-            </Button>
-          </div>
+    <Scaffold
+      title="SAP Reconcile"
+      showBack
+      icon={<FileText className="text-primary-foreground" size={24} />}
+      actions={
+        <div className="flex gap-2">
+          <Button onClick={handleRefresh} className="h-10 w-10 text-accent hover:bg-accent/10">
+            <RefreshCw size={24} />
+          </Button>
         </div>
-      </header>
-
+      }
+    >
       {/* Upload and Export Buttons */}
       <div className="container max-w-6xl mx-auto px-4 py-4">
         <div className="flex flex-wrap gap-3">
@@ -398,7 +383,7 @@ const SapReconcile = () => {
                   <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
                   <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                   <p className="text-sm text-muted-foreground mb-2">or</p>
-                  <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                  <Button className="border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => fileInputRef.current?.click()}>
                     Browse Files
                   </Button>
                   <input
@@ -424,7 +409,7 @@ const SapReconcile = () => {
             </DialogContent>
           </Dialog>
 
-          <Button onClick={handleExport} variant="default" className="gap-2 flex-1 sm:flex-initial">
+          <Button onClick={handleExport} className="gap-2 flex-1 sm:flex-initial bg-primary text-primary-foreground hover:bg-primary/90">
             <Download size={20} />
             Export{" "}
             {activeTab === "sap_shortage"
@@ -464,7 +449,7 @@ const SapReconcile = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </Scaffold>
   );
 };
 

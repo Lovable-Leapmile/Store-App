@@ -6,6 +6,7 @@ import { ArrowLeft, Package, RefreshCw } from "lucide-react";
 import SapOrderCard from "@/components/SapOrderCard";
 import { toast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import Scaffold from "@/components/Scaffold";
 
 interface SapOrder {
   order_ref: string;
@@ -76,36 +77,20 @@ const SapOrdersList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => navigate("/home")}
-              variant="ghost"
-              size="icon"
-              className="text-foreground hover:bg-accent/10"
-            >
-              <ArrowLeft size={24} />
-            </Button>
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="text-primary-foreground" size={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">SAP Orders</h1>
-          </div>
-          <Button
-            onClick={handleRefresh}
-            variant="ghost"
-            size="icon"
-            className="text-accent hover:bg-accent/10"
-          >
-            <RefreshCw size={24} />
-          </Button>
-        </div>
-      </header>
-
-      {/* Orders List */}
+    <Scaffold
+      title="SAP Orders"
+      showBack
+      onBack={() => navigate("/home")}
+      icon={<Package className="text-primary-foreground" size={24} />}
+      actions={
+        <Button
+          onClick={handleRefresh}
+          className="h-10 w-10 text-accent hover:bg-accent/10 hover:text-accent-foreground"
+        >
+          <RefreshCw size={24} />
+        </Button>
+      }
+    >
       <ScrollArea className="flex-1">
         <div className="container max-w-2xl mx-auto px-4 py-6 space-y-4">
           {isLoading && (
@@ -141,7 +126,7 @@ const SapOrdersList = () => {
           )}
         </div>
       </ScrollArea>
-    </div>
+    </Scaffold>
   );
 };
 

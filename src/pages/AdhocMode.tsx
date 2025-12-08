@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
+import Scaffold from "@/components/Scaffold";
 interface TrayItem {
   id: number;
   tray_id: string;
@@ -1067,573 +1068,277 @@ const AdhocMode = () => {
     }
   }, [showQrScanner, isScanning]);
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-6xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={() => navigate("/home")}
-                variant="ghost"
-                size="icon"
-                className="text-foreground hover:bg-accent/10"
-              >
-                <ArrowLeft size={20} />
-              </Button>
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                <Package className="text-primary-foreground" size={18} />
+    <Scaffold
+      title="Adhoc Mode"
+      showBack
+      icon={<Package className="text-primary-foreground" size={18} />}
+      className="p-2 bg-gradient-to-b from-background to-accent/5"
+      actions={
+        <div className="flex gap-3">
+          <Card
+            className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
+            onClick={() => {
+              fetchReadyOrders();
+              setShowReadyDialog(true);
+            }}
+          >
+            <CardContent className="p-2 px-3">
+              <div className="flex items-center gap-2">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground font-medium">Ready</p>
+                  <p className="text-lg font-bold text-foreground">{readyCount}</p>
+                </div>
               </div>
-              <h1 className="text-xl font-bold text-foreground">Adhoc Mode</h1>
-            </div>
-
-            {/* Count Boxes */}
-            <div className="flex gap-3">
-              <Card
-                className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
-                onClick={() => {
-                  fetchReadyOrders();
-                  setShowReadyDialog(true);
-                }}
-              >
-                <CardContent className="p-2 px-3">
-                  <div className="flex items-center gap-2">
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground font-medium">Ready</p>
-                      <p className="text-lg font-bold text-foreground">{readyCount}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card
-                className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
-                onClick={() => {
-                  fetchPendingOrders();
-                  setShowPendingDialog(true);
-                }}
-              >
-                <CardContent className="p-2 px-3">
-                  <div className="flex items-center gap-2">
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground font-medium">Pending</p>
-                      <p className="text-lg font-bold text-foreground">{pendingCount}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="flex-1 p-2 bg-gradient-to-b from-background to-accent/5">
-        <div className="container max-w-6xl mx-auto px-2 space-y-6">
-          {/* Search Section with Tabs */}
-          <Card className="border-2 shadow-lg">
-            <CardHeader className="border-b bg-card pb-4 px-4">
-              <CardTitle className="flex items-center gap-3 text-2xl">
-                <Package className="text-primary" size={28} />
-                Search
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="item">Item Search</TabsTrigger>
-                  <TabsTrigger value="tray">Tray Search</TabsTrigger>
-
-                </TabsList>
-
-                <TabsContent value="tray" className="space-y-3">
-                  <Label className="text-base font-semibold">Tray ID</Label>
-                  <Input
-                    value={trayId}
-                    onChange={(e) => {
-                      setTrayId(e.target.value);
-                      if (!e.target.value.trim()) {
-                        setStationItems([]);
-                        setStorageItems([]);
-                        setStorageOffset(0);
-                        setStorageTotalCount(0);
-                      }
-                    }}
-                    className="h-14 text-lg px-5 border-2"
-                    placeholder="Enter Tray ID"
-                  />
-
-                  {!trayId.trim() && (
-                    <div className="space-y-3 mt-4">
-                      <Label className="text-base font-semibold">Filters</Label>
-                      <div className="flex gap-2 flex-wrap">
-                        <Button
-                          variant={trayDividerFilter === null && !showEmptyBins ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(null);
-                            setShowEmptyBins(false);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          All Trays
-                        </Button>
-                        <Button
-                          variant={trayDividerFilter === 0 ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(0);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Divider: 0
-                        </Button>
-                        <Button
-                          variant={trayDividerFilter === 4 ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(4);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Divider: 4
-                        </Button>
-                        <Button
-                          variant={trayDividerFilter === 6 ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(6);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Divider: 6
-                        </Button>
-                        <Button
-                          variant={showEmptyBins ? "default" : "outline"}
-                          onClick={() => {
-                            setShowEmptyBins(!showEmptyBins);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Empty Bins Only
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="item" className="space-y-3">
-                  <Label className="text-base font-semibold">Item ID</Label>
-                  <Input
-                    value={itemId}
-                    onChange={(e) => {
-                      setItemId(e.target.value);
-                      if (!e.target.value.trim()) {
-                        setItemStationItems([]);
-                        setItemStorageItems([]);
-                        setStorageOffset(0);
-                        setStorageTotalCount(0);
-                      }
-                    }}
-                    className="h-14 text-lg px-5 border-2"
-                    placeholder="Enter Item ID"
-                  />
-
-                  {!itemId.trim() && (
-                    <div className="space-y-3 mt-4">
-                      <Label className="text-base font-semibold">Filters</Label>
-                      <div className="flex gap-2 flex-wrap">
-                        <Button
-                          variant={trayDividerFilter === null && !showEmptyBins ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(null);
-                            setShowEmptyBins(false);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          All Trays
-                        </Button>
-                        <Button
-                          variant={trayDividerFilter === 0 ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(0);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Divider: 0
-                        </Button>
-                        <Button
-                          variant={trayDividerFilter === 4 ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(4);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Divider: 4
-                        </Button>
-                        <Button
-                          variant={trayDividerFilter === 6 ? "default" : "outline"}
-                          onClick={() => {
-                            setTrayDividerFilter(6);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Divider: 6
-                        </Button>
-                        <Button
-                          variant={showEmptyBins ? "default" : "outline"}
-                          onClick={() => {
-                            setShowEmptyBins(!showEmptyBins);
-                            setOffset(0);
-                          }}
-                          size="sm"
-                        >
-                          Empty Bins Only
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
             </CardContent>
           </Card>
 
-          {/* Loading State */}
-          {loading && (
-            <Card className="border-2 shadow-lg">
-              <CardContent className="p-16 text-center">
-                <div className="animate-pulse space-y-4">
-                  <Package className="mx-auto text-primary" size={56} />
-                  <p className="text-muted-foreground font-semibold text-lg">Loading items...</p>
+          <Card
+            className="cursor-pointer hover:shadow-md transition-all border hover:border-primary/50"
+            onClick={() => {
+              fetchPendingOrders();
+              setShowPendingDialog(true);
+            }}
+          >
+            <CardContent className="p-2 px-3">
+              <div className="flex items-center gap-2">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground font-medium">Pending</p>
+                  <p className="text-lg font-bold text-foreground">{pendingCount}</p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <div className="container max-w-6xl mx-auto px-2 space-y-6">
+        {/* Search Section with Tabs */}
+        <Card className="border-2 shadow-lg">
+          <CardHeader className="border-b bg-card pb-4 px-4">
+            <CardTitle className="flex items-center gap-3 text-2xl">
+              <Package className="text-primary" size={28} />
+              Search
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="item">Item Search</TabsTrigger>
+                <TabsTrigger value="tray">Tray Search</TabsTrigger>
 
-          {/* All Trays List (when text field is empty) */}
-          {!loading && ((activeTab === "tray" && !trayId.trim()) || (activeTab === "item" && !itemId.trim())) && (
-            <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-card pb-3 px-4">
-                <div className="flex items-center justify-between gap-2">
-                  <CardTitle className="text-lg font-bold">
-                    {showEmptyBins ? "Empty Bins" : "Trays in Storage"}
-                  </CardTitle>
-                  <Badge className="text-sm py-1 px-2.5">{totalCount} total</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4">
-                {allTrays.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg font-medium">No trays found</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {allTrays.map((tray) => (
-                        <Card
-                          key={`all-tray-${tray.id}`}
-                          className="border-2 hover:shadow-lg transition-all hover:border-primary/50"
-                        >
-                          <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <CardTitle className="text-lg font-bold">{tray.tray_id}</CardTitle>
-                                {tray.item_description && (
-                                  <p className="text-sm text-muted-foreground mt-1">{tray.item_description}</p>
-                                )}
-                                {tray.item_id && (
-                                  <p className="text-xs text-muted-foreground mt-1">Item: {tray.item_id}</p>
-                                )}
-                              </div>
-                              <Badge variant="secondary" className="ml-2 text-xs py-1 px-2">
-                                {tray.tray_status}
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                            {/* Tray Image - Clickable */}
-                            <div
-                              className="relative w-full h-40 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
-                              onClick={() => {
-                                setSelectedTrayForDetail(tray);
-                                setShowTrayDetailDialog(true);
-                              }}
-                            >
-                              <img
-                                src={`https://amsstores1.blr1.digitaloceanspaces.com/${tray.tray_id}.jpg`}
-                                alt={`Tray ${tray.tray_id}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src =
-                                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
-                                }}
-                              />
-                              <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
-                                <p className="text-white font-semibold text-sm">Click to view details</p>
-                              </div>
-                            </div>
+              </TabsList>
 
-                            <div className="grid grid-cols-2 gap-3 p-3 bg-accent/10 rounded-lg text-sm">
-                              <div className="space-y-1">
-                                <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                  Qty
-                                </span>
-                                <p className="font-bold text-foreground">{tray.available_quantity}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                  Divider
-                                </span>
-                                <p className="font-bold text-foreground">{tray.tray_divider}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                  Height
-                                </span>
-                                <p className="font-bold text-foreground">{tray.tray_height}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                  Weight
-                                </span>
-                                <p className="font-bold text-foreground">{tray.tray_weight}</p>
-                              </div>
-                            </div>
-                            {tray.inbound_date && (
-                              <div className="text-xs text-muted-foreground">Inbound: {tray.inbound_date}</div>
-                            )}
-                            <Button
-                              onClick={() => handleRequestTray(tray.tray_id)}
-                              disabled={retrievingTrayId === tray.tray_id}
-                              variant="default"
-                              className="w-full"
-                              size="sm"
-                            >
-                              {retrievingTrayId === tray.tray_id ? "Retrieving..." : "Retrieve to Station"}
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      ))}
+              <TabsContent value="tray" className="space-y-3">
+                <Label className="text-base font-semibold">Tray ID</Label>
+                <Input
+                  value={trayId}
+                  onChange={(e) => {
+                    setTrayId(e.target.value);
+                    if (!e.target.value.trim()) {
+                      setStationItems([]);
+                      setStorageItems([]);
+                      setStorageOffset(0);
+                      setStorageTotalCount(0);
+                    }
+                  }}
+                  className="h-14 text-lg px-5 border-2"
+                  placeholder="Enter Tray ID"
+                />
+
+                {!trayId.trim() && (
+                  <div className="space-y-3 mt-4">
+                    <Label className="text-base font-semibold">Filters</Label>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === null && !showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(null);
+                          setShowEmptyBins(false);
+                          setOffset(0);
+                        }}
+                      >
+                        All Trays
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 0 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(0);
+                          setOffset(0);
+                        }}
+                      >
+                        Divider: 0
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 4 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(4);
+                          setOffset(0);
+                        }}
+                      >
+                        Divider: 4
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 6 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(6);
+                          setOffset(0);
+                        }}
+                      >
+                        Divider: 6
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setShowEmptyBins(!showEmptyBins);
+                          setOffset(0);
+                        }}
+                      >
+                        Empty Bins Only
+                      </Button>
                     </div>
-
-                    {/* Pagination */}
-                    {allTrays.length > 0 && (
-                      <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
-                        <Button
-                          onClick={() => setOffset(Math.max(0, offset - 10))}
-                          disabled={offset === 0}
-                          variant="outline"
-                          size="sm"
-                          className="gap-1"
-                        >
-                          <ChevronLeft size={16} />
-                          Previous
-                        </Button>
-
-                        <div className="flex items-center gap-2 px-4">
-                          <span className="text-sm font-medium">
-                            Showing {offset + 1}-{offset + allTrays.length}
-                            {totalCount > 0 && ` of ${totalCount}`}
-                          </span>
-                        </div>
-
-                        <Button
-                          onClick={() => setOffset(offset + 10)}
-                          disabled={allTrays.length < 10}
-                          variant="outline"
-                          size="sm"
-                          className="gap-1"
-                        >
-                          Next
-                          <ChevronRight size={16} />
-                        </Button>
-                      </div>
-                    )}
-                  </>
+                  </div>
                 )}
-              </CardContent>
-            </Card>
-          )}
+              </TabsContent>
 
-          {/* In Station Section */}
-          {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
-            <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-card pb-3 px-4">
-                <div className="flex items-center justify-between gap-2">
-                  <CardTitle className="text-lg font-bold">In Station</CardTitle>
-                  {(activeTab === "tray" ? stationItems : itemStationItems).length > 0 && (
-                    <div className="flex items-center gap-2">
-                      {activeTab === "tray" && (
-                        <Badge variant="outline" className="text-sm py-1 px-2.5">
-                          Tray: {stationItems[0].tray_id}
-                        </Badge>
-                      )}
-                      {activeTab === "item" && (
-                        <Badge variant="outline" className="text-sm py-1 px-2.5">
-                          Item: {itemStationItems[0].item_id}
-                        </Badge>
-                      )}
-                      <Badge className="text-sm py-1 px-2.5">
-                        {(activeTab === "tray" ? stationItems : itemStationItems).length} item
-                        {(activeTab === "tray" ? stationItems : itemStationItems).length !== 1 ? "s" : ""}
-                      </Badge>
+              <TabsContent value="item" className="space-y-3">
+                <Label className="text-base font-semibold">Item ID</Label>
+                <Input
+                  value={itemId}
+                  onChange={(e) => {
+                    setItemId(e.target.value);
+                    if (!e.target.value.trim()) {
+                      setItemStationItems([]);
+                      setItemStorageItems([]);
+                      setStorageOffset(0);
+                      setStorageTotalCount(0);
+                    }
+                  }}
+                  className="h-14 text-lg px-5 border-2"
+                  placeholder="Enter Item ID"
+                />
+
+                {!itemId.trim() && (
+                  <div className="space-y-3 mt-4">
+                    <Label className="text-base font-semibold">Filters</Label>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === null && !showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(null);
+                          setShowEmptyBins(false);
+                          setOffset(0);
+                        }}
+                      >
+                        All Trays
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 0 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(0);
+                          setOffset(0);
+                        }}
+                      >
+                        Divider: 0
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 4 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(4);
+                          setOffset(0);
+                        }}
+                      >
+                        Divider: 4
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 6 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setTrayDividerFilter(6);
+                          setOffset(0);
+                        }}
+                      >
+                        Divider: 6
+                      </Button>
+                      <Button
+                        className={`h-9 rounded-md px-3 ${showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        onClick={() => {
+                          setShowEmptyBins(!showEmptyBins);
+                          setOffset(0);
+                        }}
+                      >
+                        Empty Bins Only
+                      </Button>
                     </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="p-4">
-                {(activeTab === "tray" ? stationItems : itemStationItems).length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg font-medium">No trays in station</p>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {(activeTab === "tray" ? stationItems : itemStationItems).map((item) => (
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Loading State */}
+        {loading && (
+          <Card className="border-2 shadow-lg">
+            <CardContent className="p-16 text-center">
+              <div className="animate-pulse space-y-4">
+                <Package className="mx-auto text-primary" size={56} />
+                <p className="text-muted-foreground font-semibold text-lg">Loading items...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* All Trays List (when text field is empty) */}
+        {!loading && ((activeTab === "tray" && !trayId.trim()) || (activeTab === "item" && !itemId.trim())) && (
+          <Card className="border-2 shadow-lg">
+            <CardHeader className="border-b bg-card pb-3 px-4">
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-lg font-bold">
+                  {showEmptyBins ? "Empty Bins" : "Trays in Storage"}
+                </CardTitle>
+                <Badge className="text-sm py-1 px-2.5">{totalCount} total</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              {allTrays.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg font-medium">No trays found</p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {allTrays.map((tray) => (
                       <Card
-                        key={`station-${item.id}-${item.item_id}-${item.tray_id}`}
-                        className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent"
+                        key={`all-tray-${tray.id}`}
+                        className="border-2 hover:shadow-lg transition-all hover:border-primary/50"
                       >
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <CardTitle className="text-xl font-bold">
-                                {activeTab === "tray" ? item.item_id : item.tray_id}
-                              </CardTitle>
-                              <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
-                              {activeTab === "item" && (
-                                <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                              <CardTitle className="text-lg font-bold">{tray.tray_id}</CardTitle>
+                              {tray.item_description && (
+                                <p className="text-sm text-muted-foreground mt-1">{tray.item_description}</p>
                               )}
-                              {item.station_friendly_name && (
-                                <div className="mt-2">
-                                  <Badge variant="secondary" className="text-sm py-1 px-3">
-                                    📌 {item.station_friendly_name}
-                                  </Badge>
-                                </div>
+                              {tray.item_id && (
+                                <p className="text-xs text-muted-foreground mt-1">Item: {tray.item_id}</p>
                               )}
                             </div>
-                            <Badge
-                              variant={item.tray_status === "active" ? "default" : "secondary"}
-                              className="ml-2 text-sm py-1 px-3"
-                            >
-                              {item.tray_status}
+                            <Badge className="ml-2 text-xs py-1 px-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                              {tray.tray_status}
                             </Badge>
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
-                            <div className="space-y-2">
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                Available Qty
-                              </span>
-                              <p className="font-bold text-lg text-primary">{item.available_quantity}</p>
-                            </div>
-                            <div className="space-y-2">
-                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                Inbound Date
-                              </span>
-                              <p className="font-bold text-sm">{item.inbound_date}</p>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <Button
-                              onClick={() => handleReleaseTray(item.tray_id)}
-                              variant="outline"
-                              className="h-12 text-base font-semibold"
-                              disabled={item.tray_lockcount === 0}
-                            >
-                              Release
-                            </Button>
-                            <Button
-                              onClick={() => handleSelectStationItem(item)}
-                              className="h-12 text-base font-semibold"
-                              disabled={item.tray_lockcount === 0}
-                            >
-                              Select
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* In Storage Section */}
-          {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
-            <Card className="border-2 shadow-lg">
-              <CardHeader className="border-b bg-card pb-3 px-4">
-                <div className="flex items-center justify-between gap-2">
-                  <CardTitle className="text-lg font-bold">In Storage</CardTitle>
-                  {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
-                    <div className="flex items-center gap-2">
-                      {activeTab === "tray" && (
-                        <Badge variant="outline" className="text-sm py-1 px-2.5">
-                          Tray: {storageItems[0].tray_id}
-                        </Badge>
-                      )}
-                      {activeTab === "item" && (
-                        <Badge variant="outline" className="text-sm py-1 px-2.5">
-                          Item: {itemStorageItems[0].item_id}
-                        </Badge>
-                      )}
-                      <Badge className="text-sm py-1 px-2.5">
-                        {(activeTab === "tray" ? storageItems : itemStorageItems).length} on page
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="p-4">
-                {(activeTab === "tray" ? storageItems : itemStorageItems).length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg font-medium">No trays in storage</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {(activeTab === "tray" ? storageItems : itemStorageItems).map((item) => (
-                      <Card
-                        key={`storage-${item.id}-${item.item_id}-${item.tray_id}`}
-                        className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent"
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <CardTitle className="text-xl font-bold">
-                                {activeTab === "tray" ? item.item_id : item.tray_id}
-                              </CardTitle>
-                              <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
-                              {activeTab === "item" && (
-                                <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
-                              )}
-                            </div>
-                            <Badge
-                              variant={item.tray_status === "active" ? "default" : "secondary"}
-                              className="ml-2 text-sm py-1 px-3"
-                            >
-                              {item.tray_status}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-3">
                           {/* Tray Image - Clickable */}
                           <div
-                            className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
+                            className="relative w-full h-40 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
                             onClick={() => {
-                              setSelectedTrayForDetail(item);
+                              setSelectedTrayForDetail(tray);
                               setShowTrayDetailDialog(true);
                             }}
                           >
                             <img
-                              src={`https://amsstores1.blr1.digitaloceanspaces.com/${item.tray_id}.jpg`}
-                              alt={`Tray ${item.tray_id}`}
+                              src={`https://amsstores1.blr1.digitaloceanspaces.com/${tray.tray_id}.jpg`}
+                              alt={`Tray ${tray.tray_id}`}
                               className="w-full h-full object-cover hover:scale-105 transition-transform"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
@@ -1642,80 +1347,333 @@ const AdhocMode = () => {
                               }}
                             />
                             <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
-                              <p className="text-white font-semibold text-lg">Click to view details</p>
+                              <p className="text-white font-semibold text-sm">Click to view details</p>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
-                            <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-3 p-3 bg-accent/10 rounded-lg text-sm">
+                            <div className="space-y-1">
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                Available Qty
+                                Qty
                               </span>
-                              <p className="font-bold text-lg text-foreground">{item.available_quantity}</p>
+                              <p className="font-bold text-foreground">{tray.available_quantity}</p>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                               <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
-                                Inbound Date
+                                Divider
                               </span>
-                              <p className="font-bold text-sm">{item.inbound_date}</p>
+                              <p className="font-bold text-foreground">{tray.tray_divider}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                                Height
+                              </span>
+                              <p className="font-bold text-foreground">{tray.tray_height}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                                Weight
+                              </span>
+                              <p className="font-bold text-foreground">{tray.tray_weight}</p>
                             </div>
                           </div>
+                          {tray.inbound_date && (
+                            <div className="text-xs text-muted-foreground">Inbound: {tray.inbound_date}</div>
+                          )}
                           <Button
-                            onClick={() => handleRequestTray(item.tray_id)}
-                            disabled={retrievingTrayId === item.tray_id}
-                            variant="default"
-                            className="w-full h-12 text-base font-semibold"
+                            onClick={() => handleRequestTray(tray.tray_id)}
+                            disabled={retrievingTrayId === tray.tray_id}
+                            className="w-full h-9 rounded-md px-3"
                           >
-                            {retrievingTrayId === item.tray_id ? "Requesting..." : "Request Tray to Station"}
+                            {retrievingTrayId === tray.tray_id ? "Retrieving..." : "Retrieve to Station"}
                           </Button>
                         </CardContent>
                       </Card>
                     ))}
+                  </div>
 
-                    {/* Storage Pagination */}
-                    {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
-                      <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
-                        <Button
-                          onClick={() => {
-                            setStorageOffset(Math.max(0, storageOffset - 10));
-                          }}
-                          disabled={storageOffset === 0}
-                          variant="outline"
-                          size="sm"
-                          className="gap-1"
-                        >
-                          <ChevronLeft size={16} />
-                          Previous
-                        </Button>
+                  {/* Pagination */}
+                  {allTrays.length > 0 && (
+                    <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
+                      <Button
+                        onClick={() => setOffset(Math.max(0, offset - 10))}
+                        disabled={offset === 0}
+                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <ChevronLeft size={16} />
+                        Previous
+                      </Button>
 
-                        <div className="flex items-center gap-2 px-4">
-                          <span className="text-sm font-medium">
-                            Showing {storageOffset + 1}-
-                            {storageOffset + (activeTab === "tray" ? storageItems : itemStorageItems).length}
-                          </span>
-                        </div>
-
-                        <Button
-                          onClick={() => {
-                            setStorageOffset(storageOffset + 10);
-                          }}
-                          disabled={(activeTab === "tray" ? storageItems : itemStorageItems).length < 10}
-                          variant="outline"
-                          size="sm"
-                          className="gap-1"
-                        >
-                          Next
-                          <ChevronRight size={16} />
-                        </Button>
+                      <div className="flex items-center gap-2 px-4">
+                        <span className="text-sm font-medium">
+                          Showing {offset + 1}-{offset + allTrays.length}
+                          {totalCount > 0 && ` of ${totalCount}`}
+                        </span>
                       </div>
+
+                      <Button
+                        onClick={() => setOffset(offset + 10)}
+                        disabled={allTrays.length < 10}
+                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                      >
+                        Next
+                        <ChevronRight size={16} />
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* In Station Section */}
+        {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
+          <Card className="border-2 shadow-lg">
+            <CardHeader className="border-b bg-card pb-3 px-4">
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-lg font-bold">In Station</CardTitle>
+                {(activeTab === "tray" ? stationItems : itemStationItems).length > 0 && (
+                  <div className="flex items-center gap-2">
+                    {activeTab === "tray" && (
+                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                        Tray: {stationItems[0].tray_id}
+                      </Badge>
                     )}
+                    {activeTab === "item" && (
+                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                        Item: {itemStationItems[0].item_id}
+                      </Badge>
+                    )}
+                    <Badge className="text-sm py-1 px-2.5">
+                      {(activeTab === "tray" ? stationItems : itemStationItems).length} item
+                      {(activeTab === "tray" ? stationItems : itemStationItems).length !== 1 ? "s" : ""}
+                    </Badge>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              {(activeTab === "tray" ? stationItems : itemStationItems).length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg font-medium">No trays in station</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {(activeTab === "tray" ? stationItems : itemStationItems).map((item) => (
+                    <Card
+                      key={`station-${item.id}-${item.item_id}-${item.tray_id}`}
+                      className="border-l-4 border-l-primary hover:shadow-lg transition-all hover:border-l-accent"
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-xl font-bold">
+                              {activeTab === "tray" ? item.item_id : item.tray_id}
+                            </CardTitle>
+                            <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
+                            {activeTab === "item" && (
+                              <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                            )}
+                            {item.station_friendly_name && (
+                              <div className="mt-2">
+                                <Badge className="text-sm py-1 px-3 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                                  📌 {item.station_friendly_name}
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                          <Badge
+                            className={`ml-2 text-sm py-1 px-3 ${item.tray_status === "active" ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80" : "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"}`}
+                          >
+                            {item.tray_status}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
+                          <div className="space-y-2">
+                            <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                              Available Qty
+                            </span>
+                            <p className="font-bold text-lg text-primary">{item.available_quantity}</p>
+                          </div>
+                          <div className="space-y-2">
+                            <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                              Inbound Date
+                            </span>
+                            <p className="font-bold text-sm">{item.inbound_date}</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button
+                            onClick={() => handleReleaseTray(item.tray_id)}
+                            className="h-12 text-base font-semibold border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                            disabled={item.tray_lockcount === 0}
+                          >
+                            Release
+                          </Button>
+                          <Button
+                            onClick={() => handleSelectStationItem(item)}
+                            className="h-12 text-base font-semibold"
+                            disabled={item.tray_lockcount === 0}
+                          >
+                            Select
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* In Storage Section */}
+        {!loading && ((activeTab === "tray" && trayId) || (activeTab === "item" && itemId)) && (
+          <Card className="border-2 shadow-lg">
+            <CardHeader className="border-b bg-card pb-3 px-4">
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-lg font-bold">In Storage</CardTitle>
+                {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
+                  <div className="flex items-center gap-2">
+                    {activeTab === "tray" && (
+                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                        Tray: {storageItems[0].tray_id}
+                      </Badge>
+                    )}
+                    {activeTab === "item" && (
+                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                        Item: {itemStorageItems[0].item_id}
+                      </Badge>
+                    )}
+                    <Badge className="text-sm py-1 px-2.5">
+                      {(activeTab === "tray" ? storageItems : itemStorageItems).length} on page
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              {(activeTab === "tray" ? storageItems : itemStorageItems).length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg font-medium">No trays in storage</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {(activeTab === "tray" ? storageItems : itemStorageItems).map((item) => (
+                    <Card
+                      key={`storage-${item.id}-${item.item_id}-${item.tray_id}`}
+                      className="border-l-4 border-l-secondary hover:shadow-lg transition-all hover:border-l-accent"
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-xl font-bold">
+                              {activeTab === "tray" ? item.item_id : item.tray_id}
+                            </CardTitle>
+                            <p className="text-base text-muted-foreground mt-1">{item.item_description}</p>
+                            {activeTab === "item" && (
+                              <p className="text-sm text-muted-foreground mt-1">Item: {item.item_id}</p>
+                            )}
+                          </div>
+                          <Badge
+                            className={`ml-2 text-sm py-1 px-3 ${item.tray_status === "active" ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80" : "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"}`}
+                          >
+                            {item.tray_status}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {/* Tray Image - Clickable */}
+                        <div
+                          className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-all"
+                          onClick={() => {
+                            setSelectedTrayForDetail(item);
+                            setShowTrayDetailDialog(true);
+                          }}
+                        >
+                          <img
+                            src={`https://amsstores1.blr1.digitaloceanspaces.com/${item.tray_id}.jpg`}
+                            alt={`Tray ${item.tray_id}`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src =
+                                'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%239ca3af">No Image Available</text></svg>';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                            <p className="text-white font-semibold text-lg">Click to view details</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 p-4 bg-accent/10 rounded-lg">
+                          <div className="space-y-2">
+                            <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                              Available Qty
+                            </span>
+                            <p className="font-bold text-lg text-foreground">{item.available_quantity}</p>
+                          </div>
+                          <div className="space-y-2">
+                            <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold block">
+                              Inbound Date
+                            </span>
+                            <p className="font-bold text-sm">{item.inbound_date}</p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => handleRequestTray(item.tray_id)}
+                          disabled={retrievingTrayId === item.tray_id}
+                          className="w-full h-12 text-base font-semibold"
+                        >
+                          {retrievingTrayId === item.tray_id ? "Requesting..." : "Request Tray to Station"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  {/* Storage Pagination */}
+                  {(activeTab === "tray" ? storageItems : itemStorageItems).length > 0 && (
+                    <div className="flex items-center justify-center gap-2 mt-6 p-4 bg-muted/50 rounded-lg">
+                      <Button
+                        onClick={() => {
+                          setStorageOffset(Math.max(0, storageOffset - 10));
+                        }}
+                        disabled={storageOffset === 0}
+                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <ChevronLeft size={16} />
+                        Previous
+                      </Button>
+
+                      <div className="flex items-center gap-2 px-4">
+                        <span className="text-sm font-medium">
+                          Showing {storageOffset + 1}-
+                          {storageOffset + (activeTab === "tray" ? storageItems : itemStorageItems).length}
+                        </span>
+                      </div>
+
+                      <Button
+                        onClick={() => {
+                          setStorageOffset(storageOffset + 10);
+                        }}
+                        disabled={(activeTab === "tray" ? storageItems : itemStorageItems).length < 10}
+                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                      >
+                        Next
+                        <ChevronRight size={16} />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
+
 
       {/* Ready Orders Dialog */}
       <Dialog open={showReadyDialog} onOpenChange={setShowReadyDialog}>
@@ -1742,21 +1700,20 @@ const AdhocMode = () => {
                           <Button
                             onClick={() => handleReleaseOrder(order.id)}
                             disabled={releasingOrderId === order.id}
-                            variant="destructive"
-                            size="sm"
+                            className="h-9 rounded-md px-3 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             {releasingOrderId === order.id ? "Releasing..." : "Release"}
                           </Button>
-                          <Button onClick={() => handleSelectOrder(order)} variant="default" size="sm">
+                          <Button onClick={() => handleSelectOrder(order)} className="h-9 rounded-md px-3 bg-primary text-primary-foreground hover:bg-primary/90">
                             Select
                           </Button>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge className="text-xs border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
                           User: {order.user_id}
                         </Badge>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge className="text-xs text-foreground">
                           Station: {order.station_id}
                         </Badge>
                       </div>
@@ -1790,10 +1747,10 @@ const AdhocMode = () => {
                         <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge className="text-xs border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
                           User: {order.user_id}
                         </Badge>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge className="text-xs text-foreground">
                           Station: {order.station_id}
                         </Badge>
                       </div>
@@ -1829,15 +1786,13 @@ const AdhocMode = () => {
               )}
               <Button
                 onClick={() => handleTransactionTypeSelect("inbound")}
-                variant="outline"
-                className="w-full h-20 text-lg"
+                className="w-full h-20 text-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
               >
                 Inbound
               </Button>
               <Button
                 onClick={() => handleTransactionTypeSelect("pickup")}
-                variant="outline"
-                className="w-full h-20 text-lg"
+                className="w-full h-20 text-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
               >
                 Pickup
               </Button>
@@ -1869,8 +1824,7 @@ const AdhocMode = () => {
                 <Label>Quantity</Label>
                 <div className="flex items-center justify-center gap-4">
                   <Button
-                    variant="outline"
-                    size="icon"
+                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(Math.max(0, current - 1));
@@ -1896,8 +1850,7 @@ const AdhocMode = () => {
                     }}
                   />
                   <Button
-                    variant="outline"
-                    size="icon"
+                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(current + 1);
@@ -1919,7 +1872,7 @@ const AdhocMode = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
+                <Button onClick={() => setTransactionType(null)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                   Back
                 </Button>
                 <Button onClick={handleSubmitInboundTransaction} className="flex-1">
@@ -1963,7 +1916,7 @@ const AdhocMode = () => {
                               <p className="font-bold">{item.item_id}</p>
                               <p className="text-sm text-muted-foreground">{item.item_description}</p>
                             </div>
-                            <Badge variant="secondary">Qty: {item.available_quantity}</Badge>
+                            <Badge className="border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">Qty: {item.available_quantity}</Badge>
                           </div>
                         </CardContent>
                       </Card>
@@ -1978,8 +1931,7 @@ const AdhocMode = () => {
                     <Label>Quantity to Pick</Label>
                     <div className="flex items-center justify-center gap-4">
                       <Button
-                        variant="outline"
-                        size="icon"
+                        className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                         onClick={() => {
                           const current = typeof quantity === "string" ? 0 : quantity;
                           setQuantity(Math.max(0, current - 1));
@@ -2005,8 +1957,7 @@ const AdhocMode = () => {
                         }}
                       />
                       <Button
-                        variant="outline"
-                        size="icon"
+                        className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                         onClick={() => {
                           const current = typeof quantity === "string" ? 0 : quantity;
                           setQuantity(current + 1);
@@ -2030,7 +1981,7 @@ const AdhocMode = () => {
               )}
 
               <div className="flex gap-2">
-                <Button onClick={() => setTransactionType(null)} variant="outline" className="flex-1">
+                <Button onClick={() => setTransactionType(null)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                   Back
                 </Button>
                 <Button onClick={handleSubmitPickupTransaction} disabled={!selectedProductForPickup} className="flex-1">
@@ -2066,7 +2017,7 @@ const AdhocMode = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={() => setShowTimeDialog(false)} variant="outline" className="flex-1">
+              <Button onClick={() => setShowTimeDialog(false)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                 Cancel
               </Button>
               <Button onClick={handleConfirmRequestTray} className="flex-1">
@@ -2109,8 +2060,7 @@ const AdhocMode = () => {
                 <Label>Quantity</Label>
                 <div className="flex items-center justify-center gap-4">
                   <Button
-                    variant="outline"
-                    size="icon"
+                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(Math.max(0, current - 1));
@@ -2136,8 +2086,7 @@ const AdhocMode = () => {
                     }}
                   />
                   <Button
-                    variant="outline"
-                    size="icon"
+                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(current + 1);
@@ -2177,7 +2126,7 @@ const AdhocMode = () => {
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle>Scan QR Code</DialogTitle>
-              <Button variant="ghost" size="icon" onClick={stopScanning}>
+              <Button className="h-10 w-10 hover:bg-accent hover:text-accent-foreground" onClick={stopScanning}>
                 <X size={20} />
               </Button>
             </div>
@@ -2224,7 +2173,7 @@ const AdhocMode = () => {
                   </div>
                   <div className="space-y-1">
                     <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Status</span>
-                    <Badge variant={selectedTrayForDetail.tray_status === "active" ? "default" : "secondary"}>
+                    <Badge className={selectedTrayForDetail.tray_status === "active" ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80" : "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"}>
                       {selectedTrayForDetail.tray_status}
                     </Badge>
                   </div>
@@ -2292,7 +2241,7 @@ const AdhocMode = () => {
                 >
                   {retrievingTrayId === selectedTrayForDetail.tray_id ? "Requesting..." : "Request Tray to Station"}
                 </Button>
-                <Button onClick={() => setShowTrayDetailDialog(false)} variant="outline" className="flex-1">
+                <Button onClick={() => setShowTrayDetailDialog(false)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                   Close
                 </Button>
               </div>
@@ -2300,7 +2249,7 @@ const AdhocMode = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </Scaffold>
   );
 };
 export default AdhocMode;

@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowLeft, Package, RefreshCw, Tag, Layers, CheckCircle2, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import Scaffold from "@/components/Scaffold";
 
 interface OrderItem {
   id: number;
@@ -71,36 +72,20 @@ const OrderDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b-2 border-border shadow-sm sticky top-0 z-10">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => navigate("/sap-orders")}
-              variant="ghost"
-              size="icon"
-              className="text-foreground hover:bg-accent/10"
-            >
-              <ArrowLeft size={24} />
-            </Button>
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="text-primary-foreground" size={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">Order {orderId}</h1>
-          </div>
-          <Button
-            onClick={handleRefresh}
-            variant="ghost"
-            size="icon"
-            className="text-accent hover:bg-accent/10"
-          >
-            <RefreshCw size={24} />
-          </Button>
-        </div>
-      </header>
-
-      {/* Items List */}
+    <Scaffold
+      title={`Order ${orderId}`}
+      showBack
+      onBack={() => navigate("/sap-orders")}
+      icon={<Package className="text-primary-foreground" size={24} />}
+      actions={
+        <Button
+          onClick={handleRefresh}
+          className="h-10 w-10 text-accent hover:bg-accent/10 hover:text-accent-foreground"
+        >
+          <RefreshCw size={24} />
+        </Button>
+      }
+    >
       <ScrollArea className="flex-1">
         <div className="container max-w-2xl mx-auto px-4 py-6 space-y-4">
           {/* Order Summary Card */}
@@ -171,7 +156,7 @@ const OrderDetails = () => {
           {error && (
             <div className="text-center py-12">
               <p className="text-destructive font-semibold">Failed to load items</p>
-              <Button onClick={handleRefresh} variant="outline" className="mt-4">
+              <Button onClick={handleRefresh} className="mt-4 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                 Try Again
               </Button>
             </div>
@@ -268,7 +253,7 @@ const OrderDetails = () => {
           )}
         </div>
       </ScrollArea>
-    </div>
+    </Scaffold>
   );
 };
 
