@@ -349,6 +349,7 @@ const SapReconcile = () => {
     <Scaffold
       title="SAP Reconcile"
       showBack
+      onBack={() => navigate("/home")}
       icon={<FileText className="text-primary-foreground" size={24} />}
       actions={
         <div className="flex gap-2">

@@ -602,7 +602,7 @@ const ReconcileTrays = () => {
                             <Button
                               onClick={() => handleRelease(tray)}
                               disabled={isReleasing || isSubmitting}
-                              className="flex-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                              className="flex-1 h-9 rounded-md px-3 border border-input text-black bg-background hover:bg-accent hover:text-accent-foreground"
                             >
                               {isReleasing ? <RefreshCw className="animate-spin" size={16} /> : "Release"}
                             </Button>

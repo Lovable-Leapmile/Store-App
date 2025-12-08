@@ -586,7 +586,7 @@ const TraysForItem = () => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 pt-2">
-                      <Button onClick={() => handleRelease(tray)} disabled={isSubmitting || !trayOrder || releasingTrayId === tray.tray_id} className="w-full border border-input bg-background hover:bg-accent hover:text-accent-foreground">
+                      <Button onClick={() => handleRelease(tray)} disabled={isSubmitting || !trayOrder || releasingTrayId === tray.tray_id} className="w-full border border-input bg-background text-black hover:bg-accent hover:text-black">
                         🔁 Release
                       </Button>
                       <Button onClick={() => handlePickItem(tray)} disabled={isSubmitting || releasingTrayId === tray.tray_id || currentItem && currentItem.quantity_consumed >= currentItem.quantity} className="w-full">
@@ -702,7 +702,7 @@ const TraysForItem = () => {
 
           <div className="flex items-center justify-center gap-4 py-6">
             <Button
-              className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+              className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
               onClick={() => {
                 const current = typeof quantityToPick === "string" ? 0 : quantityToPick;
                 setQuantityToPick(Math.max(0, current - 1));
@@ -730,7 +730,7 @@ const TraysForItem = () => {
               />
             </div>
             <Button
-              className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+              className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
               onClick={() => {
                 const current = typeof quantityToPick === "string" ? 0 : quantityToPick;
                 const remainingQty = currentItem ? currentItem.quantity - currentItem.quantity_consumed : 0;

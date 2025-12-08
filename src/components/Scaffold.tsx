@@ -77,7 +77,7 @@ const Scaffold = ({
                         {showLogout && (
                             <Button
                                 onClick={handleLogout}
-                                className="h-10 w-10 hover:bg-accent hover:text-accent-foreground text-accent"
+                                className="h-10 w-10 bg-transparent hover:bg-accent hover:text-accent-foreground text-accent"
                             >
                                 <LogOut size={24} />
                             </Button>

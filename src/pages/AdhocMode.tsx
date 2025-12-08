@@ -1150,7 +1150,7 @@ const AdhocMode = () => {
                     <Label className="text-base font-semibold">Filters</Label>
                     <div className="flex gap-2 flex-wrap">
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === null && !showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === null && !showEmptyBins ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(null);
                           setShowEmptyBins(false);
@@ -1160,7 +1160,7 @@ const AdhocMode = () => {
                         All Trays
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 0 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 0 ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(0);
                           setOffset(0);
@@ -1169,7 +1169,7 @@ const AdhocMode = () => {
                         Divider: 0
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 4 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 4 ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(4);
                           setOffset(0);
@@ -1178,7 +1178,7 @@ const AdhocMode = () => {
                         Divider: 4
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 6 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 6 ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(6);
                           setOffset(0);
@@ -1187,7 +1187,7 @@ const AdhocMode = () => {
                         Divider: 6
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${showEmptyBins ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setShowEmptyBins(!showEmptyBins);
                           setOffset(0);
@@ -1222,7 +1222,7 @@ const AdhocMode = () => {
                     <Label className="text-base font-semibold">Filters</Label>
                     <div className="flex gap-2 flex-wrap">
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === null && !showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === null && !showEmptyBins ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(null);
                           setShowEmptyBins(false);
@@ -1232,7 +1232,7 @@ const AdhocMode = () => {
                         All Trays
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 0 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 0 ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(0);
                           setOffset(0);
@@ -1241,7 +1241,7 @@ const AdhocMode = () => {
                         Divider: 0
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 4 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 4 ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(4);
                           setOffset(0);
@@ -1250,7 +1250,7 @@ const AdhocMode = () => {
                         Divider: 4
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 6 ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${trayDividerFilter === 6 ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setTrayDividerFilter(6);
                           setOffset(0);
@@ -1259,7 +1259,7 @@ const AdhocMode = () => {
                         Divider: 6
                       </Button>
                       <Button
-                        className={`h-9 rounded-md px-3 ${showEmptyBins ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"}`}
+                        className={`h-9 rounded-md px-3 ${showEmptyBins ? "bg-primary text-white hover:bg-primary/90" : "border border-input bg-background text-black hover:bg-accent hover:text-black"}`}
                         onClick={() => {
                           setShowEmptyBins(!showEmptyBins);
                           setOffset(0);
@@ -1767,7 +1767,7 @@ const AdhocMode = () => {
       <Dialog open={showTransactionDialog} onOpenChange={setShowTransactionDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
+            <DialogTitle className="text-2xl font-bold text-black">
               {!transactionType
                 ? "Select Transaction Type"
                 : transactionType === "inbound"
@@ -1786,13 +1786,13 @@ const AdhocMode = () => {
               )}
               <Button
                 onClick={() => handleTransactionTypeSelect("inbound")}
-                className="w-full h-20 text-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                className="w-full h-20 text-lg border border-input bg-background text-black hover:bg-accent hover:text-black"
               >
                 Inbound
               </Button>
               <Button
                 onClick={() => handleTransactionTypeSelect("pickup")}
-                className="w-full h-20 text-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                className="w-full h-20 text-lg border border-input bg-background text-black hover:bg-accent hover:text-black"
               >
                 Pickup
               </Button>
@@ -1824,7 +1824,7 @@ const AdhocMode = () => {
                 <Label>Quantity</Label>
                 <div className="flex items-center justify-center gap-4">
                   <Button
-                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                    className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(Math.max(0, current - 1));
@@ -1850,7 +1850,7 @@ const AdhocMode = () => {
                     }}
                   />
                   <Button
-                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                    className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(current + 1);
@@ -1872,7 +1872,7 @@ const AdhocMode = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={() => setTransactionType(null)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
+                <Button onClick={() => setTransactionType(null)} className="flex-1 border border-input bg-background text-black hover:bg-accent hover:text-black">
                   Back
                 </Button>
                 <Button onClick={handleSubmitInboundTransaction} className="flex-1">
@@ -1931,7 +1931,7 @@ const AdhocMode = () => {
                     <Label>Quantity to Pick</Label>
                     <div className="flex items-center justify-center gap-4">
                       <Button
-                        className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                        className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
                         onClick={() => {
                           const current = typeof quantity === "string" ? 0 : quantity;
                           setQuantity(Math.max(0, current - 1));
@@ -1957,7 +1957,7 @@ const AdhocMode = () => {
                         }}
                       />
                       <Button
-                        className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                        className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
                         onClick={() => {
                           const current = typeof quantity === "string" ? 0 : quantity;
                           setQuantity(current + 1);
@@ -1981,7 +1981,7 @@ const AdhocMode = () => {
               )}
 
               <div className="flex gap-2">
-                <Button onClick={() => setTransactionType(null)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
+                <Button onClick={() => setTransactionType(null)} className="flex-1 border border-input bg-background text-black hover:bg-accent hover:text-black">
                   Back
                 </Button>
                 <Button onClick={handleSubmitPickupTransaction} disabled={!selectedProductForPickup} className="flex-1">
@@ -2017,7 +2017,7 @@ const AdhocMode = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={() => setShowTimeDialog(false)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
+              <Button onClick={() => setShowTimeDialog(false)} className="flex-1 border border-input bg-background text-black hover:bg-accent hover:text-black">
                 Cancel
               </Button>
               <Button onClick={handleConfirmRequestTray} className="flex-1">
@@ -2060,7 +2060,7 @@ const AdhocMode = () => {
                 <Label>Quantity</Label>
                 <div className="flex items-center justify-center gap-4">
                   <Button
-                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                    className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(Math.max(0, current - 1));
@@ -2086,7 +2086,7 @@ const AdhocMode = () => {
                     }}
                   />
                   <Button
-                    className="h-10 w-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                    className="h-10 w-10 border border-input bg-background text-black hover:bg-accent hover:text-black"
                     onClick={() => {
                       const current = typeof quantity === "string" ? 0 : quantity;
                       setQuantity(current + 1);
@@ -2241,7 +2241,7 @@ const AdhocMode = () => {
                 >
                   {retrievingTrayId === selectedTrayForDetail.tray_id ? "Requesting..." : "Request Tray to Station"}
                 </Button>
-                <Button onClick={() => setShowTrayDetailDialog(false)} className="flex-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
+                <Button onClick={() => setShowTrayDetailDialog(false)} className="flex-1 border border-input bg-background text-black hover:bg-accent hover:text-black">
                   Close
                 </Button>
               </div>
