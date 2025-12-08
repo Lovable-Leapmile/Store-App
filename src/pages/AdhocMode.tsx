@@ -37,7 +37,7 @@ interface Order {
   auto_complete_time?: number;
 }
 
-const BASE_URL = "https://robotmanagerv1test.qikpod.com";
+const BASE_URL = "https://amsstores1.leapmile.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("item");
@@ -1398,7 +1398,7 @@ const AdhocMode = () => {
                       <Button
                         onClick={() => setOffset(Math.max(0, offset - 10))}
                         disabled={offset === 0}
-                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background text-black hover:bg-accent hover:text-accent-foreground"
                       >
                         <ChevronLeft size={16} />
                         Previous
@@ -1414,7 +1414,7 @@ const AdhocMode = () => {
                       <Button
                         onClick={() => setOffset(offset + 10)}
                         disabled={allTrays.length < 10}
-                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent text-black hover:text-accent-foreground"
                       >
                         Next
                         <ChevronRight size={16} />
@@ -1642,7 +1642,7 @@ const AdhocMode = () => {
                           setStorageOffset(Math.max(0, storageOffset - 10));
                         }}
                         disabled={storageOffset === 0}
-                        className="gap-1 h-9 rounded-md px-3 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                        className="gap-1 h-9 rounded-md px-3 border border-input  bg-background hover:bg-accent  hover:text-accent-foreground"
                       >
                         <ChevronLeft size={16} />
                         Previous
@@ -1750,7 +1750,7 @@ const AdhocMode = () => {
                         <Badge className="text-xs border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
                           User: {order.user_id}
                         </Badge>
-                        <Badge className="text-xs text-foreground">
+                        <Badge className="text-xs text-white">
                           Station: {order.station_id}
                         </Badge>
                       </div>
