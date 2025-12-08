@@ -49,7 +49,7 @@ const Home = () => {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await fetch("https://testhostsushil.leapmile.com/nanostore/sap_orders/upload_file", {
+      const response = await fetch("https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/upload_file", {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -151,7 +151,7 @@ const Home = () => {
       for (const item of mappedData) {
         try {
           const response = await fetch(
-            `https://testhostsushil.leapmile.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`,
+            `https://robotmanagerv1test.qikpod.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`,
             {
               method: "POST",
               headers: {

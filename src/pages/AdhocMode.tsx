@@ -36,7 +36,7 @@ interface Order {
   auto_complete_time?: number;
 }
 
-const BASE_URL = "https://testhostsushil.leapmile.com";
+const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("item");
@@ -51,7 +51,7 @@ const AdhocMode = () => {
   const [selectedItem, setSelectedItem] = useState<TrayItem | null>(null);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [transactionItemId, setTransactionItemId] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState<number | string>(0);
   const [transactionDate, setTransactionDate] = useState(new Date().toISOString().split("T")[0]);
   const [showPutawayDialog, setShowPutawayDialog] = useState(false);
   const [trayDividerFilter, setTrayDividerFilter] = useState<number | null>(null);
@@ -293,7 +293,7 @@ const AdhocMode = () => {
   const handleSelectOrder = async (order: Order) => {
     setSelectedOrder(order);
     setTransactionItemId("");
-    setQuantity(1);
+    setQuantity(0);
     setSelectedProductForPickup(null);
     setTrayItemsForPickup([]);
 
@@ -950,7 +950,7 @@ const AdhocMode = () => {
       setSelectedItem(null);
       setOrderId(null);
       setTransactionItemId("");
-      setQuantity(1);
+      setQuantity(0);
 
       // Refresh the items based on active tab
       if (activeTab === "tray") {
@@ -1871,13 +1871,38 @@ const AdhocMode = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
+                    onClick={() => {
+                      const current = typeof quantity === "string" ? 0 : quantity;
+                      setQuantity(Math.max(0, current - 1));
+                    }}
+                    disabled={typeof quantity === "number" && quantity <= 0}
                   >
                     <Minus size={20} />
                   </Button>
-                  <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
-                  <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                  <Input
+                    type="number"
+                    className="w-24 text-center text-xl font-bold"
+                    value={quantity}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "") {
+                        setQuantity("");
+                      } else {
+                        const numVal = parseInt(val);
+                        if (!isNaN(numVal) && numVal >= 0) {
+                          setQuantity(numVal);
+                        }
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      const current = typeof quantity === "string" ? 0 : quantity;
+                      setQuantity(current + 1);
+                    }}
+                  >
                     <Plus size={20} />
                   </Button>
                 </div>
@@ -1913,6 +1938,15 @@ const AdhocMode = () => {
 
               <div className="space-y-2">
                 <Label>Select Product</Label>
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="pickup-item-id">Or Enter Item ID Manually</Label>
+                  <Input
+                    id="pickup-item-id"
+                    placeholder="Enter item ID"
+                    value={selectedProductForPickup || ""}
+                    onChange={(e) => setSelectedProductForPickup(e.target.value)}
+                  />
+                </div>
                 {trayItemsForPickup.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">No items found in this tray</div>
                 ) : (
@@ -1946,13 +1980,38 @@ const AdhocMode = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        disabled={quantity <= 1}
+                        onClick={() => {
+                          const current = typeof quantity === "string" ? 0 : quantity;
+                          setQuantity(Math.max(0, current - 1));
+                        }}
+                        disabled={typeof quantity === "number" && quantity <= 0}
                       >
                         <Minus size={20} />
                       </Button>
-                      <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
-                      <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                      <Input
+                        type="number"
+                        className="w-24 text-center text-xl font-bold"
+                        value={quantity}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === "") {
+                            setQuantity("");
+                          } else {
+                            const numVal = parseInt(val);
+                            if (!isNaN(numVal) && numVal >= 0) {
+                              setQuantity(numVal);
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          const current = typeof quantity === "string" ? 0 : quantity;
+                          setQuantity(current + 1);
+                        }}
+                      >
                         <Plus size={20} />
                       </Button>
                     </div>
@@ -2052,13 +2111,38 @@ const AdhocMode = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
+                    onClick={() => {
+                      const current = typeof quantity === "string" ? 0 : quantity;
+                      setQuantity(Math.max(0, current - 1));
+                    }}
+                    disabled={typeof quantity === "number" && quantity <= 0}
                   >
                     <Minus size={20} />
                   </Button>
-                  <div className="text-3xl font-bold w-20 text-center">{quantity}</div>
-                  <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
+                  <Input
+                    type="number"
+                    className="w-24 text-center text-xl font-bold"
+                    value={quantity}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "") {
+                        setQuantity("");
+                      } else {
+                        const numVal = parseInt(val);
+                        if (!isNaN(numVal) && numVal >= 0) {
+                          setQuantity(numVal);
+                        }
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      const current = typeof quantity === "string" ? 0 : quantity;
+                      setQuantity(current + 1);
+                    }}
+                  >
                     <Plus size={20} />
                   </Button>
                 </div>

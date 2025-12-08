@@ -4,7 +4,7 @@ export const updateOrderBeforeTransaction = async (
     token: string
 ) => {
     const response = await fetch(
-        `https://testhostsushil.leapmile.com/nanostore/orders?record_id=${orderId}`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders?record_id=${orderId}`,
         {
             method: "PATCH",
             headers: {

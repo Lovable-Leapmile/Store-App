@@ -43,9 +43,9 @@ interface TrayOrder {
 
 const fetchItemDetails = async (material: string): Promise<ItemDetails | null> => {
   const authToken = localStorage.getItem('authToken');
-  
+
   const response = await fetch(
-    `https://testhostsushil.leapmile.com/nanostore/sap_reconcile/report?material=${material}&num_records=100&offset=0`,
+    `https://robotmanagerv1test.qikpod.com/nanostore/sap_reconcile/report?material=${material}&num_records=100&offset=0`,
     {
       headers: {
         accept: "application/json",
@@ -64,9 +64,9 @@ const fetchItemDetails = async (material: string): Promise<ItemDetails | null> =
 
 const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> => {
   const authToken = localStorage.getItem('authToken');
-  
+
   const response = await fetch(
-    `https://testhostsushil.leapmile.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`,
+    `https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`,
     {
       headers: {
         accept: "application/json",
@@ -85,9 +85,9 @@ const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> =
 
 const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
   const authToken = localStorage.getItem('authToken');
-  
+
   const response = await fetch(
-    `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
+    `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
     {
       headers: {
         accept: "application/json",
@@ -108,7 +108,7 @@ const ReconcileTrays = () => {
   const { material } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const [selectedTray, setSelectedTray] = useState<Tray | null>(null);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [quantityToPick, setQuantityToPick] = useState(0);
@@ -144,14 +144,14 @@ const ReconcileTrays = () => {
       const trays = await fetchTrays(material || "", true);
       const orderPromises = trays.map(tray => fetchTrayOrder(tray.tray_id));
       const orders = await Promise.all(orderPromises);
-      
+
       const ordersMap = new Map<string, TrayOrder>();
       orders.forEach((order, index) => {
         if (order) {
           ordersMap.set(trays[index].tray_id, order);
         }
       });
-      
+
       return { trays, ordersMap };
     },
     enabled: !!material,
@@ -181,7 +181,7 @@ const ReconcileTrays = () => {
 
     try {
       const checkResponse = await fetch(
-        `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`,
         {
           headers: {
             accept: "application/json",
@@ -199,7 +199,7 @@ const ReconcileTrays = () => {
         });
       } else {
         const createResponse = await fetch(
-          `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
+          `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
           {
             method: "POST",
             headers: {
@@ -257,7 +257,7 @@ const ReconcileTrays = () => {
     const authToken = localStorage.getItem('authToken');
     try {
       const checkResponse = await fetch(
-        `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${selectedTray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${selectedTray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
         {
           headers: {
             accept: "application/json",
@@ -278,7 +278,7 @@ const ReconcileTrays = () => {
       }
 
       const createResponse = await fetch(
-        `https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${selectedTray.tray_id}&user_id=1&auto_complete_time=10`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${selectedTray.tray_id}&user_id=1&auto_complete_time=10`,
         {
           method: "POST",
           headers: {
@@ -332,7 +332,7 @@ const ReconcileTrays = () => {
       if (actionType === 'inbound') {
         const currentDate = new Date().toISOString().split('T')[0];
         const response = await fetch(
-          `https://testhostsushil.leapmile.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=${quantityToPick}&transaction_type=admin&transaction_date=${currentDate}&comment=SAP%20Reconcile%20Inbound`,
+          `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=${quantityToPick}&transaction_type=admin&transaction_date=${currentDate}&comment=SAP%20Reconcile%20Inbound`,
           {
             method: "POST",
             headers: {
@@ -353,7 +353,7 @@ const ReconcileTrays = () => {
         });
       } else {
         const response = await fetch(
-          `https://testhostsushil.leapmile.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=-${quantityToPick}&transaction_type=admin&transaction_date=${selectedTray.inbound_date}&comment=SAP%20Reconcile%20Pickup`,
+          `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=-${quantityToPick}&transaction_type=admin&transaction_date=${selectedTray.inbound_date}&comment=SAP%20Reconcile%20Pickup`,
           {
             method: "POST",
             headers: {
@@ -410,7 +410,7 @@ const ReconcileTrays = () => {
 
     try {
       const response = await fetch(
-        `https://testhostsushil.leapmile.com/nanostore/orders/complete?record_id=${existingOrder.id}`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${existingOrder.id}`,
         {
           method: "PATCH",
           headers: {
@@ -452,7 +452,7 @@ const ReconcileTrays = () => {
 
     try {
       const response = await fetch(
-        `https://testhostsushil.leapmile.com/nanostore/orders/complete?record_id=${orderId}`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${orderId}`,
         {
           method: "PATCH",
           headers: {
@@ -544,11 +544,10 @@ const ReconcileTrays = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Status</p>
-                <p className={`text-lg font-bold capitalize ${
-                  itemDetails.reconcile_status === 'sap_shortage' ? 'text-orange-600 dark:text-orange-400' :
-                  itemDetails.reconcile_status === 'robot_shortage' ? 'text-amber-600 dark:text-amber-400' :
-                  'text-green-600 dark:text-green-400'
-                }`}>
+                <p className={`text-lg font-bold capitalize ${itemDetails.reconcile_status === 'sap_shortage' ? 'text-orange-600 dark:text-orange-400' :
+                    itemDetails.reconcile_status === 'robot_shortage' ? 'text-amber-600 dark:text-amber-400' :
+                      'text-green-600 dark:text-green-400'
+                  }`}>
                   {itemDetails.reconcile_status.replace('_', ' ')}
                 </p>
               </div>
@@ -601,7 +600,7 @@ const ReconcileTrays = () => {
                               </div>
                             )}
                           </div>
-                          
+
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
                               <p className="text-muted-foreground">Quantity</p>
@@ -660,7 +659,7 @@ const ReconcileTrays = () => {
                     const isRetrieving = retrievingTrayId === tray.tray_id;
 
                     return (
-                       <Card
+                      <Card
                         key={tray.id}
                         className="p-5 bg-card border border-border hover:shadow-md transition-all"
                       >
@@ -669,7 +668,7 @@ const ReconcileTrays = () => {
                             <p className="text-xs text-muted-foreground mb-1">Tray ID</p>
                             <p className="text-xl font-bold text-foreground">{tray.tray_id}</p>
                           </div>
-                          
+
                           <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
                             <div>
                               <p className="text-xs text-muted-foreground mb-1">Quantity</p>

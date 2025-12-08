@@ -43,7 +43,7 @@ interface Transaction {
   created_at: string;
 }
 const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> => {
-  const response = await fetch(`https://testhostsushil.leapmile.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`, {
+  const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`, {
     headers: {
       accept: "application/json",
       Authorization: `Bearer ${localStorage.getItem("authToken")}`
@@ -57,7 +57,7 @@ const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> =
 };
 const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
   const userId = localStorage.getItem("userId") || "1";
-  const response = await fetch(`https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC`, {
+  const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=${userId}&order_by_field=updated_at&order_by_type=ASC`, {
     headers: {
       accept: "application/json",
       Authorization: `Bearer ${localStorage.getItem("authToken")}`
@@ -70,7 +70,7 @@ const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
   return data.records && data.records.length > 0 ? data.records[0] : null;
 };
 const fetchSapOrderItem = async (orderRef: string, material: string): Promise<SapOrderItem | null> => {
-  const response = await fetch(`https://testhostsushil.leapmile.com/nanostore/sap_orders/?order_ref=${orderRef}&material=${material}&order_by_field=updated_at&order_by_type=DESC`, {
+  const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/?order_ref=${orderRef}&material=${material}&order_by_field=updated_at&order_by_type=DESC`, {
     headers: {
       accept: "application/json",
       Authorization: `Bearer ${localStorage.getItem("authToken")}`
@@ -83,7 +83,7 @@ const fetchSapOrderItem = async (orderRef: string, material: string): Promise<Sa
   return data.records && data.records.length > 0 ? data.records[0] : null;
 };
 const fetchTransactions = async (orderRef: string, itemId: string): Promise<Transaction[]> => {
-  const response = await fetch(`https://testhostsushil.leapmile.com/nanostore/transactions?order_ref=${orderRef}&item_id=${itemId}&order_by_field=updated_at&order_by_type=DESC`, {
+  const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/transactions?order_ref=${orderRef}&item_id=${itemId}&order_by_field=updated_at&order_by_type=DESC`, {
     headers: {
       accept: "application/json",
       Authorization: `Bearer ${localStorage.getItem("authToken")}`
@@ -104,7 +104,7 @@ const TraysForItem = () => {
   const queryClient = useQueryClient();
   const [selectedTray, setSelectedTray] = useState<Tray | null>(null);
   const [orderId_internal, setOrderIdInternal] = useState<number | null>(null);
-  const [quantityToPick, setQuantityToPick] = useState(0);
+  const [quantityToPick, setQuantityToPick] = useState<number | string>(0);
   const [isPickingDialogOpen, setIsPickingDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [releasingTrayId, setReleasingTrayId] = useState<string | null>(null);
@@ -201,7 +201,7 @@ const TraysForItem = () => {
   const handleRetrieveTray = async (tray: Tray) => {
     setRetrievingTrayId(tray.tray_id);
     try {
-      const checkResponse = await fetch(`https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`, {
+      const checkResponse = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`, {
         headers: {
           accept: "application/json",
           Authorization: `Bearer ${localStorage.getItem("authToken")}`
@@ -214,7 +214,7 @@ const TraysForItem = () => {
           description: `Tray ${tray.tray_id} is ready`
         });
       } else {
-        const createResponse = await fetch(`https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`, {
+        const createResponse = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`, {
           method: "POST",
           headers: {
             accept: "application/json",
@@ -255,7 +255,7 @@ const TraysForItem = () => {
       setIsPickingDialogOpen(true);
     } else {
       try {
-        const checkResponse = await fetch(`https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`, {
+        const checkResponse = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`, {
           headers: {
             accept: "application/json",
             Authorization: `Bearer ${localStorage.getItem("authToken")}`
@@ -271,7 +271,7 @@ const TraysForItem = () => {
           return;
         }
         const user_Id = localStorage.getItem("userId") || "1";
-        const createResponse = await fetch(`https://testhostsushil.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=${user_Id}&auto_complete_time=10`, {
+        const createResponse = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=${user_Id}&auto_complete_time=10`, {
           method: "POST",
           headers: {
             accept: "application/json",
@@ -303,7 +303,8 @@ const TraysForItem = () => {
   };
   const handleSubmit = async () => {
     if (!selectedTray || !orderId_internal || !currentItem || !itemId) return;
-    if (quantityToPick <= 0) {
+    const qty = typeof quantityToPick === "string" ? parseInt(quantityToPick) || 0 : quantityToPick;
+    if (qty <= 0) {
       toast({
         title: "Invalid Quantity",
         description: "Please enter a quantity greater than 0",
@@ -311,7 +312,7 @@ const TraysForItem = () => {
       });
       return;
     }
-    if (quantityToPick > selectedTray.available_quantity) {
+    if (qty > selectedTray.available_quantity) {
       toast({
         title: "Quantity Exceeds Available",
         description: `Only ${selectedTray.available_quantity} items available`,
@@ -320,7 +321,7 @@ const TraysForItem = () => {
       return;
     }
     const remainingQty = currentItem.quantity - currentItem.quantity_consumed;
-    if (quantityToPick > remainingQty) {
+    if (qty > remainingQty) {
       toast({
         title: "Quantity Exceeds Order Requirement",
         description: `Only ${remainingQty} items needed for this order`,
@@ -330,7 +331,7 @@ const TraysForItem = () => {
     }
     setIsSubmitting(true);
     try {
-      const response = await fetch(`https://testhostsushil.leapmile.com/nanostore/transaction?order_id=${orderId_internal}&item_id=${itemId}&transaction_item_quantity=-${quantityToPick}&transaction_type=outbound&transaction_date=${selectedTray.inbound_date}&sap_order_reference=${currentItem.id}`, {
+      const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${orderId_internal}&item_id=${itemId}&transaction_item_quantity=-${qty}&transaction_type=outbound&transaction_date=${selectedTray.inbound_date}&sap_order_reference=${currentItem.id}`, {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -382,7 +383,7 @@ const TraysForItem = () => {
     setIsSubmitting(true);
     setReleasingTrayId(tray.tray_id);
     try {
-      const response = await fetch(`https://testhostsushil.leapmile.com/nanostore/orders/complete?record_id=${existingOrder.id}`, {
+      const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${existingOrder.id}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -418,7 +419,7 @@ const TraysForItem = () => {
     if (!orderId_internal) return;
     setIsSubmitting(true);
     try {
-      const response = await fetch(`https://testhostsushil.leapmile.com/nanostore/orders/complete?record_id=${orderId_internal}`, {
+      const response = await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${orderId_internal}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -699,15 +700,52 @@ const TraysForItem = () => {
         </DialogHeader>
 
         <div className="flex items-center justify-center gap-4 py-6">
-          <Button variant="outline" size="icon" onClick={() => setQuantityToPick(Math.max(1, quantityToPick - 1))} disabled={quantityToPick <= 1}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              const current = typeof quantityToPick === "string" ? 0 : quantityToPick;
+              setQuantityToPick(Math.max(0, current - 1));
+            }}
+            disabled={typeof quantityToPick === "number" && quantityToPick <= 0}
+          >
             <Minus size={20} />
           </Button>
-          <div className="text-4xl font-bold text-primary w-20 text-center">{quantityToPick}</div>
-          <Button variant="outline" size="icon" onClick={() => {
-            const remainingQty = currentItem ? currentItem.quantity - currentItem.quantity_consumed : 0;
-            const maxQty = Math.min(selectedTray?.available_quantity || 1, remainingQty);
-            setQuantityToPick(Math.min(maxQty, quantityToPick + 1));
-          }} disabled={quantityToPick >= Math.min(selectedTray?.available_quantity || 1, currentItem ? currentItem.quantity - currentItem.quantity_consumed : 1)}>
+          <div className="w-24">
+            <input
+              type="number"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-center text-xl font-bold"
+              value={quantityToPick}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "") {
+                  setQuantityToPick("");
+                } else {
+                  const numVal = parseInt(val);
+                  if (!isNaN(numVal) && numVal >= 0) {
+                    setQuantityToPick(numVal);
+                  }
+                }
+              }}
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              const current = typeof quantityToPick === "string" ? 0 : quantityToPick;
+              const remainingQty = currentItem ? currentItem.quantity - currentItem.quantity_consumed : 0;
+              const maxQty = Math.min(selectedTray?.available_quantity || 1, remainingQty);
+              setQuantityToPick(Math.min(maxQty, current + 1));
+            }}
+            disabled={
+              (typeof quantityToPick === "number" ? quantityToPick : 0) >=
+              Math.min(
+                selectedTray?.available_quantity || 1,
+                currentItem ? currentItem.quantity - currentItem.quantity_consumed : 1,
+              )
+            }
+          >
             <Plus size={20} />
           </Button>
         </div>
