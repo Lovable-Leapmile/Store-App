@@ -1859,7 +1859,7 @@ const AdhocMode = () => {
                   value={transactionItemId}
                   onChange={(e) => setTransactionItemId(e.target.value)}
                 />
-                <Button variant="outline" className="w-full" onClick={handleScanItemId}>
+                <Button className="w-full bg-[#378a84] text-white hover:bg-[#378a84]/90" onClick={handleScanItemId}>
                   <Scan className="mr-2" size={20} />
                   Scan Product
                 </Button>
@@ -2099,8 +2099,8 @@ const AdhocMode = () => {
                   value={transactionItemId}
                   onChange={(e) => setTransactionItemId(e.target.value)}
                 />
-                <Button variant="outline" className="w-full" onClick={handleScanItemId}>
-                  <Scan className="mr-2" size={20} />
+                <Button className="w-full bg-[#378a84] text-white hover:bg-[#378a84]/90" onClick={handleScanItemId}>
+                  <Scan className="mr-2 " size={20} />
                   Scan Product
                 </Button>
               </div>
