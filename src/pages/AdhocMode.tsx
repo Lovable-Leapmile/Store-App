@@ -1436,12 +1436,12 @@ const AdhocMode = () => {
                 {(activeTab === "tray" ? stationItems : itemStationItems).length > 0 && (
                   <div className="flex items-center gap-2">
                     {activeTab === "tray" && (
-                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                      <Badge className="text-sm py-1 px-2.5 text-white">
                         Tray: {stationItems[0].tray_id}
                       </Badge>
                     )}
                     {activeTab === "item" && (
-                      <Badge className="text-sm py-1 px-2.5 text-foreground">
+                      <Badge className="text-sm py-1 px-2.5 text-white">
                         Item: {itemStationItems[0].item_id}
                       </Badge>
                     )}
@@ -1508,7 +1508,7 @@ const AdhocMode = () => {
                         <div className="grid grid-cols-2 gap-3">
                           <Button
                             onClick={() => handleReleaseTray(item.tray_id)}
-                            className="h-12 text-base font-semibold border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                            className="h-12 text-base font-semibold border border-input bg-background text-black hover:bg-accent hover:text-black"
                             disabled={item.tray_lockcount === 0}
                           >
                             Release
@@ -1700,7 +1700,7 @@ const AdhocMode = () => {
                           <Button
                             onClick={() => handleReleaseOrder(order.id)}
                             disabled={releasingOrderId === order.id}
-                            className="h-9 rounded-md px-3 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="h-9 rounded-md px-3  border border-input bg-destructive text-white hover:bg-destructive/90"
                           >
                             {releasingOrderId === order.id ? "Releasing..." : "Release"}
                           </Button>
@@ -1713,7 +1713,7 @@ const AdhocMode = () => {
                         <Badge className="text-xs border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
                           User: {order.user_id}
                         </Badge>
-                        <Badge className="text-xs text-foreground">
+                        <Badge className="text-xs text-white">
                           Station: {order.station_id}
                         </Badge>
                       </div>
