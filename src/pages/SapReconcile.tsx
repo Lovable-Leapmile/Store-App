@@ -352,7 +352,7 @@ const SapReconcile = () => {
       icon={<FileText className="text-primary-foreground" size={24} />}
       actions={
         <div className="flex gap-2">
-          <Button onClick={handleRefresh} className="h-10 w-10 text-accent hover:bg-accent/10">
+          <Button onClick={handleRefresh} className="h-10 w-10 bg-transparent text-accent hover:bg-accent/10">
             <RefreshCw size={24} />
           </Button>
         </div>
@@ -383,7 +383,7 @@ const SapReconcile = () => {
                   <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
                   <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                   <p className="text-sm text-muted-foreground mb-2">or</p>
-                  <Button className="border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => fileInputRef.current?.click()}>
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => fileInputRef.current?.click()}>
                     Browse Files
                   </Button>
                   <input

@@ -80,7 +80,7 @@ const OrderDetails = () => {
       actions={
         <Button
           onClick={handleRefresh}
-          className="h-10 w-10 text-accent hover:bg-accent/10 hover:text-accent-foreground"
+          className="h-10 w-10 bg-transparent text-accent hover:bg-accent/10 hover:text-accent-foreground"
         >
           <RefreshCw size={24} />
         </Button>

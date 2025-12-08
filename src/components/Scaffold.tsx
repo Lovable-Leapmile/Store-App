@@ -56,7 +56,7 @@ const Scaffold = ({
                         {showBack && (
                             <Button
                                 onClick={handleBack}
-                                className="h-10 w-10 hover:bg-accent hover:text-accent-foreground text-foreground"
+                                className="h-10 w-10 bg-transparent hover:bg-accent hover:text-accent-foreground text-foreground"
                             >
                                 <ArrowLeft size={24} />
                             </Button>

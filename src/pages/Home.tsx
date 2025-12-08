@@ -315,7 +315,7 @@ const Home = () => {
                   <Upload className="mx-auto mb-4 text-muted-foreground" size={48} />
                   <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                   <p className="text-sm text-muted-foreground mb-2">or</p>
-                  <Button className="border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => fileInputRef.current?.click()}>
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => fileInputRef.current?.click()}>
                     Browse Files
                   </Button>
                   <input
@@ -385,7 +385,7 @@ const Home = () => {
                       <Database className="mx-auto mb-4 text-muted-foreground" size={48} />
                       <p className="text-sm text-muted-foreground mb-2">Drag and drop a Excel file here</p>
                       <p className="text-sm text-muted-foreground mb-2"> or</p>
-                      <Button className="border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => itemCatalogInputRef.current?.click()}>
+                      <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => itemCatalogInputRef.current?.click()}>
                         Browse Files
                       </Button>
                       <input

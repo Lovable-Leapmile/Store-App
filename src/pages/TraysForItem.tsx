@@ -470,7 +470,7 @@ const TraysForItem = () => {
       actions={
         <Button
           onClick={handleRefresh}
-          className="h-10 w-10 text-accent hover:bg-accent/10"
+          className="h-10 w-10 bg-transparent text-accent hover:bg-accent/10"
         >
           <RefreshCw size={24} />
         </Button>
