@@ -1716,7 +1716,7 @@ const AdhocMode = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <p className="font-bold text-lg">{order.tray_id}</p>
-                          <p className="text-sm text-muted-foreground">{order.station_friendly_name}</p>
+                          <p className="text-sm text-muted-foreground">{order.station_id}</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <Button
@@ -1736,7 +1736,7 @@ const AdhocMode = () => {
                           User: {order.user_id}
                         </Badge>
                         <Badge className="text-xs text-white">
-                          Station: {order.station_id}
+                          Station: {order.station_friendly_name}
                         </Badge>
                       </div>
                     </div>
