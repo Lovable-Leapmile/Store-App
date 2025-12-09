@@ -20,7 +20,7 @@ const fetchSapOrders = async (): Promise<SapOrder[]> => {
   const authToken = localStorage.getItem('authToken');
 
   const response = await fetch(
-    "https://robotmanagerv1test.qikpod.com/nanostore/sap_orders/get_unique_sap_orders?order_status=active",
+    "https://amsstores1.leapmile.com/nanostore/sap_orders/get_unique_sap_orders?order_status=active",
     {
       headers: {
         accept: "application/json",

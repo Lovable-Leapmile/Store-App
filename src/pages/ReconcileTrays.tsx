@@ -46,7 +46,7 @@ const fetchItemDetails = async (material: string): Promise<ItemDetails | null> =
   const authToken = localStorage.getItem('authToken');
 
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/sap_reconcile/report?material=${material}&num_records=100&offset=0`,
+    `https://amsstores1.leapmile.com/nanostore/sap_reconcile/report?material=${material}&num_records=100&offset=0`,
     {
       headers: {
         accept: "application/json",
@@ -67,7 +67,7 @@ const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> =
   const authToken = localStorage.getItem('authToken');
 
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`,
+    `https://amsstores1.leapmile.com/nanostore/trays_for_order?in_station=${inStation}&item_id=${itemId}&like=false&num_records=10&offset=0&order_flow=fifo`,
     {
       headers: {
         accept: "application/json",
@@ -88,7 +88,7 @@ const fetchTrayOrder = async (trayId: string): Promise<TrayOrder | null> => {
   const authToken = localStorage.getItem('authToken');
 
   const response = await fetch(
-    `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
+    `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${trayId}&tray_status=tray_ready_to_use&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
     {
       headers: {
         accept: "application/json",
@@ -182,7 +182,7 @@ const ReconcileTrays = () => {
 
     try {
       const checkResponse = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`,
+        `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&tray_status=tray_ready_to_use&order_by_field=updated_at&order_by_type=ASC`,
         {
           headers: {
             accept: "application/json",
@@ -200,7 +200,7 @@ const ReconcileTrays = () => {
         });
       } else {
         const createResponse = await fetch(
-          `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
+          `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${tray.tray_id}&user_id=1&auto_complete_time=10`,
           {
             method: "POST",
             headers: {
@@ -258,7 +258,7 @@ const ReconcileTrays = () => {
     const authToken = localStorage.getItem('authToken');
     try {
       const checkResponse = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${selectedTray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
+        `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${selectedTray.tray_id}&tray_status=tray_ready_to_use&status=active&order_by_field=updated_at&order_by_type=DESC`,
         {
           headers: {
             accept: "application/json",
@@ -279,7 +279,7 @@ const ReconcileTrays = () => {
       }
 
       const createResponse = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${selectedTray.tray_id}&user_id=1&auto_complete_time=10`,
+        `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${selectedTray.tray_id}&user_id=1&auto_complete_time=10`,
         {
           method: "POST",
           headers: {
@@ -333,7 +333,7 @@ const ReconcileTrays = () => {
       if (actionType === 'inbound') {
         const currentDate = new Date().toISOString().split('T')[0];
         const response = await fetch(
-          `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=${quantityToPick}&transaction_type=admin&transaction_date=${currentDate}&comment=SAP%20Reconcile%20Inbound`,
+          `https://amsstores1.leapmile.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=${quantityToPick}&transaction_type=admin&transaction_date=${currentDate}&comment=SAP%20Reconcile%20Inbound`,
           {
             method: "POST",
             headers: {
@@ -354,7 +354,7 @@ const ReconcileTrays = () => {
         });
       } else {
         const response = await fetch(
-          `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=-${quantityToPick}&transaction_type=admin&transaction_date=${selectedTray.inbound_date}&comment=SAP%20Reconcile%20Pickup`,
+          `https://amsstores1.leapmile.com/nanostore/transaction?order_id=${orderId}&item_id=${material}&transaction_item_quantity=-${quantityToPick}&transaction_type=admin&transaction_date=${selectedTray.inbound_date}&comment=SAP%20Reconcile%20Pickup`,
           {
             method: "POST",
             headers: {
@@ -411,7 +411,7 @@ const ReconcileTrays = () => {
 
     try {
       const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${existingOrder.id}`,
+        `https://amsstores1.leapmile.com/nanostore/orders/complete?record_id=${existingOrder.id}`,
         {
           method: "PATCH",
           headers: {
@@ -453,7 +453,7 @@ const ReconcileTrays = () => {
 
     try {
       const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${orderId}`,
+        `https://amsstores1.leapmile.com/nanostore/orders/complete?record_id=${orderId}`,
         {
           method: "PATCH",
           headers: {
