@@ -17,12 +17,15 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+import BackButtonHandler from "./components/BackButtonHandler";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <BackButtonHandler />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
