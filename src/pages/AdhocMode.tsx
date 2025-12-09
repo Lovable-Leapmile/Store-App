@@ -37,7 +37,7 @@ interface Order {
   auto_complete_time?: number;
 }
 
-const BASE_URL = "https://robotmanagerv1test.qikpod.com";
+const BASE_URL = "https://amsstores1.leapmile.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("item");
@@ -84,6 +84,12 @@ const AdhocMode = () => {
   const [lastTransactionType, setLastTransactionType] = useState<"inbound" | "pickup">("inbound");
   const [showTrayDetailDialog, setShowTrayDetailDialog] = useState(false);
   const [selectedTrayForDetail, setSelectedTrayForDetail] = useState<TrayItem | null>(null);
+
+  // New state for inbound scan fields
+  const [productVendor, setProductVendor] = useState("");
+  const [sourceLocation, setSourceLocation] = useState("");
+  const [receiveDate, setReceiveDate] = useState("");
+  const [facilityId, setFacilityId] = useState("");
 
   // Auto-search for tray on input change with debounce
   useEffect(() => {
@@ -470,6 +476,13 @@ const AdhocMode = () => {
       setShowTransactionDialog(false);
       setSelectedOrder(null);
       setTransactionType(null);
+
+      // Reset new fields
+      setProductVendor("");
+      setSourceLocation("");
+      setReceiveDate("");
+      setFacilityId("");
+
       await fetchReadyOrders();
     } catch (error) {
       toast({
@@ -1001,6 +1014,12 @@ const AdhocMode = () => {
         setTransactionItemId(record.product_id);
         setQuantity(record.product_quantity);
 
+        // Populate new fields
+        setProductVendor(record.product_vendor || "");
+        setSourceLocation(record.source_location || "");
+        setReceiveDate(record.receive_date || "");
+        setFacilityId(record.facility_id || "");
+
         toast({
           title: "Barcode Scanned",
           description: `Product: ${record.product_id}, Qty: ${record.product_quantity}`,
@@ -1032,6 +1051,9 @@ const AdhocMode = () => {
                 aspectRatio: 1.0,
                 rememberLastUsedCamera: true,
                 showTorchButtonIfSupported: true,
+                videoConstraints: {
+                  facingMode: "environment"
+                }
               },
               false,
             );
@@ -1869,6 +1891,50 @@ const AdhocMode = () => {
                   value={transactionDate}
                   onChange={(e) => setTransactionDate(e.target.value)}
                 />
+              </div>
+
+              {/* New Fields Display */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="product-vendor">Vendor</Label>
+                  <Input
+                    id="product-vendor"
+                    value={productVendor}
+                    readOnly
+                    className="bg-muted"
+                    placeholder="Scanned Vendor"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="source-location">Source Location</Label>
+                  <Input
+                    id="source-location"
+                    value={sourceLocation}
+                    readOnly
+                    className="bg-muted"
+                    placeholder="Scanned Location"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="receive-date">Receive Date</Label>
+                  <Input
+                    id="receive-date"
+                    value={receiveDate}
+                    readOnly
+                    className="bg-muted"
+                    placeholder="Scanned Date"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="facility-id">Facility ID</Label>
+                  <Input
+                    id="facility-id"
+                    value={facilityId}
+                    readOnly
+                    className="bg-muted"
+                    placeholder="Scanned Facility"
+                  />
+                </div>
               </div>
 
               <div className="flex gap-2">
