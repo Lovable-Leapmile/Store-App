@@ -29,7 +29,7 @@ export const publishCameraEvent = async (
     token: string
 ) => {
     const response = await fetch(
-        `https://robotmanagerv1test.leapmile.com/pubsub/publish?topic=CAMERA_EVENTS`,
+        `https://robotmanagerv1test.qikpod.com/pubsub/publish?topic=CAMERA_EVENTS`,
         {
             method: "POST",
             headers: {
