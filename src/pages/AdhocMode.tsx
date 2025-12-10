@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
+import { updateOrderBeforeTransaction, publishCameraEvent } from "@/lib/transactionUtils";
 import Scaffold from "@/components/Scaffold";
 interface TrayItem {
   id: number;
@@ -37,7 +37,7 @@ interface Order {
   auto_complete_time?: number;
 }
 
-const BASE_URL = "https://amsstores1.leapmile.com";
+const BASE_URL = "https://robotmanagerv1test.qikpod.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("item");
@@ -271,6 +271,17 @@ const AdhocMode = () => {
   const handleReleaseOrder = async (orderId: number) => {
     setReleasingOrderId(orderId);
     try {
+      // Publish camera event before releasing order
+      try {
+        await publishCameraEvent(
+          pendingOrders.find(o => o.id === orderId)?.tray_id || "Unknown",
+          localStorage.getItem("userId") || "1",
+          localStorage.getItem("authToken") || ""
+        );
+      } catch (e) {
+        console.error("Failed to publish camera event", e);
+      }
+
       const response = await fetch(`${BASE_URL}/nanostore/orders/complete?record_id=${orderId}`, {
         method: "PATCH",
         headers: {
@@ -454,6 +465,13 @@ const AdhocMode = () => {
       // Update order with user_id before transaction
       await updateOrderBeforeTransaction(orderId, userId, localStorage.getItem("authToken") || "");
 
+      // Publish camera event before transaction
+      try {
+        await publishCameraEvent(selectedOrder.tray_id, userId, localStorage.getItem("authToken") || "");
+      } catch (e) {
+        console.error("Failed to publish camera event", e);
+      }
+
       // Then proceed with transaction
       const response = await fetch(
         `${BASE_URL}/nanostore/transaction?order_id=${orderId}&item_id=${transactionItemId}&transaction_item_quantity=${quantity}&transaction_type=inbound&transaction_date=${transactionDate}`,
@@ -560,6 +578,13 @@ const AdhocMode = () => {
 
       if (!patchResponse.ok) {
         throw new Error("Failed to update order");
+      }
+
+      // Publish camera event before transaction
+      try {
+        await publishCameraEvent(selectedOrder.tray_id, userId, localStorage.getItem("authToken") || "");
+      } catch (e) {
+        console.error("Failed to publish camera event", e);
       }
 
       // Then proceed with transaction

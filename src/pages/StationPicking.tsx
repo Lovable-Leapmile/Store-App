@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, Lock, Unlock, Package } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { updateOrderBeforeTransaction } from "@/lib/transactionUtils";
+import { updateOrderBeforeTransaction, publishCameraEvent } from "@/lib/transactionUtils";
 import Scaffold from "@/components/Scaffold";
 
 interface Station {
@@ -61,7 +61,7 @@ const StationPicking = () => {
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await fetch(
-        "https://amsstores1.leapmile.com/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC",
+        "https://robotmanagerv1test.qikpod.com/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC",
         {
           headers: {
             accept: "application/json",
@@ -91,7 +91,7 @@ const StationPicking = () => {
       // Create order
       const trayId = station.tray_id;
       const orderResponse = await fetch(
-        `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2000`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2000`,
         {
           method: "POST",
           headers: {
@@ -105,7 +105,7 @@ const StationPicking = () => {
       setCurrentOrder(order);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       // Unblock slot after creating order
-      await fetch(`https://amsstores1.leapmile.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -132,7 +132,7 @@ const StationPicking = () => {
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await fetch(
-        `https://amsstores1.leapmile.com/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`,
         {
           headers: {
             accept: "application/json",
@@ -171,9 +171,17 @@ const StationPicking = () => {
         await updateOrderBeforeTransaction(currentOrder.id, userId, authToken);
       }
 
+      // Publish camera event before transaction
+      try {
+        await publishCameraEvent(currentOrder.tray_id, userId, authToken || "");
+      } catch (e) {
+        console.error("Failed to publish camera event", e);
+      }
+
+
       const today = new Date().toISOString().split("T")[0];
       const transactionResponse = await fetch(
-        `https://amsstores1.leapmile.com/nanostore/transaction?order_id=${currentOrder.id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
+        `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
         {
           method: "POST",
           headers: {
@@ -220,7 +228,7 @@ const StationPicking = () => {
       const authToken = localStorage.getItem("authToken");
 
       // Unblock slot before releasing
-      await fetch(`https://amsstores1.leapmile.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
+      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -228,8 +236,19 @@ const StationPicking = () => {
         },
       });
 
+      // Publish camera event before releasing order
+      try {
+        await publishCameraEvent(
+          currentOrder.tray_id,
+          userId,
+          authToken || ""
+        );
+      } catch (e) {
+        console.error("Failed to publish camera event", e);
+      }
+
       // Complete order
-      await fetch(`https://amsstores1.leapmile.com/nanostore/orders/complete?record_id=${currentOrder.id}`, {
+      await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.id}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
