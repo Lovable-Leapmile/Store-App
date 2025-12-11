@@ -43,11 +43,11 @@ interface TrayOrder {
   tray_id: string;
 }
 
-const fetchItemDetails = async (material: string): Promise<ItemDetails | null> => {
+const fetchItemDetails = async (material: string, offset: number = 0, limit: number = 100000): Promise<ItemDetails[]> => {
   const authToken = localStorage.getItem('authToken');
 
   const response = await fetch(
-    `https://amsstores1.leapmile.com/nanostore/sap_reconcile/report?material=${material}&num_records=100&offset=0`,
+    `https://amsstores1.leapmile.com/nanostore/sap_reconcile/report?material=${material}&num_records=${limit}&offset=${offset}`,
     {
       headers: {
         accept: "application/json",
@@ -57,11 +57,11 @@ const fetchItemDetails = async (material: string): Promise<ItemDetails | null> =
   );
 
   if (!response.ok) {
-    return null;
+    return [];
   }
 
   const data = await response.json();
-  return data.records && data.records.length > 0 ? data.records[0] : null;
+  return data.records || [];
 };
 
 const fetchTrays = async (itemId: string, inStation: boolean): Promise<Tray[]> => {
@@ -122,13 +122,15 @@ const ReconcileTrays = () => {
   const [retrievingTrayId, setRetrievingTrayId] = useState<string | null>(null);
 
   // Fetch item details
-  const { data: itemDetails, refetch: refetchItemDetails } = useQuery({
+  const { data: itemDetailsList, refetch: refetchItemDetails } = useQuery({
     queryKey: ["item-details", material],
-    queryFn: () => fetchItemDetails(material || ""),
+    queryFn: () => fetchItemDetails(material || "", 0, 100000),
     enabled: !!material,
     retry: false,
     refetchInterval: 5000
   });
+
+  const itemDetails = itemDetailsList && itemDetailsList.length > 0 ? itemDetailsList[0] : null;
 
   // Fetch in-storage trays
   const { data: storageTrays, refetch: refetchStorage } = useQuery({
