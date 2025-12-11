@@ -61,7 +61,7 @@ const StationPicking = () => {
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await fetch(
-        "https://robotmanagerv1test.qikpod.com/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC",
+        "https://amsstores1.leapmile.com/robotmanager/slots?tags=station&slot_status=inactive&order_by_field=updated_at&order_by_type=DESC",
         {
           headers: {
             accept: "application/json",
@@ -91,7 +91,7 @@ const StationPicking = () => {
       // Create order
       const trayId = station.tray_id;
       const orderResponse = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2000`,
+        `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${trayId}&user_id=${userId}&auto_complete_time=2000`,
         {
           method: "POST",
           headers: {
@@ -105,7 +105,7 @@ const StationPicking = () => {
       setCurrentOrder(order);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       // Unblock slot after creating order
-      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
+      await fetch(`https://amsstores1.leapmile.com/robotmanager/unblock?slot_id=${station.slot_id}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -132,7 +132,7 @@ const StationPicking = () => {
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`,
+        `https://amsstores1.leapmile.com/nanostore/trays_for_order?tray_id=${trayId}&in_station=true`,
         {
           headers: {
             accept: "application/json",
@@ -181,7 +181,7 @@ const StationPicking = () => {
 
       const today = new Date().toISOString().split("T")[0];
       const transactionResponse = await fetch(
-        `https://robotmanagerv1test.qikpod.com/nanostore/transaction?order_id=${currentOrder.id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
+        `https://amsstores1.leapmile.com/nanostore/transaction?order_id=${currentOrder.id}&item_id=${selectedItem.item_id}&transaction_item_quantity=-${quantity}&transaction_type=outbound&transaction_date=${today}`,
         {
           method: "POST",
           headers: {
@@ -228,7 +228,7 @@ const StationPicking = () => {
       const authToken = localStorage.getItem("authToken");
 
       // Unblock slot before releasing
-      await fetch(`https://robotmanagerv1test.qikpod.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
+      await fetch(`https://amsstores1.leapmile.com/robotmanager/unblock?slot_id=${selectedStation.slot_id}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
@@ -248,7 +248,7 @@ const StationPicking = () => {
       }
 
       // Complete order
-      await fetch(`https://robotmanagerv1test.qikpod.com/nanostore/orders/complete?record_id=${currentOrder.id}`, {
+      await fetch(`https://amsstores1.leapmile.com/nanostore/orders/complete?record_id=${currentOrder.id}`, {
         method: "PATCH",
         headers: {
           accept: "application/json",
