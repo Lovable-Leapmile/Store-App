@@ -268,15 +268,21 @@ const AdhocMode = () => {
       setPendingOrders([]);
     }
   };
-  const handleReleaseOrder = async (orderId: number) => {
+  const handleReleaseOrder = async (orderId: number, trayId: string) => {
     setReleasingOrderId(orderId);
     try {
+      const userId = localStorage.getItem("userId") || "1";
+      const authToken = localStorage.getItem("authToken") || "";
+
+      // Update order user_id before any action
+      await updateOrderBeforeTransaction(orderId, userId, authToken);
+
       // Publish camera event before releasing order
       try {
         await publishCameraEvent(
-          pendingOrders.find(o => o.id === orderId)?.tray_id || "Unknown",
-          localStorage.getItem("userId") || "1",
-          localStorage.getItem("authToken") || ""
+          trayId || "Unknown",
+          userId,
+          authToken
         );
       } catch (e) {
         console.error("Failed to publish camera event", e);
@@ -923,6 +929,18 @@ const AdhocMode = () => {
       const data = await response.json();
       if (data.records && data.records.length > 0) {
         const order: Order = data.records[0];
+        const authToken = localStorage.getItem("authToken") || "";
+
+        // Update order user_id before any action
+        await updateOrderBeforeTransaction(order.id, userId, authToken);
+
+        // Publish camera event
+        try {
+          await publishCameraEvent(trayId, userId, authToken);
+        } catch (e) {
+          console.error("Failed to publish camera event", e);
+        }
+
         const patchResponse = await fetch(`${BASE_URL}/nanostore/orders/complete?record_id=${order.id}`, {
           method: "PATCH",
           headers: {
@@ -1745,7 +1763,7 @@ const AdhocMode = () => {
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <Button
-                            onClick={() => handleReleaseOrder(order.id)}
+                            onClick={() => handleReleaseOrder(order.id, order.tray_id)}
                             disabled={releasingOrderId === order.id}
                             className="h-9 rounded-md px-3  border border-input bg-destructive text-white hover:bg-destructive/90"
                           >

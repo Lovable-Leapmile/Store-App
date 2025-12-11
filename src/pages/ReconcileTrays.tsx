@@ -594,7 +594,7 @@ const ReconcileTrays = () => {
                 <p className="text-muted-foreground">No trays in station</p>
               </div>
             ) : (
-              <ScrollArea className="h-[300px]">
+              <ScrollArea className="h-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
                   {stationTrays.map((tray) => {
                     const order = trayOrders.get(tray.tray_id);
@@ -672,7 +672,7 @@ const ReconcileTrays = () => {
                 <p className="text-muted-foreground">No trays in storage</p>
               </div>
             ) : (
-              <ScrollArea className="h-[300px]">
+              <ScrollArea className="h-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
                   {storageTrays.map((tray) => {
                     const isRetrieving = retrievingTrayId === tray.tray_id;

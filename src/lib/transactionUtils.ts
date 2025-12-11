@@ -40,10 +40,10 @@ export const publishCameraEvent = async (
             body: JSON.stringify({
                 event: "capture_snap",
                 task_id: trayId,
-                filename: `${trayId} - ${userId}`,
+                filename: `${trayId}-${userId}`,
                 max_secs: 60,
-                camera_id: "AMS-Nano-Nano_Console_B",
-                device_id: "AMS-Nano-Nano",
+                camera_id: "AMSSTORES1-Nano_Console_B",
+                device_id: "AMSSTORES1-Nano",
             }),
         }
     );

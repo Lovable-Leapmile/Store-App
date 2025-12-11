@@ -329,15 +329,19 @@ const SapReconcile = () => {
         </div>
 
         {/* Desktop View - AG Grid */}
-        <div className="hidden md:block h-[calc(100vh-300px)] w-full p-4">
+        <div className="hidden md:block h-[calc(100vh-200px)] w-full p-4">
           <div className="ag-theme-alpine w-full h-full">
             <AgGridReact
               rowData={data}
               columnDefs={colDefs}
               defaultColDef={defaultColDef}
               pagination={true}
-              paginationPageSize={20}
+              paginationPageSize={100}
+              paginationPageSizeSelector={[100, 500, 1000, 1500, 2000]}
               rowSelection="single"
+              rowHeight={60}
+              headerHeight={50}
+              enableCellTextSelection={true}
             />
           </div>
         </div>
