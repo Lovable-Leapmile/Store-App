@@ -88,7 +88,7 @@ const ItemCatalog = () => {
             for (const item of mappedData) {
                 try {
                     const response = await fetch(
-                        `https://amsstores1.leapmile.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`,
+                        `https://staging.leapmile.com/nanostore/item?item_id=${encodeURIComponent(item.item_id)}&item_description=${encodeURIComponent(item.item_description)}`,
                         {
                             method: "POST",
                             headers: {
@@ -170,7 +170,7 @@ const ItemCatalog = () => {
         setIsSubmittingManual(true);
         try {
             const response = await fetch(
-                `https://amsstores1.leapmile.com/nanostore/item?item_id=${encodeURIComponent(manualItemId)}&item_description=${encodeURIComponent(manualDescription)}`,
+                `https://staging.leapmile.com/nanostore/item?item_id=${encodeURIComponent(manualItemId)}&item_description=${encodeURIComponent(manualDescription)}`,
                 {
                     method: "POST",
                     headers: {

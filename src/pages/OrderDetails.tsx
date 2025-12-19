@@ -22,7 +22,7 @@ interface OrderItem {
 
 const fetchOrderItems = async (orderRef: string): Promise<OrderItem[]> => {
   const response = await fetch(
-    `https://amsstores1.leapmile.com/nanostore/sap_orders/?order_ref=${orderRef}&order_by_field=updated_at&order_by_type=DESC`,
+    `https://staging.leapmile.com/nanostore/sap_orders/?order_ref=${orderRef}&order_by_field=updated_at&order_by_type=DESC`,
     {
       headers: {
         accept: "application/json",

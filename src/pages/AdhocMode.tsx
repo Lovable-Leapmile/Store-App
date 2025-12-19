@@ -37,7 +37,7 @@ interface Order {
   auto_complete_time?: number;
 }
 
-const BASE_URL = "https://amsstores1.leapmile.com";
+const BASE_URL = "https://staging.leapmile.com";
 const AdhocMode = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("item");

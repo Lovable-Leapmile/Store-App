@@ -48,7 +48,7 @@ const ScanTray = () => {
       if (!scannedTrayId) return null;
 
       const response = await fetch(
-        `https://amsstores1.leapmile.com/nanostore/sap_orders/get_orders_in_tray?tray_id=${scannedTrayId}`,
+        `https://staging.leapmile.com/nanostore/sap_orders/get_orders_in_tray?tray_id=${scannedTrayId}`,
         {
           headers: {
             accept: "application/json",
@@ -85,7 +85,7 @@ const ScanTray = () => {
   const handleOrderClick = async (order: SapOrder) => {
     try {
       const checkResponse = await fetch(
-        `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${order.tray_id}&status=active&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
+        `https://staging.leapmile.com/nanostore/orders?tray_id=${order.tray_id}&status=active&user_id=1&order_by_field=updated_at&order_by_type=ASC`,
         {
           headers: {
             accept: "application/json",
@@ -101,7 +101,7 @@ const ScanTray = () => {
         currentOrderId = checkData.records[0].id;
       } else {
         const createResponse = await fetch(
-          `https://amsstores1.leapmile.com/nanostore/orders?tray_id=${order.tray_id}&user_id=1&auto_complete_time=10`,
+          `https://staging.leapmile.com/nanostore/orders?tray_id=${order.tray_id}&user_id=1&auto_complete_time=10`,
           {
             method: "POST",
             headers: {
@@ -143,7 +143,7 @@ const ScanTray = () => {
       await publishCameraEvent(selectedOrder.tray_id, 1, localStorage.getItem("authToken") || "");
 
       const transactionResponse = await fetch(
-        `https://amsstores1.leapmile.com/nanostore/transaction?order_id=${orderId}&item_id=${selectedOrder.material}&transaction_item_quantity=-${quantityToPick}&transaction_type=outbound&transaction_date=${selectedOrder.inbound_date || new Date().toISOString().split('T')[0]}&sap_order_reference=${selectedOrder.id}`,
+        `https://staging.leapmile.com/nanostore/transaction?order_id=${orderId}&item_id=${selectedOrder.material}&transaction_item_quantity=-${quantityToPick}&transaction_type=outbound&transaction_date=${selectedOrder.inbound_date || new Date().toISOString().split('T')[0]}&sap_order_reference=${selectedOrder.id}`,
         {
           method: "POST",
           headers: {
@@ -193,7 +193,7 @@ const ScanTray = () => {
 
       const releaseResponse = await fetch(
 
-        `https://amsstores1.leapmile.com/nanostore/orders/complete?record_id=${orderId}`,
+        `https://staging.leapmile.com/nanostore/orders/complete?record_id=${orderId}`,
         {
           method: "PATCH",
           headers: {

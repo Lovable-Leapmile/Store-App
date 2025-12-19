@@ -37,7 +37,7 @@ const Home = () => {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await fetch("https://amsstores1.leapmile.com/nanostore/sap_orders/upload_file", {
+      const response = await fetch("https://staging.leapmile.com/nanostore/sap_orders/upload_file", {
         method: "POST",
         headers: {
           accept: "application/json",

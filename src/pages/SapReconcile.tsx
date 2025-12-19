@@ -26,7 +26,7 @@ const fetchReconcileData = async (status: string): Promise<ReconcileRecord[]> =>
   const authToken = localStorage.getItem("authToken");
 
   const response = await fetch(
-    `https://amsstores1.leapmile.com/nanostore/sap_reconcile/report?reconcile_status=${status}&num_records=100000&offset=0`,
+    `https://staging.leapmile.com/nanostore/sap_reconcile/report?reconcile_status=${status}&num_records=100000&offset=0`,
     {
       headers: {
         accept: "application/json",
@@ -104,7 +104,7 @@ const SapReconcile = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("https://amsstores1.leapmile.com/nanostore/sap_reconcile/upload_file", {
+      const response = await fetch("https://staging.leapmile.com/nanostore/sap_reconcile/upload_file", {
         method: "POST",
         headers: {
           accept: "application/json",
