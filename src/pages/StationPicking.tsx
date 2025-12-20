@@ -151,6 +151,33 @@ const StationPicking = () => {
     }
   };
 
+  const validateItemInCatalog = async (itemId: string): Promise<boolean> => {
+    try {
+      const authToken = localStorage.getItem("authToken");
+      const response = await fetch(
+        `https://amsstores1.leapmile.com/nanostore/items?item_id=${itemId}`,
+        {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      // Check if item exists in the response
+      return data && data.records && data.records.length > 0;
+    } catch (error) {
+      console.error("Failed to validate item in catalog", error);
+      return false;
+    }
+  };
+
   const handleItemSelect = (item: TrayItem) => {
     setSelectedItem(item);
     setQuantity("");
@@ -165,6 +192,19 @@ const StationPicking = () => {
 
     try {
       const authToken = localStorage.getItem("authToken");
+
+      // STEP 1: Validate item exists in robot catalog before transaction
+      const itemExists = await validateItemInCatalog(selectedItem.item_id);
+      
+      if (!itemExists) {
+        toast({
+          title: "❌ Transaction Failed",
+          description: "Item not found in robot catalog. Please add the item to the catalog before continuing.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
       // Update order with user_id before transaction
       if (authToken) {
