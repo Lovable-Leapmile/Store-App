@@ -4,7 +4,7 @@ export const updateOrderBeforeTransaction = async (
     token: string
 ) => {
     const response = await fetch(
-        `https://staging.leapmile.com/nanostore/orders?record_id=${orderId}`,
+        `https://amsstores1.leapmile.com/nanostore/orders?record_id=${orderId}`,
         {
             method: "PATCH",
             headers: {
@@ -29,7 +29,7 @@ export const publishCameraEvent = async (
     token: string
 ) => {
     const response = await fetch(
-        `https://staging.leapmile.com/pubsub/publish?topic=CAMERA_EVENTS`,
+        `https://amsstores1.leapmile.com/pubsub/publish?topic=CAMERA_EVENTS`,
         {
             method: "POST",
             headers: {

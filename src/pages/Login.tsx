@@ -26,7 +26,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `https://staging.leapmile.com/user/validate?user_phone=${encodeURIComponent(phoneNumber)}&password=${encodeURIComponent(password)}`,
+        `https://amsstores1.leapmile.com/user/validate?user_phone=${encodeURIComponent(phoneNumber)}&password=${encodeURIComponent(password)}`,
         {
           method: "GET",
           headers: {
