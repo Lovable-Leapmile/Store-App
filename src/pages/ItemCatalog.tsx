@@ -155,6 +155,33 @@ const ItemCatalog = () => {
         }
     };
 
+    // Validate if item exists in robot catalog
+    const validateItemInCatalog = async (itemId: string): Promise<boolean> => {
+        try {
+            const authToken = localStorage.getItem("authToken");
+            const response = await fetch(
+                `https://amsstores1.leapmile.com/nanostore/items?item_id=${itemId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        accept: "application/json",
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                return false;
+            }
+
+            const data = await response.json();
+            return data && data.records && data.records.length > 0;
+        } catch (error) {
+            console.error("Failed to validate item in catalog", error);
+            return false;
+        }
+    };
+
     // Manual Add Handlers
     const handleManualSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -169,6 +196,19 @@ const ItemCatalog = () => {
 
         setIsSubmittingManual(true);
         try {
+            // Check if item already exists in robot catalog
+            const itemExists = await validateItemInCatalog(manualItemId);
+            
+            if (itemExists) {
+                toast({
+                    title: "⚠️ Item Already Exists",
+                    description: "This item is already in the robot catalog.",
+                    variant: "destructive",
+                });
+                setIsSubmittingManual(false);
+                return;
+            }
+
             const response = await fetch(
                 `https://staging.leapmile.com/nanostore/item?item_id=${encodeURIComponent(manualItemId)}&item_description=${encodeURIComponent(manualDescription)}`,
                 {
